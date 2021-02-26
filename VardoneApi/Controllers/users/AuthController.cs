@@ -30,25 +30,23 @@ namespace VardoneApi.Controllers.users
 
             var newToken = new Tokens()
             {
-                User = user, CreatedAt = DateTime.Now, IpAddress = loginRequestModel.IpAddress,
+                User = user,
+                CreatedAt = DateTime.Now,
+                IpAddress = loginRequestModel.IpAddress,
                 MacAddress = loginRequestModel.MacAddress,
-                Token = GenerateToken((int) new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds())
+                Token = GenerateToken()
             };
 
             tokens.Add(newToken);
 
-            var response = new LoginResponseModel {Token = newToken.Token, Username = user.Username};
+            var response = new LoginResponseModel { Token = newToken.Token, Username = user.Username };
 
             Program.DataContext.SaveChanges();
 
             return new JsonResult(response);
         }
 
-        private static string GenerateToken(int concretize = 0)
-        {
-            var rd = new Random();
-            return CreateMd5((rd.Next(100000, 999999) + concretize).ToString());
-        }
+        private static string GenerateToken() => CreateMd5(((int) new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()).ToString());
 
         private static string CreateMd5(string input)
         {

@@ -13,7 +13,7 @@ namespace VardoneApi
         {
             var builder = new MySqlConnectionStringBuilder
             {
-                Server = "localhost", UserID = "root", Password = "root", Database = "api"
+                Server = "localhost", UserID = "root", Password = "root", Database = "VardoneApi"
             };
             DataContext = new DataContext(builder.ConnectionString);
             CreateHostBuilder(args).Build().Run();
