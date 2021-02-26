@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VardoneApi", "Api\VardoneApi.csproj", "{8C199EA7-C62D-45C0-9710-E71F5F636DA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VardoneLibrary", "VardoneLibrary\VardoneLibrary.csproj", "{335A4596-50FA-4E44-BD30-2631C6687A31}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8C199EA7-C62D-45C0-9710-E71F5F636DA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C199EA7-C62D-45C0-9710-E71F5F636DA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C199EA7-C62D-45C0-9710-E71F5F636DA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C199EA7-C62D-45C0-9710-E71F5F636DA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACD2F151-9431-4785-AF28-E943C679BE12}
+	EndGlobalSection
+EndGlobal
