@@ -6,6 +6,6 @@ namespace VardoneApi.Controllers.guilds
     public class CreateController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post() => BadRequest();
+        public IActionResult Post([FromHeader] string username, [FromHeader] string token) => BadRequest();
     }
 }

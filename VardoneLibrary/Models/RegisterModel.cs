@@ -1,6 +1,6 @@
 ﻿namespace VardoneLibrary.Models
 {
-    public class RegisterRequestModel
+    public class RegisterModel
     {
         public string Username { get; set; }
         public string Email { get; set; }

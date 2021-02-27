@@ -6,7 +6,7 @@ using System.Net.NetworkInformation;
 
 namespace VardoneLibrary.Models
 {
-    public class LoginRequestModel
+    public class GetTokenModel
     {
         public string Username { get; set; }
         public string Password { get; set; }
