@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 
 namespace VardoneApi.Entity
@@ -7,12 +8,18 @@ namespace VardoneApi.Entity
     {
         private readonly string _connectionString;
         public DbSet<Users> Users { get; set; }
+        public DbSet<UserInfos> UsersInfo { get; set; }
         public DbSet<Tokens> Tokens { get; set; }
 
         public DataContext(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             Database.EnsureCreated();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Users>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

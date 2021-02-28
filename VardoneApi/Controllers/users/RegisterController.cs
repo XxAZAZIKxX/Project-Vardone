@@ -13,7 +13,6 @@ namespace VardoneApi.Controllers.users
         {
             if (registerRequestModel == null) return BadRequest();
             var users = Program.DataContext.Users;
-            
             try
             {
                 var unused = users.First(u => u.Username == registerRequestModel.Username);
@@ -26,10 +25,10 @@ namespace VardoneApi.Controllers.users
 
             var user = new Users
             {
-                Username = registerRequestModel.Username, Email = registerRequestModel.Email,
+                Username = registerRequestModel.Username,
+                Email = registerRequestModel.Email,
                 Password = registerRequestModel.Password
             };
-
             users.Add(user);
             try
             {

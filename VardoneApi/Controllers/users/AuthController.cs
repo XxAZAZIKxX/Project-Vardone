@@ -17,38 +17,46 @@ namespace VardoneApi.Controllers.users
             if (loginRequestModel == null) return BadRequest();
             var users = Program.DataContext.Users;
             var tokens = Program.DataContext.Tokens;
-
             Users user;
             try
             {
-                user = users.First(usr => usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
+                user = users.First(usr =>
+                    usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
             }
             catch (Exception)
             {
                 return BadRequest("User invalid");
             }
 
-            var newToken = new Tokens()
+            var newToken = new Tokens
             {
-                User = user, CreatedAt = DateTime.Now, IpAddress = loginRequestModel.IpAddress,
+                User = user,
+                CreatedAt = DateTime.Now,
+                IpAddress = loginRequestModel.IpAddress,
                 MacAddress = loginRequestModel.MacAddress,
-                Token = GenerateToken((int) new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds())
+                Token = GenerateToken()
             };
 
+            try
+            {
+                var remove = tokens.First(t =>
+                    t.User.Username == loginRequestModel.Username && t.MacAddress == loginRequestModel.MacAddress &&
+                    t.IpAddress == loginRequestModel.IpAddress);
+                tokens.RemoveRange(remove);
+            }
+            catch
+            {
+                // ignored
+            }
+
             tokens.Add(newToken);
-
-            var response = new LoginResponseModel {Token = newToken.Token, Username = user.Username};
-
             Program.DataContext.SaveChanges();
-
+            var response = new LoginResponseModel { Token = newToken.Token, Username = user.Username };
             return new JsonResult(response);
         }
 
-        private static string GenerateToken(int concretize = 0)
-        {
-            var rd = new Random();
-            return CreateMd5((rd.Next(100000, 999999) + concretize).ToString());
-        }
+        private static string GenerateToken() =>
+            CreateMd5(((int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()).ToString());
 
         private static string CreateMd5(string input)
         {

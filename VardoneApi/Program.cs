@@ -1,7 +1,10 @@
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using VardoneApi.Entity;
+using VardoneApi.Entity.Models;
 
 namespace VardoneApi
 {
@@ -13,7 +16,7 @@ namespace VardoneApi
         {
             var builder = new MySqlConnectionStringBuilder
             {
-                Server = "localhost", UserID = "root", Password = "root", Database = "api"
+                Server = "localhost", UserID = "root", Password = "root", Database = "VardoneApi"
             };
             DataContext = new DataContext(builder.ConnectionString);
             CreateHostBuilder(args).Build().Run();
