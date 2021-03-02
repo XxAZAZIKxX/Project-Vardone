@@ -8,13 +8,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         ResizeMode="CanResize" Visibility="Visible" 
-        WindowStyle="None" AllowsTransparency="True" 
+        WindowStyle="None" AllowsTransparency="True"
+        MinHeight="400" MinWidth="600"
         
         >
     <Window.Background>
         <ImageBrush  ImageSource="Resources/Backgrounds/dota.jpg" />
-
-
     </Window.Background>
     <Window.Resources>
         <Style x:Key="BorderThumb" TargetType="Thumb">

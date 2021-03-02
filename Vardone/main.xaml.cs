@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Vardone.Controls;
 using winforms = System.Windows.Forms;
 
 
@@ -19,12 +20,14 @@ namespace Vardone
         public Main()
         {
             InitializeComponent();
+        
         }
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {
             this.DragMove();
+            
         }
-       
+    
 
         void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
@@ -32,6 +35,7 @@ namespace Vardone
                 this.Width += e.HorizontalChange;
             if (this.Height + e.VerticalChange > 10)
                 this.Height += e.VerticalChange;
+            
         }
         void ThumbTopRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
@@ -65,6 +69,7 @@ namespace Vardone
             }
             if (this.Height + e.VerticalChange > 10)
                 this.Height += e.VerticalChange;
+           
         }
         void ThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {

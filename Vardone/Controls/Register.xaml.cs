@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,15 +16,13 @@ using System.Windows.Shapes;
 namespace Vardone.Controls
 {
     /// <summary>
-    /// Interaction logic for Auth.xaml
+    /// Interaction logic for Register.xaml
     /// </summary>
-    public partial class Auth : UserControl
+    public partial class Register : UserControl
     {
-        public Auth()
+        public Register()
         {
             InitializeComponent();
-            
-        
         }
         private void hlme(object sender, MouseEventArgs e)
         {
@@ -33,12 +33,6 @@ namespace Vardone.Controls
         {
             var bc = new BrushConverter();
             hyplin.Foreground = (Brush)bc.ConvertFrom("#34ebe5");
-        }  
-        private void md_hl(object sender, RoutedEventArgs e)
-        {
-            this.Visibility = Visibility.Hidden;
-            register.Visibility = Visibility.Visible;
         }
-
     }
 }

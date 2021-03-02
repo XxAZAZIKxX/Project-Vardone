@@ -8,14 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Controls\dota.jpg" />
     <None Remove="Resources\Backgrounds\dota.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Controls\dota.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\Backgrounds\dota.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
