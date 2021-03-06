@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
@@ -13,18 +14,20 @@ namespace VardoneApi.Controllers.users
         public IActionResult Post([FromHeader] string username, [FromHeader] string token,
             [FromBody] UpdateUserModel updateUserModel)
         {
-            if (string.IsNullOrEmpty(username)) return Unauthorized("Empty username");
-            if (string.IsNullOrEmpty(token)) return Unauthorized("Empty token");
+            if (string.IsNullOrWhiteSpace(username)) return Unauthorized("Empty username");
+            if (string.IsNullOrWhiteSpace(token)) return Unauthorized("Empty token");
             if (updateUserModel == null) return BadRequest("Empty user model");
-            if (!CheckTokenController.CheckToken(new TokenUserModel { Username = username, Token = token }))
-                return Unauthorized("Token is invalid");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel {Username = username, Token = token}))
+                return Unauthorized("Invalid token");
 
             var users = Program.DataContext.Users;
-            var usersInfos = Program.DataContext.UsersInfos;
+            users.Include(p=>p.Info).Load();
+            var usersInfos = Program.DataContext.UserInfos;
+            usersInfos.Include(p=>p.User).Load();
+
             var user = users.First(p => p.Username == username);
             var userInfo = user.Info ?? new UserInfos();
-
-            user.Info = userInfo;
+            
             userInfo.User = user;
 
             if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
@@ -33,6 +36,7 @@ namespace VardoneApi.Controllers.users
                 userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description)
                     ? null
                     : updateUserModel.Description;
+
             if (updateUserModel.Email is not null) user.Email = updateUserModel.Email;
             if (updateUserModel.Base64Image is not null)
             {
@@ -41,7 +45,6 @@ namespace VardoneApi.Controllers.users
                 {
                     var res = Convert.TryFromBase64String(updateUserModel.Base64Image,
                         new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
-                    
                     if (res) userInfo.Avatar = updateUserModel.GetImageBytes();
                 }
             }
@@ -50,6 +53,7 @@ namespace VardoneApi.Controllers.users
             {
                 usersInfos.Update(userInfo);
                 Program.DataContext.SaveChanges();
+                user.Info = userInfo;
                 users.Update(user);
                 Program.DataContext.SaveChanges();
                 try

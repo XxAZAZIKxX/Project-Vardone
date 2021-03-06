@@ -10,6 +10,6 @@ namespace VardoneApi.Entity.Models
         [Column("username"), Required] public string Username { get; set; }
         [Column("password"), Required] public string Password { get; set; }
         [Column("email"), Required] public string Email { get; set; }
-        [Column("user_info_id"), ForeignKey("user_info_id")] public UserInfos Info { get; set; } = null;
+        [Column("user_info_id"), ForeignKey("user_info_id")] public virtual UserInfos Info { get; set; }
     }
 }

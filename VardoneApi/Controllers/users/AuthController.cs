@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
@@ -18,11 +19,11 @@ namespace VardoneApi.Controllers.users
 
             var users = Program.DataContext.Users;
             var tokens = Program.DataContext.Tokens;
+            tokens.Include(p=>p.User).Load();
             Users user;
             try
             {
-                user = users.First(usr =>
-                    usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
+                user = users.First(usr => usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
             }
             catch (Exception)
             {
