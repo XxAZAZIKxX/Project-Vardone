@@ -10,18 +10,27 @@ namespace VardoneApi.Controllers.users
     public class CheckTokenController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] LoginResponseModel request)
+        public IActionResult Post([FromBody] TokenUserModel request)
         {
             if (request == null) return BadRequest();
+
+            if (CheckToken(request)) return new JsonResult(JsonConvert.SerializeObject(true));
+
+            return BadRequest();
+        }
+
+        public static bool CheckToken(TokenUserModel token)
+        {
+            if (token == null) return false;
             var tokens = Program.DataContext.Tokens;
             try
             {
-                var unused = tokens.First(t => t.Token == request.Token && t.User.Username == request.Username);
-                return new JsonResult(JsonConvert.SerializeObject(true));
+                var unused = tokens.First(t => t.Token == token.Token && t.User.Username == token.Username);
+                return true;
             }
             catch (Exception)
             {
-                return BadRequest("Bad token");
+                return false;
             }
         }
     }

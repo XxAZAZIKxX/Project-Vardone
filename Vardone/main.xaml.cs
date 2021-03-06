@@ -1,141 +1,141 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Vardone.Controls;
 using winforms = System.Windows.Forms;
-
 
 namespace Vardone
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class Main : Window
+    public partial class Main
     {
-        bool Maximized = false;
-        int NormalWidth = 0;
-        int NormalHeight = 0;
-        int NormalX = 0;
-        int NormalY = 0;
+        private bool _maximized;
+        private int _normalWidth;
+        private int _normalHeight;
+        private int _normalX;
+        private int _normalY;
+
         public Main()
         {
             InitializeComponent();
-        
         }
+
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {
-            this.DragMove();
-            
+            DragMove();
         }
-    
 
-        void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if (this.Width + e.HorizontalChange > 10)
-                this.Width += e.HorizontalChange;
-            if (this.Height + e.VerticalChange > 10)
-                this.Height += e.VerticalChange;
-            
+            if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
+            if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
         }
-        void ThumbTopRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+
+        private void ThumbTopRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if (this.Width + e.HorizontalChange > 10)
-                this.Width += e.HorizontalChange;
-            if (this.Top + e.VerticalChange > 10)
+            if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
+            if (!(Top + e.VerticalChange > 10)) return;
+            Top += e.VerticalChange;
+            Height -= e.VerticalChange;
+        }
+
+        private void ThumbTopLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (Left + e.HorizontalChange > 10)
             {
-                this.Top += e.VerticalChange;
-                this.Height -= e.VerticalChange;
+                Left += e.HorizontalChange;
+                Width -= e.HorizontalChange;
             }
+
+            if (!(Top + e.VerticalChange > 10)) return;
+            Top += e.VerticalChange;
+            Height -= e.VerticalChange;
         }
-        void ThumbTopLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+
+        private void ThumbBottomLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if (this.Left + e.HorizontalChange > 10)
+            if (Left + e.HorizontalChange > 10)
             {
-                this.Left += e.HorizontalChange;
-                this.Width -= e.HorizontalChange;
+                Left += e.HorizontalChange;
+                Width -= e.HorizontalChange;
             }
-            if (this.Top + e.VerticalChange > 10)
+
+            if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
+        }
+
+        private void ThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
+        }
+
+        private void ThumbLeft_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (e.HorizontalChange > 0 && Math.Abs(Width - MinWidth) < 0.01) return;
+            if (Left + e.HorizontalChange > 10)
             {
-                this.Top += e.VerticalChange;
-                this.Height -= e.VerticalChange;
+                Left += e.HorizontalChange;
+                Width -= e.HorizontalChange;
             }
+
         }
-        void ThumbBottomLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+
+        private void ThumbBottom_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if (this.Left + e.HorizontalChange > 10)
+            if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
+        }
+
+        private void ThumbTop_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (Top + e.VerticalChange > 10)
             {
-                this.Left += e.HorizontalChange;
-                this.Width -= e.HorizontalChange;
-            }
-            if (this.Height + e.VerticalChange > 10)
-                this.Height += e.VerticalChange;
-           
-        }
-        void ThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            if (this.Width + e.HorizontalChange > 10)
-                this.Width += e.HorizontalChange;
-        }
-        void ThumbLeft_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            if (this.Left + e.HorizontalChange > 10)
-            {
-                this.Left += e.HorizontalChange;
-                this.Width -= e.HorizontalChange;
-            }
-        }
-        void ThumbBottom_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            if (this.Height + e.VerticalChange > 10)
-                this.Height += e.VerticalChange;
-        }
-        void ThumbTop_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            if (this.Top + e.VerticalChange > 10)
-            {
-                this.Top += e.VerticalChange;
-                this.Height -= e.VerticalChange;
+                Top += e.VerticalChange;
+                Height -= e.VerticalChange;
             }
         }
 
-        void Minimize(object sender, RoutedEventArgs e)
+        private void Minimize(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
         }
-        void Maximize(object sender, RoutedEventArgs e)
+
+        private void Maximize(object sender, RoutedEventArgs e)
         {
-            if (Maximized == true)
+            if (_maximized)
             {
-                this.Width = NormalWidth;
-                this.Height = NormalHeight;
-                this.Left = NormalX;
-                this.Top = NormalY;
-                Maximized = false;
+                Width = _normalWidth;
+                Height = _normalHeight;
+                Left = _normalX;
+                Top = _normalY;
+                _maximized = false;
                 max.Content = "◻";
                 Thumbs();
             }
             else
             {
                 max.Content = "❐";
-                NormalX = (int)this.Left;
-                NormalY = (int)this.Top;
-                NormalHeight = (int)this.Height;
-                NormalWidth = (int)this.Width;
-                this.Left = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Left;
-                this.Top = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Top;
-                this.Width = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Width;
-                this.Height = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Height;
-                Maximized = true;
+                _normalX = (int) Left;
+                _normalY = (int) Top;
+                _normalHeight = (int) Height;
+                _normalWidth = (int) Width;
+                Left = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Left;
+                Top = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Top;
+                Width = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Width;
+                Height = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Height;
+                _maximized = true;
                 Thumbs();
             }
         }
-        void Close(object sender, RoutedEventArgs e)
+
+        private void Close(object sender, RoutedEventArgs e)
         {
             Close();
         }
-        void Thumbs()
+
+        private void Thumbs()
         {
-            if (Maximized == true)
+            if (_maximized)
             {
                 ThumbBottom.Visibility = Visibility.Collapsed;
                 ThumbLeft.Visibility = Visibility.Collapsed;

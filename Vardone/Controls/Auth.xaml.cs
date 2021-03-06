@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Brush = System.Windows.Media.Brush;
 
 namespace Vardone.Controls
 {
@@ -18,12 +20,8 @@ namespace Vardone.Controls
     /// </summary>
     public partial class Auth : UserControl
     {
-        public Auth()
-        {
-            InitializeComponent();
-            
-        
-        }
+        public Auth() => InitializeComponent();
+
         private void hlme(object sender, MouseEventArgs e)
         {
             var bc = new BrushConverter();
@@ -39,6 +37,5 @@ namespace Vardone.Controls
             this.Visibility = Visibility.Hidden;
             register.Visibility = Visibility.Visible;
         }
-
     }
 }

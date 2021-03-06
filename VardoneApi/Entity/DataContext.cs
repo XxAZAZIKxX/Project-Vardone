@@ -8,7 +8,7 @@ namespace VardoneApi.Entity
     {
         private readonly string _connectionString;
         public DbSet<Users> Users { get; set; }
-        public DbSet<UserInfos> UsersInfo { get; set; }
+        public DbSet<UserInfos> UsersInfos { get; set; }
         public DbSet<Tokens> Tokens { get; set; }
 
         public DataContext(string connectionString)
@@ -20,6 +20,7 @@ namespace VardoneApi.Entity
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Users>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Users>().HasIndex(p => p.Username).IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

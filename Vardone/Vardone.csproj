@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Controls\988546.jpg" />
     <None Remove="Resources\Backgrounds\dota.jpg" />
   </ItemGroup>
 
@@ -19,6 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Controls\988546.jpg" />
   </ItemGroup>
 
 </Project>

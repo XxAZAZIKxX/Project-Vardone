@@ -7,13 +7,11 @@
         xmlns:local1="clr-namespace:Vardone.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
-        ResizeMode="CanResize" Visibility="Visible" 
+        ResizeMode="CanResize" Visibility="Visible"
         WindowStyle="None" AllowsTransparency="True"
-        MinHeight="400" MinWidth="600"
-        
-        >
+        MinHeight="400" MinWidth="600">
     <Window.Background>
-        <ImageBrush  ImageSource="Resources/Backgrounds/dota.jpg" />
+        <ImageBrush ImageSource="Resources/Backgrounds/dota.jpg" />
     </Window.Background>
     <Window.Resources>
         <Style x:Key="BorderThumb" TargetType="Thumb">
@@ -24,36 +22,37 @@
                     <ControlTemplate TargetType="Thumb">
                         <Rectangle MinWidth="4" MinHeight="4" StrokeThickness="0">
                             <Rectangle.Fill>
-                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" Opacity="0"/>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"
+                                                 Opacity="0" />
                             </Rectangle.Fill>
                         </Rectangle>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <ControlTemplate x:Key="minmaxtemp" TargetType="Button" >
+        <ControlTemplate x:Key="minmaxtemp" TargetType="Button">
             <Grid Name="button">
-                <ContentPresenter HorizontalAlignment="Center"  VerticalAlignment="Center" />
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="button"  Property="Background">
+                    <Setter TargetName="button" Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="gray"/>
+                            <SolidColorBrush Color="gray" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <ControlTemplate x:Key="closetemp" TargetType="Button" >
+        <ControlTemplate x:Key="closetemp" TargetType="Button">
             <Grid Name="button">
-                <ContentPresenter HorizontalAlignment="Center"  VerticalAlignment="Center" />
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="button"  Property="Background">
+                    <Setter TargetName="button" Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="#ff0303" Opacity="0.7"/>
+                            <SolidColorBrush Color="#ff0303" Opacity="0.7" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -61,34 +60,60 @@
         </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <local1:Auth Grid.ColumnSpan="4" Grid.RowSpan="3"/>
-        <DockPanel Background="#2d2d2f" Dock="Top" HorizontalAlignment="Stretch" Grid.Row="0"  MouseLeftButtonDown="DockPanelMouseLeftButtonDown"  Grid.ColumnSpan="4" Height="30">
+        <local1:Auth Grid.ColumnSpan="4" Grid.RowSpan="3" />
+        <DockPanel Background="#2d2d2f" Dock="Top" HorizontalAlignment="Stretch" Grid.Row="0"
+                   MouseLeftButtonDown="DockPanelMouseLeftButtonDown" Grid.ColumnSpan="4" Height="30">
             <DockPanel HorizontalAlignment="Right">
-                <Button Template="{StaticResource minmaxtemp}" Name="min" Width="30" Foreground="White" Background="Transparent" BorderThickness="0" Click="Minimize" >━</Button>
-                <Button Template="{StaticResource minmaxtemp}" Name="max" Width="30" Foreground="White" Background="Transparent" BorderThickness="0" Click="Maximize" >◻</Button>
-                <Button Template="{StaticResource closetemp}" Name="close" Width="30" Foreground="White" Background="Transparent" BorderThickness="0" Click="Close" >╳</Button>
+                <Button Template="{StaticResource minmaxtemp}" Name="min" Width="30" Foreground="White"
+                        Background="Transparent" BorderThickness="0" Click="Minimize">
+                    ━
+                </Button>
+                <Button Template="{StaticResource minmaxtemp}" Name="max" Width="30" Foreground="White"
+                        Background="Transparent" BorderThickness="0" Click="Maximize">
+                    ◻
+                </Button>
+                <Button Template="{StaticResource closetemp}" Name="close" Width="30" Foreground="White"
+                        Background="Transparent" BorderThickness="0" Click="Close">
+                    ╳
+                </Button>
             </DockPanel>
 
         </DockPanel>
-        <Thumb x:Name="ThumbTop" DragDelta="ThumbTop_DragDelta" HorizontalAlignment="Stretch" VerticalAlignment="Top" Cursor="SizeNS" Grid.Row="0" Background="#2d2d2f"  Grid.ColumnSpan="4" Height="4" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbRight" DragDelta="ThumbRight_DragDelta"  Cursor="SizeWE" Grid.Column="4" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Right" Background="White"  Margin="0,3" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbBottom" DragDelta="ThumbBottom_DragDelta" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Cursor="SizeNS" Grid.Column="0" Background="White"  Margin="3,0" Grid.ColumnSpan="4" Grid.Row="3" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbLeft" DragDelta="ThumbLeft_DragDelta" Cursor="SizeWE" Grid.Column="0" Grid.RowSpan="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="White" Margin="0,3" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbTopRightCorner" DragDelta="ThumbTopRightCorner_DragDelta" HorizontalAlignment="Right" Cursor="SizeNESW" Grid.Row="0" Grid.Column="5" Background="{x:Null}" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbBottomRightCorner" DragDelta="ThumbBottomRightCorner_DragDelta" HorizontalAlignment="Right" Cursor="SizeNWSE" Grid.Row="3" Grid.Column="3" Background="{x:Null}" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}"/>
-        <Thumb x:Name="ThumbBottomLeftCorner" DragDelta="ThumbBottomLeftCorner_DragDelta" HorizontalAlignment="Left" Cursor="SizeNESW" Grid.Row="3" Grid.Column="0" Background="{x:Null}" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
-        <Thumb x:Name="ThumbTopLeftCorner" DragDelta="ThumbTopLeftCorner_DragDelta" HorizontalAlignment="Left" Cursor="SizeNWSE" Grid.Row="0" Grid.Column="0" Background="{x:Null}" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
-       
+        <Thumb x:Name="ThumbTop" DragDelta="ThumbTop_DragDelta" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+               Cursor="SizeNS" Grid.Row="0" Background="#2d2d2f" Grid.ColumnSpan="4" Height="4"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbRight" DragDelta="ThumbRight_DragDelta" Cursor="SizeWE" Grid.Column="4" Grid.RowSpan="3"
+               VerticalAlignment="Stretch" HorizontalAlignment="Right" Background="White" Margin="0,3"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbBottom" DragDelta="ThumbBottom_DragDelta" HorizontalAlignment="Stretch"
+               VerticalAlignment="Bottom" Cursor="SizeNS" Grid.Column="0" Background="White" Margin="3,0"
+               Grid.ColumnSpan="4" Grid.Row="3" Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbLeft" DragDelta="ThumbLeft_DragDelta" Cursor="SizeWE" Grid.Column="0" Grid.RowSpan="4"
+               HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="White" Margin="0,3"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbTopRightCorner" DragDelta="ThumbTopRightCorner_DragDelta" HorizontalAlignment="Right"
+               Cursor="SizeNESW" Grid.Row="0" Grid.Column="5" Background="{x:Null}"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbBottomRightCorner" DragDelta="ThumbBottomRightCorner_DragDelta" HorizontalAlignment="Right"
+               Cursor="SizeNWSE" Grid.Row="3" Grid.Column="3" Background="{x:Null}"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbBottomLeftCorner" DragDelta="ThumbBottomLeftCorner_DragDelta" HorizontalAlignment="Left"
+               Cursor="SizeNESW" Grid.Row="3" Grid.Column="0" Background="{x:Null}"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+        <Thumb x:Name="ThumbTopLeftCorner" DragDelta="ThumbTopLeftCorner_DragDelta" HorizontalAlignment="Left"
+               Cursor="SizeNWSE" Grid.Row="0" Grid.Column="0" Background="{x:Null}"
+               Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
     </Grid>
 </Window>

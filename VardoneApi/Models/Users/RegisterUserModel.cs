@@ -1,6 +1,6 @@
 ﻿namespace VardoneApi.Models.Users
 {
-    public class RegisterRequestModel
+    public class RegisterUserModel
     {
         public string Username { get; set; }
         public string Email { get; set; }

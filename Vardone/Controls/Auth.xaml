@@ -1,22 +1,22 @@
 ﻿<UserControl x:Class="Vardone.Controls.Auth"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Vardone.Controls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ControlTemplate x:Key="ButtonGO" TargetType="Button" >
-            <Grid Name="button"   Background="DimGray">
-                <ContentPresenter HorizontalAlignment="Center"  VerticalAlignment="Center" />
+        <ControlTemplate x:Key="ButtonGO" TargetType="Button">
+            <Grid Name="button" Background="DimGray">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Cursor" Value="Hand"/>
-                    <Setter TargetName="button"  Property="Background">
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Setter TargetName="button" Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="#2d524c"/>
+                            <SolidColorBrush Color="#2d524c" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -25,52 +25,52 @@
     </UserControl.Resources>
 
     <Grid Visibility="Visible">
+        <Border Grid.Row="1" Grid.Column="1" CornerRadius="10">
+            <Rectangle Fill="Black" Opacity="0.8" />
+        </Border>
+        <Border CornerRadius="10" Grid.Column="1"
+                Grid.Row="1" BorderThickness="5">
 
-        <Border CornerRadius="10" Opacity="0.8"  Background="Black" Grid.Column="1" 
-                    Grid.Row="1" BorderThickness="5">
-            <Grid >
+            <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="80*"/>
-                    <ColumnDefinition Width="10*"/>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="80*" />
+                    <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="22*"/>
-                    <RowDefinition Height="47*"/>
-                    <RowDefinition Height="26*"/>
-                    <RowDefinition Height="29*"/>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="32*"/>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="60*"/>
+                    <RowDefinition Height="22*" />
+                    <RowDefinition Height="47*" />
+                    <RowDefinition Height="26*" />
+                    <RowDefinition Height="29*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="32*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="60*" />
                 </Grid.RowDefinitions>
-                <Viewbox Grid.Column="1" Grid.Row="1" >
-                    <TextBlock Name="title" Foreground="Azure" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontWeight="UltraBlack"
-                           Text="WELCOME"/>
+                <Viewbox Grid.Column="1" Grid.Row="1">
+                    <TextBlock Name="title" Foreground="Azure"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontWeight="UltraBlack"
+                               Text="WELCOME" />
                 </Viewbox>
 
-                <TextBox x:Name="tblogin" Grid.Column="1" Grid.Row="3"  Background="#FF1B1B1D"
-                                   ToolTip="Userame" VerticalContentAlignment="Center"
-                                   Foreground="Azure" 
-                                />
-
-
+                <TextBox x:Name="tblogin" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
+                         ToolTip="Username" VerticalContentAlignment="Center"
+                         Foreground="Azure" />
 
 
                 <PasswordBox x:Name="pbpassword" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
-                                   ToolTip="Password" VerticalContentAlignment="Center"
-                                   Foreground="Azure" 
-                                />
+                             ToolTip="Password" VerticalContentAlignment="Center"
+                             Foreground="Azure" />
 
-                <Button Name="Button" Content="GO" Foreground="azure"  
-                        Grid.Column="1" Grid.Row="7" FontWeight="Bold" Background="DimGray" Template="{StaticResource ButtonGO}"/>
-                <Viewbox Grid.Row="8" Grid.Column="1"  >
+                <Button Name="Button" Content="GO" Foreground="azure"
+                        Grid.Column="1" Grid.Row="7" FontWeight="Bold" Background="DimGray"
+                        Template="{StaticResource ButtonGO}" />
+                <Viewbox Grid.Row="8" Grid.Column="1">
                     <Label VerticalAlignment="Center" FontSize="2">
-                        <Hyperlink Click="md_hl" Name="hyplin"  MouseEnter="hlme" MouseLeave="hlml"
-                                   FontWeight="Bold"  Foreground="#34ebe5"     >
+                        <Hyperlink Click="md_hl" Name="hyplin" MouseEnter="hlme" MouseLeave="hlml"
+                                   FontWeight="Bold" Foreground="#34ebe5">
 
                             Sign up
                         </Hyperlink>
@@ -81,17 +81,17 @@
         </Border>
 
 
-        <local:Register x:Name="register" Grid.ColumnSpan="4" Grid.RowSpan="3" Visibility="Hidden"/>
+        <local:Register x:Name="register" Grid.ColumnSpan="4" Grid.RowSpan="3" Visibility="Hidden" />
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="31*"/>
-            <ColumnDefinition Width="39*"/>
-            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="31*" />
+            <ColumnDefinition Width="39*" />
+            <ColumnDefinition Width="20*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="15*"/>
-            <RowDefinition Height="70*"/>
-            <RowDefinition Height="15*"/>
+            <RowDefinition Height="15*" />
+            <RowDefinition Height="70*" />
+            <RowDefinition Height="15*" />
         </Grid.RowDefinitions>
     </Grid>
 </UserControl>

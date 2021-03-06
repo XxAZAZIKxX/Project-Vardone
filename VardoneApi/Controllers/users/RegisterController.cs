@@ -9,7 +9,7 @@ namespace VardoneApi.Controllers.users
     public class RegisterController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] RegisterRequestModel registerRequestModel)
+        public IActionResult Post([FromBody] RegisterUserModel registerRequestModel)
         {
             if (registerRequestModel == null) return BadRequest();
             var users = Program.DataContext.Users;
