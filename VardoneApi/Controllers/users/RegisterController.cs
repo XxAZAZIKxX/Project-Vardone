@@ -9,9 +9,10 @@ namespace VardoneApi.Controllers.users
     public class RegisterController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] RegisterRequestModel registerRequestModel)
+        public IActionResult Post([FromBody] RegisterUserModel registerRequestModel)
         {
             if (registerRequestModel == null) return BadRequest();
+
             var users = Program.DataContext.Users;
             try
             {
@@ -29,7 +30,9 @@ namespace VardoneApi.Controllers.users
                 Email = registerRequestModel.Email,
                 Password = registerRequestModel.Password
             };
+
             users.Add(user);
+
             try
             {
                 Program.DataContext.SaveChanges();

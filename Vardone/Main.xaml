@@ -7,13 +7,11 @@
         xmlns:local1="clr-namespace:Vardone.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
-        ResizeMode="CanResize" Visibility="Visible" 
+        ResizeMode="CanResize" Visibility="Visible"
         WindowStyle="None" AllowsTransparency="True"
-        MinHeight="400" MinWidth="600"
-        
-        >
+        MinHeight="400" MinWidth="600">
     <Window.Background>
-        <ImageBrush  ImageSource="Resources/Backgrounds/dota.jpg" />
+        <ImageBrush ImageSource="Resources/Backgrounds/dota.jpg" />
     </Window.Background>
     <Window.Resources>
         <Style x:Key="BorderThumb" TargetType="Thumb">
@@ -24,36 +22,37 @@
                     <ControlTemplate TargetType="Thumb">
                         <Rectangle MinWidth="4" MinHeight="4" StrokeThickness="0">
                             <Rectangle.Fill>
-                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" Opacity="0"/>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"
+                                                 Opacity="0" />
                             </Rectangle.Fill>
                         </Rectangle>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <ControlTemplate x:Key="minmaxtemp" TargetType="Button" >
+        <ControlTemplate x:Key="minmaxtemp" TargetType="Button">
             <Grid Name="button">
-                <ContentPresenter HorizontalAlignment="Center"  VerticalAlignment="Center" />
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="button"  Property="Background">
+                    <Setter TargetName="button" Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="gray"/>
+                            <SolidColorBrush Color="gray" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <ControlTemplate x:Key="closetemp" TargetType="Button" >
+        <ControlTemplate x:Key="closetemp" TargetType="Button">
             <Grid Name="button">
-                <ContentPresenter HorizontalAlignment="Center"  VerticalAlignment="Center" />
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="button"  Property="Background">
+                    <Setter TargetName="button" Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="#ff0303" Opacity="0.7"/>
+                            <SolidColorBrush Color="#ff0303" Opacity="0.7" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>

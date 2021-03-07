@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
@@ -12,16 +13,17 @@ namespace VardoneApi.Controllers.users
     public class AuthController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] LoginRequestModel loginRequestModel)
+        public IActionResult Post([FromBody] LoginUserModel loginRequestModel)
         {
-            if (loginRequestModel == null) return BadRequest();
+            if (loginRequestModel == null) return BadRequest("Empty model");
+
             var users = Program.DataContext.Users;
             var tokens = Program.DataContext.Tokens;
+            tokens.Include(p=>p.User).Load();
             Users user;
             try
             {
-                user = users.First(usr =>
-                    usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
+                user = users.First(usr => usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
             }
             catch (Exception)
             {
@@ -51,7 +53,7 @@ namespace VardoneApi.Controllers.users
 
             tokens.Add(newToken);
             Program.DataContext.SaveChanges();
-            var response = new LoginResponseModel { Token = newToken.Token, Username = user.Username };
+            var response = new TokenUserModel { Token = newToken.Token, Username = user.Username };
             return new JsonResult(response);
         }
 
