@@ -20,7 +20,7 @@ namespace Vardone
         public Main()
         {
             InitializeComponent();
-        
+         
         }
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {

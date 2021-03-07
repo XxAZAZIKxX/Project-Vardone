@@ -61,7 +61,7 @@
         </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <local1:Auth Grid.ColumnSpan="4" Grid.RowSpan="3"/>
+        <local1:Register x:Name="auth" Grid.ColumnSpan="4" Grid.RowSpan="3"/>
         <DockPanel Background="#2d2d2f" Dock="Top" HorizontalAlignment="Stretch" Grid.Row="0"  MouseLeftButtonDown="DockPanelMouseLeftButtonDown"  Grid.ColumnSpan="4" Height="30">
             <DockPanel HorizontalAlignment="Right">
                 <Button Template="{StaticResource minmaxtemp}" Name="min" Width="30" Foreground="White" Background="Transparent" BorderThickness="0" Click="Minimize" >━</Button>

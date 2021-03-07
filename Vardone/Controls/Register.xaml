@@ -26,7 +26,8 @@
 
     <Grid Visibility="Visible">
 
-        <Border CornerRadius="10" Opacity="0.8"  Background="Black" Grid.Column="1" 
+        <Border CornerRadius="10" Opacity="0.8"  
+                Background="Black" Grid.Column="1" 
                     Grid.Row="1" BorderThickness="5">
             <Grid >
                 <Grid.ColumnDefinitions>
@@ -38,8 +39,8 @@
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="43*"/>
                     <RowDefinition Height="24*"/>
-                    <RowDefinition Height="26*"/>
-                    <RowDefinition Height="19*"/>
+                    <RowDefinition Height="24*"/>
+                    <RowDefinition Height="24*"/>
                     <RowDefinition Height="26*"/>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="26*"/>

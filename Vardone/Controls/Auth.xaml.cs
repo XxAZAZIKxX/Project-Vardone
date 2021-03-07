@@ -21,8 +21,7 @@ namespace Vardone.Controls
         public Auth()
         {
             InitializeComponent();
-            
-        
+
         }
         private void hlme(object sender, MouseEventArgs e)
         {
@@ -36,8 +35,8 @@ namespace Vardone.Controls
         }  
         private void md_hl(object sender, RoutedEventArgs e)
         {
-            this.Visibility = Visibility.Hidden;
-            register.Visibility = Visibility.Visible;
+           
+           
         }
 
     }

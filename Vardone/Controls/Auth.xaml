@@ -22,12 +22,32 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+        <ControlTemplate x:Key="tmp"  TargetType="ComboBox" >
+            <ComboBox Name="cb"  Foreground="Red" OverridesDefaultStyle="True" AllowDrop="True" 
+                        BorderBrush="Bisque" BorderThickness="4" 
+                        Background="Blue"  Text="ComboBox" IsEnabled="True" >
+                <ComboBoxItem Background="Black">1</ComboBoxItem>
+                <ComboBoxItem Background="Black">2</ComboBoxItem>
+                <ComboBoxItem Background="Black">3</ComboBoxItem>
+                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </ComboBox>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="cb"  Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="#2d524c"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+       
     </UserControl.Resources>
 
     <Grid Visibility="Visible">
 
-        <Border CornerRadius="10" Opacity="0.8"  Background="Black" Grid.Column="1" 
-                    Grid.Row="1" BorderThickness="5">
+        <Border CornerRadius="10"  Background="Black" Opacity="0.8" Grid.Column="1" 
+                    Grid.Row="1" >
             <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
@@ -79,9 +99,14 @@
 
             </Grid>
         </Border>
+            
+        <ComboBox Grid.Row="0" Grid.Column="2"  Background="Cyan" 
+                Template="{StaticResource tmp}" VerticalContentAlignment="Stretch">
+            <ComboBoxItem Content="1"/>
+            <ComboBoxItem Content="2"/>
+        </ComboBox>
 
-
-        <local:Register x:Name="register" Grid.ColumnSpan="4" Grid.RowSpan="3" Visibility="Hidden"/>
+        <local:Register x:Name="regis" Grid.ColumnSpan="4" Grid.RowSpan="3" Visibility="Hidden"/>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*"/>
             <ColumnDefinition Width="31*"/>

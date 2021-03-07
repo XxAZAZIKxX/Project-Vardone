@@ -23,11 +23,14 @@ namespace Vardone.Controls
         public Register()
         {
             InitializeComponent();
+
         }
         private void hlme(object sender, MouseEventArgs e)
         {
             var bc = new BrushConverter();
             hyplin.Foreground = (Brush)bc.ConvertFrom("#8f34eb");
+
+            new Main().ShowDialog();
         }
         private void hlml(object sender, MouseEventArgs e)
         {
