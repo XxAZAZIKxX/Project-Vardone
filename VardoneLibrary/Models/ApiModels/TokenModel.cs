@@ -1,4 +1,4 @@
-﻿namespace VardoneLibrary.Models
+﻿namespace VardoneLibrary.Models.ApiModels
 {
     public class TokenModel
     {

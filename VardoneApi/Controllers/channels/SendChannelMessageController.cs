@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace VardoneApi.Controllers.guilds
+namespace VardoneApi.Controllers.channels
 {
-    [ApiController, Route("guilds/[controller]")]
-    public class CreateController : ControllerBase
+    [ApiController, Route("channels/[controller]")]
+    public class SendChannelMessageController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] string username, [FromHeader] string token) => BadRequest();

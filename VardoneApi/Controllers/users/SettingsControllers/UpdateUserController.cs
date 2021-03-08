@@ -5,29 +5,29 @@ using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
-namespace VardoneApi.Controllers.users
+namespace VardoneApi.Controllers.users.SettingsControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class UpdateController : ControllerBase
+    public class UpdateUserController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] string username, [FromHeader] string token,
             [FromBody] UpdateUserModel updateUserModel)
         {
-            if (string.IsNullOrWhiteSpace(username)) return Unauthorized("Empty username");
-            if (string.IsNullOrWhiteSpace(token)) return Unauthorized("Empty token");
+            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
+            if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (updateUserModel == null) return BadRequest("Empty user model");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel {Username = username, Token = token}))
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
                 return Unauthorized("Invalid token");
 
             var users = Program.DataContext.Users;
-            users.Include(p=>p.Info).Load();
+            users.Include(p => p.Info).Load();
             var usersInfos = Program.DataContext.UserInfos;
-            usersInfos.Include(p=>p.User).Load();
+            usersInfos.Include(p => p.User).Load();
 
             var user = users.First(p => p.Username == username);
-            var userInfo = user.Info ?? new UserInfos();
-            
+            var userInfo = user.Info ?? new UserInfosTable();
+
             userInfo.User = user;
 
             if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
@@ -73,9 +73,9 @@ namespace VardoneApi.Controllers.users
 
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e);
             }
         }
     }

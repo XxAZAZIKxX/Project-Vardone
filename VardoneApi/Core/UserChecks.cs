@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Models.Users;
 
 namespace VardoneApi.Core
@@ -12,7 +13,7 @@ namespace VardoneApi.Core
             var tokens = Program.DataContext.Tokens;
             try
             {
-                var unused = tokens.First(t => t.Token == token.Token && t.User.Username == token.Username);
+                var _ = tokens.First(t => t.Token == token.Token && t.User.Username == token.Username);
                 return true;
             }
             catch (Exception)
@@ -21,7 +22,7 @@ namespace VardoneApi.Core
             }
         }
 
-        public static bool UserExists(string username)
+        public static bool IsUserExists(string username)
         {
             if (string.IsNullOrWhiteSpace(username)) return false;
 
@@ -29,8 +30,26 @@ namespace VardoneApi.Core
 
             try
             {
-                var unused = users.First(p => p.Username == username);
+                var _ = users.First(p => p.Username == username);
                 return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsFriends(string firstUsername, string secondUsername)
+        {
+            var friends = Program.DataContext.FriendsList;
+            friends.Include(p => p.From).Load();
+            friends.Include(p => p.To).Load();
+            try
+            {
+                var first = friends.First(p =>
+                    p.From.Username == firstUsername && p.To.Username == secondUsername ||
+                    p.From.Username == secondUsername && p.To.Username == firstUsername);
+                return first.Confirmed;
             }
             catch
             {

@@ -1,12 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
-namespace VardoneApi.Controllers.users
+namespace VardoneApi.Controllers.users.LoginControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class RegisterController : ControllerBase
+    public class RegisterUserController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromBody] RegisterUserModel registerRequestModel)
@@ -24,7 +25,7 @@ namespace VardoneApi.Controllers.users
                 // ignored
             }
 
-            var user = new Users
+            var user = new UsersTable
             {
                 Username = registerRequestModel.Username,
                 Email = registerRequestModel.Email,
@@ -38,9 +39,9 @@ namespace VardoneApi.Controllers.users
                 Program.DataContext.SaveChanges();
                 return Ok();
             }
-            catch
+            catch (Exception e)
             {
-                return BadRequest("Error");
+                return BadRequest(e);
             }
         }
     }

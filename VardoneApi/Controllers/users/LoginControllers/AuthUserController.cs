@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Models.Users;
 
-namespace VardoneApi.Controllers.users
+namespace VardoneApi.Controllers.users.LoginControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthUserController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromBody] LoginUserModel loginRequestModel)
@@ -19,18 +19,18 @@ namespace VardoneApi.Controllers.users
 
             var users = Program.DataContext.Users;
             var tokens = Program.DataContext.Tokens;
-            tokens.Include(p=>p.User).Load();
-            Users user;
+            tokens.Include(p => p.User).Load();
+            UsersTable user;
             try
             {
                 user = users.First(usr => usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
             }
-            catch (Exception)
+            catch
             {
-                return BadRequest("User invalid");
+                return Unauthorized("Login failed");
             }
 
-            var newToken = new Tokens
+            var newToken = new TokensTable
             {
                 User = user,
                 CreatedAt = DateTime.Now,
@@ -57,8 +57,7 @@ namespace VardoneApi.Controllers.users
             return new JsonResult(response);
         }
 
-        private static string GenerateToken() =>
-            CreateMd5(((int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()).ToString());
+        private static string GenerateToken() => CreateMd5(((int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()).ToString());
 
         private static string CreateMd5(string input)
         {

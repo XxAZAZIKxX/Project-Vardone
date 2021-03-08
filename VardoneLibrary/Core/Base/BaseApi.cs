@@ -1,27 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
-using VardoneLibrary.Models;
+using VardoneLibrary.Models.ApiModels;
 
 namespace VardoneLibrary.Core.Base
 {
     public abstract class BaseApi
     {
-        protected static readonly RestClient REST_CLIENT = new("https://localhost:5001/") {Timeout = -1};
+        protected static readonly RestClient REST_CLIENT = new("https://localhost:5001/") { Timeout = -1 };
 
-        protected static IRestResponse ExecutePost(string resource, string json)
+        protected static IRestResponse ExecutePost(string resource, string json, Dictionary<string, string> queryParameters = null)
         {
             var request = new RestRequest(resource, Method.POST);
             request.AddHeader("Content-Type", "application/json");
             request.AddParameter("application/json", json, ParameterType.RequestBody);
+
+            if (queryParameters == null) return REST_CLIENT.Execute(request);
+
+            foreach (var (key, value) in queryParameters) request.AddQueryParameter(key, value);
+
             return REST_CLIENT.Execute(request);
         }
 
         public static string GetUserToken(string username, string password)
         {
             var response = ExecutePost(@"/users/auth",
-                JsonConvert.SerializeObject(new GetTokenModel {Username = username, Password = password}));
+                JsonConvert.SerializeObject(new GetTokenModel { Username = username, Password = password }));
             if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
             return JsonConvert.DeserializeObject<TokenModel>(response.Content)?.Token;
         }
@@ -35,7 +41,7 @@ namespace VardoneLibrary.Core.Base
 
         public static bool CheckToken(string username, string token)
         {
-            var response = ExecutePost(@"/users/checkToken", JsonConvert.SerializeObject(new TokenModel {Username = username, Token = token}));
+            var response = ExecutePost(@"/users/checkToken", JsonConvert.SerializeObject(new TokenModel { Username = username, Token = token }));
             if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
             return JsonConvert.DeserializeObject<bool>(response.Content);
         }

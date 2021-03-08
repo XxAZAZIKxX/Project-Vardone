@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Models.Users;
@@ -11,13 +12,13 @@ namespace VardoneApi.Controllers.users.FriendsControllers
         [HttpPost]
         public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] string usernameFriend)
         {
-            if (string.IsNullOrWhiteSpace(username)) return Unauthorized("Empty username");
-            if (string.IsNullOrWhiteSpace(token)) return Unauthorized("Empty token");
+            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
+            if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (string.IsNullOrWhiteSpace(usernameFriend)) return BadRequest("Empty friend username");
             if (username == usernameFriend) return BadRequest("Username equal friend username");
             if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.UserExists(usernameFriend)) return BadRequest("Friend does not exist");
+            if (!Core.UserChecks.IsUserExists(usernameFriend)) return BadRequest("Friend does not exist");
 
             var friendsList = Program.DataContext.FriendsList;
             friendsList.Include(p => p.From).Include(p => p.To).Load();
@@ -31,9 +32,9 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 Program.DataContext.SaveChanges();
                 return Ok();
             }
-            catch
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e);
             }
         }
     }

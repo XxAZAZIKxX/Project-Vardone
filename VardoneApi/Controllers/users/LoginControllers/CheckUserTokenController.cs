@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using VardoneApi.Models.Users;
 
-namespace VardoneApi.Controllers.users
+namespace VardoneApi.Controllers.users.LoginControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class CheckTokenController : ControllerBase
+    public class CheckUserTokenController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromBody] TokenUserModel request)
