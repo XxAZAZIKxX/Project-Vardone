@@ -17,7 +17,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
             var users = Program.DataContext.Users;
             try
             {
-                var unused = users.First(u => u.Username == registerRequestModel.Username);
+                var _ = users.First(u => u.Email == registerRequestModel.Email);
                 return BadRequest("Username is already booked");
             }
             catch

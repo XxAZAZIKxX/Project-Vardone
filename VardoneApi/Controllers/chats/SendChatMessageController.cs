@@ -12,17 +12,15 @@ namespace VardoneApi.Controllers.chats
     public class SendChatMessageController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] string secondUsername, [FromBody] PrivateMessage message)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId, [FromBody] PrivateMessage message)
         {
             if (message == null) return BadRequest("Empty message");
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (string.IsNullOrWhiteSpace(secondUsername)) return BadRequest("Empty second username");
-            if (username == secondUsername) return BadRequest("Username equal second username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (userId == secondId) return BadRequest("Username equal second username");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(secondUsername)) return BadRequest();
-            if (!Core.PrivateChatsChecks.IsCanWriteMessage(username, secondUsername)) return BadRequest("You should be friends");
+            if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest();
+            if (!Core.PrivateChatsChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
             if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image))
                 return BadRequest("Empty message");
 
@@ -33,12 +31,12 @@ namespace VardoneApi.Controllers.chats
             messages.Include(p => p.From).Load();
             messages.Include(p => p.Chat).Load();
             var users = Program.DataContext.Users;
-            var user1 = users.First(p => p.Username == username);
-            var user2 = users.First(p => p.Username == secondUsername);
+            var user1 = users.First(p => p.Id == userId);
+            var user2 = users.First(p => p.Id == secondId);
 
             PrivateChatsTable chat;
 
-            if (!Core.PrivateChatsChecks.IsChatExists(username, secondUsername))
+            if (!Core.PrivateChatsChecks.IsChatExists(userId, secondId))
             {
                 chat = new PrivateChatsTable { From = user1, To = user2 };
                 chats.Add(chat);

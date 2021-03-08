@@ -11,9 +11,10 @@ namespace VardoneApi.Core
         {
             if (token == null) return false;
             var tokens = Program.DataContext.Tokens;
+            tokens.Include(p=>p.User).Load();
             try
             {
-                var _ = tokens.First(t => t.Token == token.Token && t.User.Username == token.Username);
+                var _ = tokens.First(t => t.Token == token.Token && t.User.Id == token.UserId);
                 return true;
             }
             catch (Exception)
@@ -22,15 +23,14 @@ namespace VardoneApi.Core
             }
         }
 
-        public static bool IsUserExists(string username)
+        public static bool IsUserExists(long id)
         {
-            if (string.IsNullOrWhiteSpace(username)) return false;
 
             var users = Program.DataContext.Users;
 
             try
             {
-                var _ = users.First(p => p.Username == username);
+                var _ = users.First(p => p.Id == id);
                 return true;
             }
             catch
@@ -39,7 +39,7 @@ namespace VardoneApi.Core
             }
         }
 
-        public static bool IsFriends(string firstUsername, string secondUsername)
+        public static bool IsFriends(long idFirstUser, long idSecondUser)
         {
             var friends = Program.DataContext.FriendsList;
             friends.Include(p => p.From).Load();
@@ -47,8 +47,8 @@ namespace VardoneApi.Core
             try
             {
                 var first = friends.First(p =>
-                    p.From.Username == firstUsername && p.To.Username == secondUsername ||
-                    p.From.Username == secondUsername && p.To.Username == firstUsername);
+                    p.From.Id == idFirstUser && p.To.Id == idSecondUser ||
+                    p.From.Id == idSecondUser && p.To.Id == idFirstUser);
                 return first.Confirmed;
             }
             catch

@@ -23,11 +23,11 @@ namespace VardoneApi.Controllers.users.LoginControllers
             UsersTable user;
             try
             {
-                user = users.First(usr => usr.Username == loginRequestModel.Username && usr.Password == loginRequestModel.Password);
+                user = users.First(usr => usr.Email == loginRequestModel.Email && usr.Password == loginRequestModel.Password);
             }
             catch
             {
-                return Unauthorized("Login failed");
+                return BadRequest("Login failed");
             }
 
             var newToken = new TokensTable
@@ -42,7 +42,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
             try
             {
                 var remove = tokens.First(t =>
-                    t.User.Username == loginRequestModel.Username && t.MacAddress == loginRequestModel.MacAddress &&
+                    t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress &&
                     t.IpAddress == loginRequestModel.IpAddress);
                 tokens.RemoveRange(remove);
             }
@@ -53,7 +53,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
 
             tokens.Add(newToken);
             Program.DataContext.SaveChanges();
-            var response = new TokenUserModel { Token = newToken.Token, Username = user.Username };
+            var response = new TokenUserModel { Token = newToken.Token, UserId = user.Id };
             return new JsonResult(response);
         }
 

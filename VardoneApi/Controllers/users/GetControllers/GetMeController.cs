@@ -11,11 +11,10 @@ namespace VardoneApi.Controllers.users.GetControllers
     public class GetMeController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             try
@@ -23,14 +22,14 @@ namespace VardoneApi.Controllers.users.GetControllers
                 var users = Program.DataContext.Users;
                 Program.DataContext.Users.Include(p => p.Info).Load();
 
-                var user = users.First(p => p.Username == username);
+                var user = users.First(p => p.Id == userId);
                 return new JsonResult(JsonConvert.SerializeObject(new GetMeModel
                 {
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
                     Description = user.Info?.Description,
-                    Base64Avatar = user.Info == null ? null : Convert.ToBase64String(user.Info.Avatar)
+                    Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
                 }));
             }
             catch (Exception e)

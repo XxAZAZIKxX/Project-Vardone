@@ -6,6 +6,6 @@ namespace VardoneApi.Controllers.guilds
     public class DeleteGuildController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token) => BadRequest();
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token) => BadRequest();
     }
 }

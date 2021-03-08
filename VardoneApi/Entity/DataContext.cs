@@ -28,7 +28,7 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Description).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
             //Unique
-            modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();
+            modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
             //Foreign
             modelBuilder.Entity<UsersTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
         }

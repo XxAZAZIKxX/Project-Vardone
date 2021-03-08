@@ -9,18 +9,17 @@ namespace VardoneApi.Controllers.users.SettingsControllers
     public class DeleteMeController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel {Username = username, Token = token}))
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized();
-            
+
             var users = Program.DataContext.Users;
-            
+
             try
             {
-                users.Remove(users.First(p => p.Username == username));
+                users.Remove(users.First(p => p.Id == userId));
                 Program.DataContext.SaveChanges();
                 return Ok();
             }

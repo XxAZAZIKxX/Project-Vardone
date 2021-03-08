@@ -12,16 +12,13 @@ namespace VardoneApi.Controllers.chats
     public class GetChatMessagesController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token,
-            [FromQuery] string secondUsername)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long id)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (string.IsNullOrWhiteSpace(secondUsername)) return BadRequest("Empty chat");
-            if (username == secondUsername) return BadRequest("Username equal second username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (id <=0) return BadRequest("Id lower 0");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(secondUsername)) return BadRequest("Second username does not exists");
+            if (!Core.UserChecks.IsUserExists(id)) return BadRequest("Second username does not exists");
 
             var privateChats = Program.DataContext.PrivateChats;
             privateChats.Include(p => p.From).Load();
@@ -31,8 +28,8 @@ namespace VardoneApi.Controllers.chats
             privateMessages.Include(p => p.Chat).Load();
 
             var users = Program.DataContext.Users;
-            var user1 = users.First(p => p.Username == username);
-            var user2 = users.First(p => p.Username == secondUsername);
+            var user1 = users.First(p => p.Id == userId);
+            var user2 = users.First(p => p.Id == userId);
 
             try
             {

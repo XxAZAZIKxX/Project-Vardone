@@ -6,6 +6,6 @@ namespace VardoneApi.Controllers.channels
     public class DeleteChannelController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token) => BadRequest();
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token) => BadRequest();
     }
 }

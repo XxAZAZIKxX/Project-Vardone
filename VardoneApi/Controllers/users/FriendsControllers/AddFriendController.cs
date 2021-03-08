@@ -11,25 +11,24 @@ namespace VardoneApi.Controllers.users.FriendsControllers
     public class AddFriendController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] string usernameFriend)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Username empty");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
-            if (string.IsNullOrWhiteSpace(usernameFriend)) return BadRequest("Friend username empty");
-            if (username == usernameFriend) return BadRequest("Username equal friend username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (userId == secondId) return BadRequest("Username equal friend userId");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(usernameFriend)) return BadRequest("Friend does not exist");
+            if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
 
             var friendsList = Program.DataContext.FriendsList;
             friendsList.Include(p => p.From).Include(p => p.To).Load();
             var users = Program.DataContext.Users;
-
+            var user1 = users.First(p => p.Id == userId);
+            var user2 = users.First(p => p.Id == secondId);
             try
             {
                 var list = friendsList.First(p =>
-                    p.From.Username == username && p.To.Username == usernameFriend ||
-                    p.From.Username == usernameFriend && p.To.Username == username);
+                    p.From == user1 && p.To == user2 ||
+                    p.From == user2 && p.To == user1);
                 list.Confirmed = true;
                 Program.DataContext.SaveChanges();
                 return Ok();
@@ -41,8 +40,8 @@ namespace VardoneApi.Controllers.users.FriendsControllers
 
             var newFl = new FriendsListTable
             {
-                From = users.First(p => p.Username == username),
-                To = users.First(p => p.Username == usernameFriend),
+                From = user1,
+                To = user2,
                 Confirmed = false
             };
 

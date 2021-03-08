@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Models.Users;
@@ -9,12 +10,11 @@ namespace VardoneApi.Controllers.chats
     public class DeleteChatMessageController : Controller
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] long idMessage)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long idMessage)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (idMessage <= 0) return BadRequest("Id message lower 0");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel {Username = username, Token = token}))
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             var messages = Program.DataContext.PrivateMessages;
@@ -22,7 +22,7 @@ namespace VardoneApi.Controllers.chats
 
             try
             {
-                var message = messages.First(p => p.From.Username == username && p.Id == idMessage);
+                var message = messages.First(p => p.From.Id == userId && p.Id == idMessage);
                 messages.Remove(message);
                 Program.DataContext.SaveChanges();
                 return Ok();

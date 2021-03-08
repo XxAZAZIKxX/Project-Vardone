@@ -1,15 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace VardoneApi.Core
 {
     public abstract class PrivateChatsChecks
     {
-        public static bool IsChatExists(string firstUsername, string secondUsername)
+        public static bool IsChatExists(long idFirstUser, long idSecondUser)
         {
-            if (string.IsNullOrWhiteSpace(firstUsername)) return false;
-            if (string.IsNullOrWhiteSpace(secondUsername)) return false;
 
             var chats = Program.DataContext.PrivateChats;
             chats.Include(p => p.From).Load();
@@ -17,8 +14,8 @@ namespace VardoneApi.Core
             try
             {
                 var _ = chats.First(p =>
-                   p.From.Username == firstUsername && p.To.Username == secondUsername ||
-                   p.From.Username == secondUsername && p.To.Username == firstUsername);
+                   p.From.Id == idFirstUser && p.To.Id == idSecondUser ||
+                   p.From.Id == idSecondUser && p.To.Id == idFirstUser);
                 return true;
             }
             catch
@@ -27,12 +24,6 @@ namespace VardoneApi.Core
             }
         }
 
-        public static bool IsCanWriteMessage(string firstUsername, string secondUsername)
-        {
-            if (string.IsNullOrWhiteSpace(firstUsername)) return false;
-            if (string.IsNullOrWhiteSpace(secondUsername)) return false;
-
-            return UserChecks.IsFriends(firstUsername, secondUsername);
-        }
+        public static bool IsCanWriteMessage(long idFirstUser, long idSecondUser) => UserChecks.IsFriends(idFirstUser, idSecondUser);
     }
 }

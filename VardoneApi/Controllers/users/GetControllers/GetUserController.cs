@@ -11,23 +11,20 @@ namespace VardoneApi.Controllers.users.GetControllers
     public class GetUserController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token,
-            [FromQuery] string usernameUser)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (string.IsNullOrWhiteSpace(usernameUser)) return BadRequest("Empty user username");
-            if (username == usernameUser) return BadRequest("Username equal user username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (userId == secondId) return BadRequest("Username equal user userId");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(usernameUser)) return BadRequest("User does not exist");
+            if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
 
             var users = Program.DataContext.Users;
             users.Include(p => p.Info).Load();
 
             try
             {
-                var user = users.First(p => p.Username == usernameUser);
+                var user = users.First(p => p.Id == secondId);
                 return new JsonResult(JsonConvert.SerializeObject(new GetUserModel
                 {
                     Id = user.Id,

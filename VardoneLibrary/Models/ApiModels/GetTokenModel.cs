@@ -8,7 +8,7 @@ namespace VardoneLibrary.Models.ApiModels
 {
     public class GetTokenModel
     {
-        public string Username { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
         public string MacAddress => GetMacAddress();
         public string IpAddress => GetIpAddress();
@@ -19,7 +19,7 @@ namespace VardoneLibrary.Models.ApiModels
 
         private static string GetIpAddress()
         {
-            var address = "";
+            string address;
             var request = WebRequest.Create("http://checkip.dyndns.org/");
             using (var response = request.GetResponse())
             using (var stream = new StreamReader(response.GetResponseStream()!))

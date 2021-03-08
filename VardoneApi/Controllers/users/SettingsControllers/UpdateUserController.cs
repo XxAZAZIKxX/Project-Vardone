@@ -11,13 +11,12 @@ namespace VardoneApi.Controllers.users.SettingsControllers
     public class UpdateUserController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token,
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token,
             [FromBody] UpdateUserModel updateUserModel)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (updateUserModel == null) return BadRequest("Empty user model");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             var users = Program.DataContext.Users;
@@ -25,7 +24,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
             var usersInfos = Program.DataContext.UserInfos;
             usersInfos.Include(p => p.User).Load();
 
-            var user = users.First(p => p.Username == username);
+            var user = users.First(p => p.Id == userId);
             var userInfo = user.Info ?? new UserInfosTable();
 
             userInfo.User = user;

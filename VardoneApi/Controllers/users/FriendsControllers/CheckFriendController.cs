@@ -8,17 +8,15 @@ namespace VardoneApi.Controllers.users.FriendsControllers
     public class CheckFriendController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] string secondUsername)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId)
         {
-            if (string.IsNullOrWhiteSpace(username)) return BadRequest("Empty username");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (string.IsNullOrWhiteSpace(secondUsername)) return BadRequest("Empty second username");
-            if (username == secondUsername) return BadRequest("Username equal second username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { Username = username, Token = token }))
+            if (userId == secondId) return BadRequest("Username equal second userId");
+            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(secondUsername)) return BadRequest("Second username does not exists");
+            if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second userId does not exists");
 
-            return new JsonResult(JsonConvert.SerializeObject(!Core.UserChecks.IsFriends(username, secondUsername)));
+            return new JsonResult(JsonConvert.SerializeObject(!Core.UserChecks.IsFriends(userId, secondId)));
         }
     }
 }
