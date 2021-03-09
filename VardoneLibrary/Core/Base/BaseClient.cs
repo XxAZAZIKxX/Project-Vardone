@@ -17,7 +17,7 @@ namespace VardoneLibrary.Core.Base
 
             UserId = userId;
             Token = token;
-            if (!CheckToken(UserId, Token)) throw new UnauthorizedException("User invalid");
+            if (!CheckToken(UserId, Token)) throw new UnauthorizedException("Invalid token");
         }
 
         protected IRestResponse ExecutePostWithToken(string resource, string json = null, Dictionary<string, string> queryParameters = null)

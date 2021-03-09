@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.chats
 {
@@ -16,7 +16,7 @@ namespace VardoneApi.Controllers.chats
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (id <=0) return BadRequest("Id lower 0");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
             if (!Core.UserChecks.IsUserExists(id)) return BadRequest("Second username does not exists");
 

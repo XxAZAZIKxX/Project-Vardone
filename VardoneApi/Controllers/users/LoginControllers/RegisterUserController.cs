@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.LoginControllers
 {

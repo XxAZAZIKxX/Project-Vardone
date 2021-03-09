@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.SettingsControllers
 {
@@ -12,7 +12,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized();
 
             var users = Program.DataContext.Users;

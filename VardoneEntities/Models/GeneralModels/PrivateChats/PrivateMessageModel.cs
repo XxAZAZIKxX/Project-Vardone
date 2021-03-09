@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace VardoneApi.Models.PrivateChats
+namespace VardoneEntities.Models.GeneralModels.PrivateChats
 {
-    public class PrivateMessage
+    public class PrivateMessageModel
     {
         public string Text { get; set; } = null;
         private string _base64Image;

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Windows.Forms;
 using testForms.Forms;
+using VardoneEntities.Models;
+using VardoneEntities.Models.GeneralModels;
+using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Base;
-using VardoneLibrary.Models;
-using VardoneLibrary.Models.ApiModels;
 
 namespace testForms.Controls
 {
@@ -25,7 +26,7 @@ namespace testForms.Controls
             bool register;
             try
             {
-                register = BaseApi.RegisterUser(new RegisterModel
+                register = BaseApi.RegisterUser(new RegisterUserModel
                 {
                     Username = username_tb.Text, Email = email_tb.Text, Password = password_tb.Text
                 });

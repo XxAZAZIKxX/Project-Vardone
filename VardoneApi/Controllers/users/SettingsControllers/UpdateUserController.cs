@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.SettingsControllers
 {
@@ -16,7 +16,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (updateUserModel == null) return BadRequest("Empty user model");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             var users = Program.DataContext.Users;

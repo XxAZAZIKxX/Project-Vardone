@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.FriendsControllers
 {
@@ -12,7 +12,7 @@ namespace VardoneApi.Controllers.users.FriendsControllers
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (userId == secondId) return BadRequest("Username equal second userId");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
             if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second userId does not exists");
 

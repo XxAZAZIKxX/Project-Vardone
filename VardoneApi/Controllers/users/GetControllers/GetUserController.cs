@@ -3,7 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VardoneApi.Models.Users;
+using VardoneEntities.Entities;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.GetControllers
 {
@@ -15,7 +16,7 @@ namespace VardoneApi.Controllers.users.GetControllers
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (userId == secondId) return BadRequest("Username equal user userId");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
             if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
 
@@ -25,7 +26,7 @@ namespace VardoneApi.Controllers.users.GetControllers
             try
             {
                 var user = users.First(p => p.Id == secondId);
-                return new JsonResult(JsonConvert.SerializeObject(new GetUserModel
+                return new JsonResult(JsonConvert.SerializeObject(new User
                 {
                     Id = user.Id,
                     Username = user.Username,

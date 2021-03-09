@@ -3,7 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VardoneApi.Models.Users;
+using VardoneEntities.Entities;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.GetControllers
 {
@@ -14,7 +15,7 @@ namespace VardoneApi.Controllers.users.GetControllers
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             try
@@ -23,7 +24,7 @@ namespace VardoneApi.Controllers.users.GetControllers
                 Program.DataContext.Users.Include(p => p.Info).Load();
 
                 var user = users.First(p => p.Id == userId);
-                return new JsonResult(JsonConvert.SerializeObject(new GetMeModel
+                return new JsonResult(JsonConvert.SerializeObject(new User
                 {
                     Id = user.Id,
                     Username = user.Username,

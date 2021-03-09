@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\PrivateChats\" />
+      <ProjectReference Include="..\VardoneEntities\VardoneEntities.csproj" />
     </ItemGroup>
 
 </Project>

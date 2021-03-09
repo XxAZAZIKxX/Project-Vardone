@@ -1,6 +1,6 @@
-﻿namespace VardoneApi.Models.Users
+﻿namespace VardoneEntities.Models.ApiModels
 {
-    public class LoginUserModel
+    public class GetUserTokenApiModel
     {
         public string Email { get; set; }
         public string Password { get; set; }

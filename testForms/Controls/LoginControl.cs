@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using testForms.Forms;
+using VardoneEntities.Models;
+using VardoneEntities.Models.GeneralModels;
+using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
 using VardoneLibrary.Core.Base;
 
@@ -26,21 +29,21 @@ namespace testForms.Controls
         {
             if (string.IsNullOrWhiteSpace(username_tb.Text) || string.IsNullOrWhiteSpace(password_tb.Text))
             {
-                MessageBox.Show(@"Заполните поля",@"Ошибка",MessageBoxButtons.OK, MessageBoxIcon.Error);return;
+                MessageBox.Show(@"Заполните поля", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); return;
             }
 
-            string userToken;
+            UserTokenModel userToken;
             try
             {
                 userToken = BaseApi.GetUserToken(username_tb.Text, password_tb.Text);
             }
             catch (Exception)
             {
-                MessageBox.Show(@"Неверные данные",@"Ошибка",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(@"Неверные данные", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            Main.GetInstance().Client = new VardoneClient(username_tb.Text, userToken);
+            Main.GetInstance().Client = new VardoneClient(userToken.UserId, userToken.Token);
             Main.GetInstance().Controls.Remove(this);
         }
 

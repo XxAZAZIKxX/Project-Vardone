@@ -1,6 +1,6 @@
-﻿namespace VardoneApi.Models.Users
+﻿namespace VardoneEntities.Models.GeneralModels.Users
 {
-    public class TokenUserModel
+    public class UserTokenModel
     {
         public long UserId { get; set; }
         public string Token { get; set; }

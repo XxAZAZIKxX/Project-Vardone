@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.LoginControllers
 {
@@ -8,7 +8,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
     public class CheckUserTokenController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] TokenUserModel request)
+        public IActionResult Post([FromBody] UserTokenModel request)
         {
             if (request == null) return BadRequest();
             if (Core.UserChecks.CheckToken(request)) return new JsonResult(JsonConvert.SerializeObject(true));

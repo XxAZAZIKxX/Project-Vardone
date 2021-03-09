@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
-using VardoneLibrary.Models.ApiModels;
+using VardoneEntities.Models.ClientModels;
+using VardoneEntities.Models.GeneralModels.Users;
+using VardoneLibrary.Core.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {
@@ -24,15 +26,15 @@ namespace VardoneLibrary.Core.Base
             return REST_CLIENT.Execute(request);
         }
 
-        public static TokenModel GetUserToken(string email, string password)
+        public static UserTokenModel GetUserToken(string email, string password)
         {
             var response = ExecutePost(@"/users/authUser",
-                JsonConvert.SerializeObject(new GetTokenModel { Email = email, Password = password }));
+                JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, Password = password }));
             if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
-            return JsonConvert.DeserializeObject<TokenModel>(response.Content);
+            return JsonConvert.DeserializeObject<UserTokenModel>(response.Content);
         }
 
-        public static bool RegisterUser(RegisterModel register)
+        public static bool RegisterUser(RegisterUserModel register)
         {
             var response = ExecutePost(@"/users/registerUser", JsonConvert.SerializeObject(register));
             if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
@@ -41,8 +43,8 @@ namespace VardoneLibrary.Core.Base
 
         public static bool CheckToken(long userId, string token)
         {
-            var response = ExecutePost(@"/users/checkUserToken", JsonConvert.SerializeObject(new TokenModel { UserId = userId, Token = token }));
-            if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
+            var response = ExecutePost(@"/users/checkUserToken", JsonConvert.SerializeObject(new UserTokenModel { UserId = userId, Token = token }));
+            if (response.StatusCode == HttpStatusCode.BadRequest) throw new UnauthorizedException(response.ErrorMessage);
             return JsonConvert.DeserializeObject<bool>(response.Content);
         }
     }

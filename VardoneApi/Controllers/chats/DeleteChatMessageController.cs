@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.chats
 {
@@ -14,7 +13,7 @@ namespace VardoneApi.Controllers.chats
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (idMessage <= 0) return BadRequest("Id message lower 0");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
 
             var messages = Program.DataContext.PrivateMessages;

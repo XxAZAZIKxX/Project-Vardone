@@ -5,7 +5,8 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.ApiModels;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.LoginControllers
 {
@@ -13,7 +14,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
     public class AuthUserController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromBody] LoginUserModel loginRequestModel)
+        public IActionResult Post([FromBody] GetUserTokenApiModel loginRequestModel)
         {
             if (loginRequestModel == null) return BadRequest("Empty model");
 
@@ -53,7 +54,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
 
             tokens.Add(newToken);
             Program.DataContext.SaveChanges();
-            var response = new TokenUserModel { Token = newToken.Token, UserId = user.Id };
+            var response = new UserTokenModel { Token = newToken.Token, UserId = user.Id };
             return new JsonResult(response);
         }
 

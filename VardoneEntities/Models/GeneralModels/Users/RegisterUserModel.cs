@@ -1,6 +1,6 @@
-﻿namespace VardoneLibrary.Models.ApiModels
+﻿namespace VardoneEntities.Models.GeneralModels.Users
 {
-    public class RegisterModel
+    public class RegisterUserModel
     {
         public string Username { get; set; }
         public string Email { get; set; }

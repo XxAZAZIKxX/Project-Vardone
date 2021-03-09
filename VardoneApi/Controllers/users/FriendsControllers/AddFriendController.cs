@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.FriendsControllers
 {
@@ -15,7 +15,7 @@ namespace VardoneApi.Controllers.users.FriendsControllers
         {
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
             if (userId == secondId) return BadRequest("Username equal friend userId");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
             if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
 

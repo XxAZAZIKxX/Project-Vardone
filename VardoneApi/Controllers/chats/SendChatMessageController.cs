@@ -3,8 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.PrivateChats;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.PrivateChats;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.chats
 {
@@ -12,12 +12,12 @@ namespace VardoneApi.Controllers.chats
     public class SendChatMessageController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId, [FromBody] PrivateMessage message)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId, [FromBody] PrivateMessageModel message)
         {
             if (message == null) return BadRequest("Empty message");
             if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
             if (userId == secondId) return BadRequest("Username equal second username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel { UserId = userId, Token = token }))
+            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 return Unauthorized("Invalid token");
             if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest();
             if (!Core.PrivateChatsChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 
-namespace VardoneLibrary.Models.ApiModels
+namespace VardoneEntities.Models.ClientModels
 {
-    public class GetTokenModel
+    public class GetUserTokenClientModel
     {
         public string Email { get; set; }
         public string Password { get; set; }
