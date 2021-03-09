@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RestSharp;
-using VardoneLibrary.Core.Exceptions;
+using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {

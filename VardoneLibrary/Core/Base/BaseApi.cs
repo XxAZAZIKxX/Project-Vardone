@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using VardoneEntities.Models.ClientModels;
 using VardoneEntities.Models.GeneralModels.Users;
-using VardoneLibrary.Core.Exceptions;
+using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {

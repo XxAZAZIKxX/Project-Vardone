@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VardoneLibrary.Core.Exceptions
+namespace VardoneLibrary.Exceptions
 {
     public class UnauthorizedException : Exception
     {
