@@ -7,6 +7,7 @@ namespace VardoneApi.Entity
     public sealed class DataContext : DbContext
     {
         private readonly string _connectionString;
+        private readonly object _locker = new();
         public DbSet<UsersTable> Users { get; set; }
         public DbSet<UserInfosTable> UserInfos { get; set; }
         public DbSet<TokensTable> Tokens { get; set; }
@@ -37,6 +38,11 @@ namespace VardoneApi.Entity
         {
             optionsBuilder.UseMySql(_connectionString);
             base.OnConfiguring(optionsBuilder);
+        }
+
+        public override int SaveChanges()
+        {
+            lock (_locker) return base.SaveChanges();
         }
     }
 }

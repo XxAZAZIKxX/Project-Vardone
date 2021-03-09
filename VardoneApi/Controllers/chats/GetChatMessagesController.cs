@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VardoneApi.Entity.Models;
+using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.chats
@@ -12,47 +14,78 @@ namespace VardoneApi.Controllers.chats
     public class GetChatMessagesController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long id)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId)
         {
-            if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (id <=0) return BadRequest("Id lower 0");
-            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                return Unauthorized("Invalid token");
-            if (!Core.UserChecks.IsUserExists(id)) return BadRequest("Second username does not exists");
-
-            var privateChats = Program.DataContext.PrivateChats;
-            privateChats.Include(p => p.From).Load();
-            privateChats.Include(p => p.To).Load();
-            var privateMessages = Program.DataContext.PrivateMessages;
-            privateMessages.Include(p => p.From).Load();
-            privateMessages.Include(p => p.Chat).Load();
-
-            var users = Program.DataContext.Users;
-            var user1 = users.First(p => p.Id == userId);
-            var user2 = users.First(p => p.Id == userId);
-
-            try
+            return Task.Run(new Func<IActionResult>(() =>
             {
-                var chat = privateChats.First(p =>
-                    p.From == user1 && p.To == user2 ||
-                    p.From == user2 && p.To == user1);
-                return new JsonResult(JsonConvert.SerializeObject(privateMessages.Where(p => p.Chat == chat)));
-            }
-            catch
-            {
-                // ignored
-            }
+                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
+                if (chatId <= 0) return BadRequest("ChatId lower 0");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.IsUserExists(chatId)) return BadRequest("Second user does not exists");
 
-            try
-            {
-                privateChats.Add(new PrivateChatsTable { From = user1, To = user2 });
-                Program.DataContext.SaveChanges();
-                return new JsonResult(JsonConvert.SerializeObject(new PrivateMessagesTable[0]));
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+                var privateChats = Program.DataContext.PrivateChats;
+                privateChats.Include(p => p.From).Load();
+                privateChats.Include(p => p.To).Load();
+                privateChats.Include(p => p.From.Info).Load();
+                privateChats.Include(p => p.To.Info).Load();
+                var privateMessages = Program.DataContext.PrivateMessages;
+                privateMessages.Include(p => p.From).Load();
+                privateMessages.Include(p => p.From.Info).Load();
+                privateMessages.Include(p => p.Chat).Load();
+
+                try
+                {
+                    var messages = new List<PrivateMessage>();
+                    var chat = privateChats.First(p => p.Id == chatId);
+                    var privateMessagesTables = privateMessages.Where(p => p.Chat == chat);
+                    foreach (var message in privateMessagesTables)
+                    {
+                        var user1 = message.Chat.From.Id == userId ? message.Chat.From : message.Chat.To;
+                        var user2 = message.Chat.From.Id != userId ? message.Chat.From : message.Chat.To;
+                        messages.Add(new PrivateMessage
+                        {
+                            MessageId = message.Id,
+                            Chat = new PrivateChat
+                            {
+                                ChatId = chat.Id,
+                                FromUser = new User
+                                {
+                                    UserId = user1.Id,
+                                    Username = user1.Username,
+                                    Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
+                                    Description = user1.Info?.Description
+                                },
+                                ToUser = new User
+                                {
+                                    UserId = user2.Id,
+                                    Username = user2.Username,
+                                    Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
+                                    Description = user2.Info?.Description
+                                }
+                            },
+                            Author = new User
+                            {
+                                UserId = message.From.Id,
+                                Username = message.From.Username,
+                                Base64Avatar = message.From.Info?.Avatar == null ? null : Convert.ToBase64String(message.From.Info.Avatar),
+                                Description = message.From.Info?.Description
+                            },
+                            Text = message.Text,
+                            Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image)
+                        });
+                    }
+
+                    return new JsonResult(JsonConvert.SerializeObject(messages));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
+                return new JsonResult(JsonConvert.SerializeObject(new List<PrivateMessage>(0)));
+            })).GetAwaiter().GetResult();
         }
     }
 }

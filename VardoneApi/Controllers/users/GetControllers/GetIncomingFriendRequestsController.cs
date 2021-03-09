@@ -11,7 +11,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 namespace VardoneApi.Controllers.users.GetControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class GetFriendsController : ControllerBase
+    public class GetIncomingFriendRequestsController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
@@ -19,28 +19,32 @@ namespace VardoneApi.Controllers.users.GetControllers
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!Core.UserChecks.CheckToken(new UserTokenModel {UserId = userId, Token = token}))
                     return Unauthorized("Invalid token");
 
                 var friendsList = Program.DataContext.FriendsList;
                 friendsList.Include(p => p.From).Load();
                 friendsList.Include(p => p.To).Load();
                 friendsList.Include(p => p.From.Info).Load();
-                friendsList.Include(p => p.To.Info).Load();
-
                 var users = new List<User>();
-
-                foreach (var row in friendsList.Where(p => p.From.Id == userId || p.To.Id == userId))
+                try
                 {
-                    var friend = row.From.Id != userId ? row.From : row.To;
-
-                    users.Add(new User
+                    foreach (var row in friendsList.Where(p => p.To.Id == userId && p.Confirmed == false))
                     {
-                        UserId = friend.Id,
-                        Username = friend.Username,
-                        Base64Avatar = friend.Info?.Avatar == null ? null : Convert.ToBase64String(friend.Info.Avatar),
-                        Description = friend.Info?.Description
-                    });
+                        users.Add(new User
+                        {
+                            UserId = row.To.Id,
+                            Username = row.To.Username,
+                            Base64Avatar = row.To.Info?.Avatar == null
+                                ? null
+                                : Convert.ToBase64String(row.To.Info.Avatar),
+                            Description = row.To.Info?.Description
+                        });
+                    }
+                }
+                catch
+                {
+                    // ignored
                 }
 
                 return new JsonResult(JsonConvert.SerializeObject(users));

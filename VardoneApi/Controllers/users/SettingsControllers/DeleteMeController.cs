@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -11,22 +12,25 @@ namespace VardoneApi.Controllers.users.SettingsControllers
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token)
         {
-            if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-            if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                return Unauthorized();
-
-            var users = Program.DataContext.Users;
-
-            try
+            return Task.Run(new Func<IActionResult>(() =>
             {
-                users.Remove(users.First(p => p.Id == userId));
-                Program.DataContext.SaveChanges();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                    return Unauthorized();
+
+                var users = Program.DataContext.Users;
+
+                try
+                {
+                    users.Remove(users.First(p => p.Id == userId));
+                    Program.DataContext.SaveChanges();
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e);
+                }
+            })).GetAwaiter().GetResult();
         }
     }
 }

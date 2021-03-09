@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Entity.Models;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -12,37 +13,40 @@ namespace VardoneApi.Controllers.users.LoginControllers
         [HttpPost]
         public IActionResult Post([FromBody] RegisterUserModel registerRequestModel)
         {
-            if (registerRequestModel == null) return BadRequest();
+            return Task.Run(new Func<IActionResult>(() =>
+            {
+                if (registerRequestModel == null) return BadRequest();
 
-            var users = Program.DataContext.Users;
-            try
-            {
-                var _ = users.First(u => u.Email == registerRequestModel.Email);
-                return BadRequest("Username is already booked");
-            }
-            catch
-            {
-                // ignored
-            }
+                var users = Program.DataContext.Users;
+                try
+                {
+                    var _ = users.First(u => u.Email == registerRequestModel.Email);
+                    return BadRequest("Username is already booked");
+                }
+                catch
+                {
+                    // ignored
+                }
 
-            var user = new UsersTable
-            {
-                Username = registerRequestModel.Username,
-                Email = registerRequestModel.Email,
-                Password = registerRequestModel.Password
-            };
+                var user = new UsersTable
+                {
+                    Username = registerRequestModel.Username,
+                    Email = registerRequestModel.Email,
+                    Password = registerRequestModel.Password
+                };
 
-            users.Add(user);
+                users.Add(user);
 
-            try
-            {
-                Program.DataContext.SaveChanges();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
+                try
+                {
+                    Program.DataContext.SaveChanges();
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e);
+                }
+            })).GetAwaiter().GetResult();
         }
     }
 }

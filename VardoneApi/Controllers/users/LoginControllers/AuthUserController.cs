@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
@@ -16,46 +17,50 @@ namespace VardoneApi.Controllers.users.LoginControllers
         [HttpPost]
         public IActionResult Post([FromBody] GetUserTokenApiModel loginRequestModel)
         {
-            if (loginRequestModel == null) return BadRequest("Empty model");
+            return Task.Run(new Func<IActionResult>(() =>
+            {
+                if (loginRequestModel == null) return BadRequest("Empty model");
 
-            var users = Program.DataContext.Users;
-            var tokens = Program.DataContext.Tokens;
-            tokens.Include(p => p.User).Load();
-            UsersTable user;
-            try
-            {
-                user = users.First(usr => usr.Email == loginRequestModel.Email && usr.Password == loginRequestModel.Password);
-            }
-            catch
-            {
-                return BadRequest("Login failed");
-            }
+                var users = Program.DataContext.Users;
+                var tokens = Program.DataContext.Tokens;
+                tokens.Include(p => p.User).Load();
+                UsersTable user;
+                try
+                {
+                    user = users.First(usr =>
+                        usr.Email == loginRequestModel.Email && usr.Password == loginRequestModel.Password);
+                }
+                catch
+                {
+                    return BadRequest("Login failed");
+                }
 
-            var newToken = new TokensTable
-            {
-                User = user,
-                CreatedAt = DateTime.Now,
-                IpAddress = loginRequestModel.IpAddress,
-                MacAddress = loginRequestModel.MacAddress,
-                Token = GenerateToken()
-            };
+                var newToken = new TokensTable
+                {
+                    User = user,
+                    CreatedAt = DateTime.Now,
+                    IpAddress = loginRequestModel.IpAddress,
+                    MacAddress = loginRequestModel.MacAddress,
+                    Token = GenerateToken()
+                };
 
-            try
-            {
-                var remove = tokens.First(t =>
-                    t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress &&
-                    t.IpAddress == loginRequestModel.IpAddress);
-                tokens.RemoveRange(remove);
-            }
-            catch
-            {
-                // ignored
-            }
+                try
+                {
+                    var remove = tokens.First(t =>
+                        t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress &&
+                        t.IpAddress == loginRequestModel.IpAddress);
+                    tokens.RemoveRange(remove);
+                }
+                catch
+                {
+                    // ignored
+                }
 
-            tokens.Add(newToken);
-            Program.DataContext.SaveChanges();
-            var response = new UserTokenModel { Token = newToken.Token, UserId = user.Id };
-            return new JsonResult(response);
+                tokens.Add(newToken);
+                Program.DataContext.SaveChanges();
+                var response = new UserTokenModel {Token = newToken.Token, UserId = user.Id};
+                return new JsonResult(response);
+            })).GetAwaiter().GetResult();
         }
 
         private static string GenerateToken() => CreateMd5(((int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()).ToString());
