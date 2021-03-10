@@ -25,15 +25,18 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 if (Core.UserChecks.IsFriends(userId, secondId)) return Ok();
 
                 var friendsList = Program.DataContext.FriendsList;
-                friendsList.Include(p => p.From).Include(p => p.To).Load();
+                friendsList.Include(p => p.FromUser).Load();
+                friendsList.Include(p => p.ToUser).Load();
                 var users = Program.DataContext.Users;
                 var user1 = users.First(p => p.Id == userId);
                 var user2 = users.First(p => p.Id == secondId);
                 try
                 {
                     var list = friendsList.First(p =>
-                        p.From == user1 && p.To == user2 ||
-                        p.From == user2 && p.To == user1);
+                        (p.FromUser == user1 && p.ToUser == user2 ||
+                        p.FromUser == user2 && p.ToUser == user1)
+                        );
+                    if (list.CreatedByUser == user1) return Ok();
                     list.Confirmed = true;
                     Program.DataContext.SaveChanges();
                     return Ok();
@@ -45,8 +48,9 @@ namespace VardoneApi.Controllers.users.FriendsControllers
 
                 var newFl = new FriendsListTable
                 {
-                    From = user1,
-                    To = user2,
+                    FromUser = user1,
+                    ToUser = user2,
+                    CreatedByUser = user1,
                     Confirmed = false
                 };
 
