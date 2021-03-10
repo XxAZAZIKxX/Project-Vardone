@@ -72,16 +72,16 @@ namespace VardoneApi.Controllers.chats
                                 Description = message.From.Info?.Description
                             },
                             Text = message.Text,
-                            Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image)
+                            Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image),
+                            CreateTime = message.CreatedTime
                         });
                     }
 
                     return new JsonResult(JsonConvert.SerializeObject(messages));
                 }
-                catch (Exception e)
+                catch
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    // ignored
                 }
 
                 return new JsonResult(JsonConvert.SerializeObject(new List<PrivateMessage>(0)));

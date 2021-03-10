@@ -59,7 +59,8 @@ namespace VardoneApi.Controllers.chats
                         Chat = chat,
                         From = user1,
                         Text = message.Text ?? "",
-                        Image = message.Base64Image == null ? null : Convert.FromBase64String(message.Base64Image)
+                        Image = message.Base64Image == null ? null : Convert.FromBase64String(message.Base64Image),
+                        CreatedTime = DateTime.Now
                     };
                     messages.Add(newMessage);
                     Program.DataContext.SaveChanges();
