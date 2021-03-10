@@ -42,13 +42,13 @@ namespace VardoneApi.Core
         public static bool IsFriends(long idFirstUser, long idSecondUser)
         {
             var friends = Program.DataContext.FriendsList;
-            friends.Include(p => p.From).Load();
-            friends.Include(p => p.To).Load();
+            friends.Include(p => p.FromUser).Load();
+            friends.Include(p => p.ToUser).Load();
             try
             {
                 var first = friends.First(p =>
-                    p.From.Id == idFirstUser && p.To.Id == idSecondUser ||
-                    p.From.Id == idSecondUser && p.To.Id == idFirstUser);
+                    p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser ||
+                    p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
                 return first.Confirmed;
             }
             catch
@@ -60,8 +60,8 @@ namespace VardoneApi.Core
         public static bool CanGetUser(long idFirstUser, long idSecondUser)
         {
             var friendsList = Program.DataContext.FriendsList;
-            friendsList.Include(p => p.From).Load();
-            friendsList.Include(p => p.To).Load();
+            friendsList.Include(p => p.FromUser).Load();
+            friendsList.Include(p => p.ToUser).Load();
             var users = Program.DataContext.Users;
             if (IsUserExists(idFirstUser) || IsUserExists(idSecondUser)) return false;
 
@@ -70,7 +70,7 @@ namespace VardoneApi.Core
 
             try
             {
-                var _ = friendsList.First(p => p.From == user1 && p.To == user2 || p.From == user2 && p.To == user1);
+                var _ = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
                 return true;
             }
             catch (Exception e)

@@ -3,11 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Vardone.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ControlTemplate x:Key="ButtonGO" TargetType="Button">
+        <ControlTemplate x:Key="ButtonGo" TargetType="Button">
             <Grid Name="button" Background="DimGray">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
@@ -46,27 +45,27 @@
                     <RowDefinition Height="60*" />
                 </Grid.RowDefinitions>
                 <Viewbox Grid.Column="1" Grid.Row="1">
-                    <TextBlock Name="title" Foreground="Azure"
+                    <TextBlock Name="Title" Foreground="Azure"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontWeight="UltraBlack"
                                Text="WELCOME" />
                 </Viewbox>
 
-                <TextBox x:Name="tblogin" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
-                         ToolTip="Username" VerticalContentAlignment="Center"
+                <TextBox x:Name="TblEmail" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
+                         ToolTip="Email" VerticalContentAlignment="Center"
                          Foreground="Azure" />
 
 
-                <PasswordBox x:Name="pbpassword" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
+                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
                              ToolTip="Password" VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
-                <Button Name="Button" Content="GO" Foreground="azure"
+                <Button Click="LoginBtnClick" Name="Button" Content="Sign In" Foreground="azure"
                         Grid.Column="1" Grid.Row="7" FontWeight="Bold" Background="DimGray"
-                        Template="{StaticResource ButtonGO}" />
+                        Template="{StaticResource ButtonGo}" />
                 <Viewbox Grid.Row="8" Grid.Column="1">
                     <Label VerticalAlignment="Center" FontSize="2">
-                        <Hyperlink Click="md_hl" Name="hyplin" MouseEnter="hlme" MouseLeave="hlml"
+                        <Hyperlink Click="md_hl" Name="Hyplin" MouseEnter="Hlme" MouseLeave="Hlml"
                                    FontWeight="Bold" Foreground="#34ebe5">
 
                             Sign up
@@ -77,8 +76,6 @@
             </Grid>
         </Border>
 
-
-        <local:Register x:Name="regis" Grid.ColumnSpan="4" Grid.RowSpan="3" Visibility="Hidden"/>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="31*" />

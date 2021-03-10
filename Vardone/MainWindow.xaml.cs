@@ -1,16 +1,20 @@
 ﻿using System;
-using Vardone.Controls;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using winforms = System.Windows.Forms;
+using Vardone.Core;
+using Vardone.Pages;
+using VardoneEntities.Models.GeneralModels.Users;
+using VardoneLibrary.Core;
+using VardoneLibrary.Core.Base;
+using WinForms = System.Windows.Forms;
 
 namespace Vardone
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainPage.xaml
     /// </summary>
-    public partial class Main
+    public partial class MainWindow
     {
         private bool _maximized;
         private int _normalWidth;
@@ -18,17 +22,36 @@ namespace Vardone
         private int _normalX;
         private int _normalY;
 
-        public Main()
+        private static MainWindow _instance;
+        public static MainWindow GetInstance() => _instance;
+        public MainWindow()
         {
             InitializeComponent();
-            
-            Frame1.Navigate(qwe.GetInstance());
+            _instance = this;
+            var token = JsonTokenWorker.GetToken();
+            if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
+            else
+            {
+                if (VardoneBaseApi.CheckToken(token.UserId, token.Token))
+                    LoadApp(new VardoneClient(token.UserId, token.Token));
+                else MainFrame.Navigate(AuthorizationPage.GetInstance());
+            }
+        }
+
+        public void LoadApp(VardoneClient client)
+        {
+            JsonTokenWorker.SetToken(new UserTokenModel { UserId = client.UserId, Token = client.Token });
+            MainPage.GetInstance().Load(client);
+            MainFrame.Navigate(MainPage.GetInstance());
         }
 
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {
             try { DragMove(); }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -77,11 +100,9 @@ namespace Vardone
         private void ThumbLeft_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (e.HorizontalChange > 0 && Math.Abs(Width - MinWidth) < 0.01) return;
-            if (Left + e.HorizontalChange > 10)
-            {
-                Left += e.HorizontalChange;
-                Width -= e.HorizontalChange;
-            }
+            if (!(Left + e.HorizontalChange > 10)) return;
+            Left += e.HorizontalChange;
+            Width -= e.HorizontalChange;
 
         }
 
@@ -92,11 +113,9 @@ namespace Vardone
 
         private void ThumbTop_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if (Top + e.VerticalChange > 10)
-            {
-                Top += e.VerticalChange;
-                Height -= e.VerticalChange;
-            }
+            if (!(Top + e.VerticalChange > 10)) return;
+            Top += e.VerticalChange;
+            Height -= e.VerticalChange;
         }
 
         private void Minimize(object sender, RoutedEventArgs e)
@@ -113,29 +132,26 @@ namespace Vardone
                 Left = _normalX;
                 Top = _normalY;
                 _maximized = false;
-                max.Content = "◻";
+                Max.Content = "◻";
                 Thumbs();
             }
             else
             {
-                max.Content = "❐";
+                Max.Content = "❐";
                 _normalX = (int)Left;
                 _normalY = (int)Top;
                 _normalHeight = (int)Height;
                 _normalWidth = (int)Width;
-                Left = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Left;
-                Top = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Top;
-                Width = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Width;
-                Height = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Height;
+                Left = WinForms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Left;
+                Top = WinForms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Top;
+                Width = WinForms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Width;
+                Height = WinForms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Height;
                 _maximized = true;
                 Thumbs();
             }
         }
 
-        private void Close(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void Close(object sender, RoutedEventArgs e) => Close();
 
         private void Thumbs()
         {

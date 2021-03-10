@@ -9,9 +9,8 @@
 
   <ItemGroup>
     <None Remove="Resources\avatar.jpg" />
-    <None Remove="Resources\Backgrounds\dota.jpg" />
+    <None Remove="Resources\Backgrounds\wallpaper.jpg" />
     <None Remove="Resources\gear.png" />
-    <None Remove="Resources\gear2.png" />
     <None Remove="Resources\va.ico" />
   </ItemGroup>
 
@@ -19,13 +18,10 @@
     <Content Include="Resources\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Backgrounds\dota.jpg">
+    <Content Include="Resources\Backgrounds\wallpaper.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\gear.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\gear2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -41,9 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="va.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\VardoneLibrary\VardoneLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core\" />
   </ItemGroup>
 
 </Project>
