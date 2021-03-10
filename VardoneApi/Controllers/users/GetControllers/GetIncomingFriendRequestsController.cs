@@ -23,22 +23,22 @@ namespace VardoneApi.Controllers.users.GetControllers
                     return Unauthorized("Invalid token");
 
                 var friendsList = Program.DataContext.FriendsList;
-                friendsList.Include(p => p.From).Load();
-                friendsList.Include(p => p.To).Load();
-                friendsList.Include(p => p.From.Info).Load();
+                friendsList.Include(p => p.FromUser).Load();
+                friendsList.Include(p => p.ToUser).Load();
+                friendsList.Include(p => p.FromUser.Info).Load();
                 var users = new List<User>();
                 try
                 {
-                    foreach (var row in friendsList.Where(p => p.To.Id == userId && p.Confirmed == false))
+                    foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                     {
                         users.Add(new User
                         {
-                            UserId = row.To.Id,
-                            Username = row.To.Username,
-                            Base64Avatar = row.To.Info?.Avatar == null
+                            UserId = row.ToUser.Id,
+                            Username = row.ToUser.Username,
+                            Base64Avatar = row.ToUser.Info?.Avatar == null
                                 ? null
-                                : Convert.ToBase64String(row.To.Info.Avatar),
-                            Description = row.To.Info?.Description
+                                : Convert.ToBase64String(row.ToUser.Info.Avatar),
+                            Description = row.ToUser.Info?.Description
                         });
                     }
                 }
