@@ -5,12 +5,12 @@ using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {
-    public abstract class BaseClient : BaseApi
+    public abstract class VardoneBaseClient : VardoneBaseApi
     {
         public long UserId { get; protected set; }
         public string Token { get; protected set; }
 
-        protected BaseClient(long userId, string token)
+        protected VardoneBaseClient(long userId, string token)
         {
             if (string.IsNullOrWhiteSpace(token))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));

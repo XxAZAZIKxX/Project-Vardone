@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
@@ -9,7 +10,7 @@ using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {
-    public abstract class BaseApi
+    public abstract class VardoneBaseApi
     {
         protected static readonly RestClient REST_CLIENT = new("https://localhost:5001/") { Timeout = -1 };
 
@@ -30,21 +31,21 @@ namespace VardoneLibrary.Core.Base
         {
             var response = ExecutePost(@"/users/authUser",
                 JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, Password = password }));
-            if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
+            if (response.StatusCode == HttpStatusCode.BadRequest) return null;
             return JsonConvert.DeserializeObject<UserTokenModel>(response.Content);
         }
 
         public static bool RegisterUser(RegisterUserModel register)
         {
             var response = ExecutePost(@"/users/registerUser", JsonConvert.SerializeObject(register));
-            if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.ErrorMessage);
+            if (response.StatusCode == HttpStatusCode.BadRequest) return false;
             return response.StatusCode == HttpStatusCode.OK;
         }
 
         public static bool CheckToken(long userId, string token)
         {
             var response = ExecutePost(@"/users/checkUserToken", JsonConvert.SerializeObject(new UserTokenModel { UserId = userId, Token = token }));
-            if (response.StatusCode == HttpStatusCode.BadRequest) throw new UnauthorizedException(response.ErrorMessage);
+            if (response.StatusCode == HttpStatusCode.BadRequest) return false;
             return JsonConvert.DeserializeObject<bool>(response.Content);
         }
     }
