@@ -21,7 +21,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
                 try
                 {
                     var _ = users.First(u => u.Email == registerRequestModel.Email);
-                    return BadRequest("Username is already booked");
+                    return BadRequest("Email is already booked");
                 }
                 catch
                 {
