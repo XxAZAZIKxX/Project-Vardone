@@ -8,12 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Controls\988546.jpg" />
+    <None Remove="Resources\avatar.jpg" />
     <None Remove="Resources\Backgrounds\dota.jpg" />
+    <None Remove="Resources\gear.png" />
+    <None Remove="Resources\gear2.png" />
+    <None Remove="Resources\va.ico" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\avatar.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Backgrounds\dota.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gear.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\gear2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -23,7 +35,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Controls\988546.jpg" />
+    <Content Include="Resources\va.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="va.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

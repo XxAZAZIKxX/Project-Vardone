@@ -20,10 +20,23 @@ namespace Vardone.Controls
     /// </summary>
     public partial class qwe : Page
     {
+        public static string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        public static string directory = System.IO.Path.GetDirectoryName(path);
         public qwe()
         {
             InitializeComponent();
-            
+
+            ServersAvatar my = new ServersAvatar();
+          //  MessageBox.Show(directory + @"\resources\va.ico");
+            //my.image.Source = new BitmapImage(new Uri(@directory + @"\resources\va.ico"));
+
+           // DataGSA.Items.Add(my);
+
+
+        }
+        public class ServersAvatar
+        {
+            public Image image { get; set; }
         }
     }
 }

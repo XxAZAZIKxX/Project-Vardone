@@ -1,4 +1,5 @@
 ﻿using System;
+using Vardone.Controls;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -20,6 +21,8 @@ namespace Vardone
         public Main()
         {
             InitializeComponent();
+            qwe qwe = new qwe();
+            Frame1.Navigate(qwe);
         }
 
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
