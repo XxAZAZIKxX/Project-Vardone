@@ -15,10 +15,10 @@
                 <GradientStop Color="White" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
-        <Border Background="#141313" BorderThickness="3" BorderBrush="#141313" Grid.Column="0" Grid.Row="1">
-            <Image Cursor="Hand" Source="/Resources/va.ico" Grid.Column="0" Grid.Row="1" />
+        <Border Background="#141313" BorderThickness="3" BorderBrush="#141313" Grid.Column="0" Grid.Row="0">
+            <Image Cursor="Hand" Source="/Resources/va.ico" Grid.Column="0" Grid.Row="0" />
         </Border>
-        <Grid Grid.Row="2" Background="#141313" >
+        <Grid Grid.Row="1" Background="#141313" >
 
             <Rectangle Width="20" Height="1" Fill="Gray" 
                        HorizontalAlignment="Center"
@@ -36,7 +36,7 @@
         </Grid>
 
 
-        <Grid Grid.Column="1" Grid.Row="2"   >
+        <Grid Grid.Column="1" Grid.Row="1"   >
             <Grid.RowDefinitions>
                 <RowDefinition Height="10*" />
                 <RowDefinition Height="90*" />
@@ -51,26 +51,40 @@
                 <TabControl TabStripPlacement="Top" 
                         Background="#202020"
                         BorderThickness="0">
-                    <TabItem  Foreground="Gray" Header="friends ">
-                        <TabItem.Content>
-                            <DataGrid x:Name="DataGSA" Background="#202020" BorderThickness="0">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn 
-                                            Binding="{Binding image}"  Width="*"/>
+                    <TabItem  Foreground="Gray" Header="Friends ">
+                        <Grid x:Name="FriendsGrid" VerticalAlignment="Top">
+                            
+                        </Grid>
+                        <!--<TabItem.Content>
+                            <DataGrid VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent"
+                                      x:Name="DataGSA" CanUserResizeColumns="False"
+                                     CanUserAddRows="False" HeadersVisibility="Column"
+                                     CanUserResizeRows="False" Background="#202020" BorderThickness="0" BorderBrush="{x:Null}">
+                                <DataGrid.Columns >
+                                    <DataGridTemplateColumn CanUserSort="False" CanUserReorder="False"   >
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Image Source="{Binding image}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                                 <DataGrid.Resources>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" Value="Red"/>
+                                     
                                     </Style>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Foreground" Value="Gray"/>
                                     </Style>
+                                    
                                 </DataGrid.Resources>
                             </DataGrid>
-                        </TabItem.Content>
+                        </TabItem.Content>-->
                     </TabItem>
-                    <TabItem Foreground="Gray" Header="messages"/>
+                    <TabItem Foreground="Gray" Header="Messages"/>
                     <TabControl.Resources>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Template">
@@ -79,7 +93,7 @@
                                         <Grid>
                                             <Border x:Name="Border" Cursor="Hand" BorderThickness="0" Padding="27,0,26.6,0" >
                                                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                              ContentSource="Header" Margin="12,2,12,2" 
+                                                              ContentSource="Header" Margin="11,2,11.5,2" 
                                                               RecognizesAccessKey="True"/>
                                             </Border>
                                         </Grid>
@@ -99,13 +113,13 @@
                     </TabControl.Resources>
                 </TabControl>
             </Border>
-            <Rectangle Fill="#423f3f" Grid.Row="1" VerticalAlignment="Top" 
+            <Rectangle Fill="#423f3f" Grid.Row="0" VerticalAlignment="Top" 
                        Height="1" Width="200"/>
 
         </Grid>
-        <Border Background="#141313" CornerRadius="50,0,50,0" Grid.Column="1" Grid.Row="1">
+        <Border Background="#141313" CornerRadius="50,0,50,0" Grid.Column="1" Grid.Row="0">
             <Grid >
-                <Ellipse Cursor="Hand"  Margin="30,5,0,5" 
+                <Ellipse MouseDown="UserProfileOpen" Cursor="Hand"  Margin="30,5,0,5" 
                             HorizontalAlignment="Left" Width="30">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="/Resources/avatar.jpg" />
@@ -115,7 +129,7 @@
                          Margin="55,25,0,5" Fill="Green">
 
                 </Ellipse>
-                <TextBlock Margin="70,0,0,0" Text="Julie Lynx" Foreground="WhiteSmoke"
+                <TextBlock Margin="70,0,0,0" Cursor="Hand" Text="Julie Lynx" Foreground="WhiteSmoke"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
                        Background="#141313" />
 
@@ -124,7 +138,7 @@
             </Grid>
         </Border>
         <Border Background="#141313" CornerRadius="50,0,0,0" 
-                Grid.Column="2" Grid.Row="1">
+                Grid.Column="2" Grid.Row="0">
             <Grid >
 
                 <Ellipse Cursor="Hand"  Margin="30,5,0,5" 
@@ -145,16 +159,37 @@
 
             </Grid>
         </Border>
-        <Grid Grid.Row="2" Grid.Column="2" Background="#262525">
-
+        <Grid Grid.Row="1" Grid.Column="2" Background="#262525">
+            <Border CornerRadius="7" BorderThickness="3" 
+                    Background="#141313" BorderBrush="Black" 
+                 VerticalAlignment="Bottom"  Margin="20,0,20,20">
+                <Grid>
+                    <!--<Image Source=""/>-->
+                    <TextBox x:Name="textbox" BorderThickness="0" Height="30"
+                             VerticalContentAlignment="Center"
+                             Text="Text a message.."
+                         Foreground="Gray" Background="#141313">
+                        <TextBox.Resources>
+                            <ControlTemplate x:Key="ct" TargetType="TextBox">
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="TextBlock.Text" Value=""/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </TextBox.Resources>
+                    </TextBox>
+                </Grid>
+            </Border>
         </Grid>
+        <Frame Name="FrameUserProfile" Grid.ColumnSpan="3" 
+               Grid.RowSpan="3" NavigationUIVisibility="Hidden" />
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="40"/>
             <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="539*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="90*"/>
         </Grid.RowDefinitions>

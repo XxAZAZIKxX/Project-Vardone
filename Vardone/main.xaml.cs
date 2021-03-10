@@ -21,13 +21,14 @@ namespace Vardone
         public Main()
         {
             InitializeComponent();
-            qwe qwe = new qwe();
-            Frame1.Navigate(qwe);
+            
+            Frame1.Navigate(qwe.GetInstance());
         }
 
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {
-            DragMove();
+            try { DragMove(); }
+            catch { }
         }
 
         private void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -118,10 +119,10 @@ namespace Vardone
             else
             {
                 max.Content = "❐";
-                _normalX = (int) Left;
-                _normalY = (int) Top;
-                _normalHeight = (int) Height;
-                _normalWidth = (int) Width;
+                _normalX = (int)Left;
+                _normalY = (int)Top;
+                _normalHeight = (int)Height;
+                _normalWidth = (int)Width;
                 Left = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Left;
                 Top = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Top;
                 Width = winforms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea.Width;

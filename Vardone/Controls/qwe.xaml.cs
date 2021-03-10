@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Vardone.Controls;
+using Vardone.Controls.Profile;
 
 namespace Vardone.Controls
 {
@@ -22,21 +25,36 @@ namespace Vardone.Controls
     {
         public static string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static string directory = System.IO.Path.GetDirectoryName(path);
-        public qwe()
+        private static qwe _instance;
+        public static qwe GetInstance() => _instance ??= new qwe();
+        private qwe()
         {
             InitializeComponent();
 
             ServersAvatar my = new ServersAvatar();
-          //  MessageBox.Show(directory + @"\resources\va.ico");
-            //my.image.Source = new BitmapImage(new Uri(@directory + @"\resources\va.ico"));
+            my.image = ToImage(File.ReadAllBytes(@directory + @"\Resources\gear.png"));
 
-           // DataGSA.Items.Add(my);
+            // DataGSA.Items.Add(my);
+            FriendsGrid.Children.Add(new friend());
 
-
+        }
+        public BitmapImage ToImage(byte[] array)
+        {
+            using var ms = new System.IO.MemoryStream(array);
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad; // here
+            image.StreamSource = ms;
+            image.EndInit();
+            return image;
         }
         public class ServersAvatar
         {
-            public Image image { get; set; }
+            public BitmapImage image { get; set; }
+        }
+        private void UserProfileOpen(object s, MouseEventArgs e)
+        {
+            FrameUserProfile.Navigate(UserProfile.GetInstance());
         }
     }
 }

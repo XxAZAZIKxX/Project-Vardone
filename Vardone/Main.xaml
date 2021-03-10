@@ -61,7 +61,7 @@
         </ControlTemplate>
     </Window.Resources>
     <Grid x:Name="gri">
-        <Frame Name="Frame1" Grid.ColumnSpan="4" Grid.RowSpan="3"/>
+        <Frame Name="Frame1" Grid.Row="1" Grid.ColumnSpan="4" Grid.RowSpan="2" NavigationUIVisibility="Hidden"/>
         <local1:Register x:Name="auth" Visibility="Hidden" Grid.ColumnSpan="4" Grid.RowSpan="3"/>
         <DockPanel Background="#2d2d2f" Dock="Top" HorizontalAlignment="Stretch" Grid.Row="0"  MouseLeftButtonDown="DockPanelMouseLeftButtonDown"  Grid.ColumnSpan="4" Height="30">
             <DockPanel HorizontalAlignment="Left">
