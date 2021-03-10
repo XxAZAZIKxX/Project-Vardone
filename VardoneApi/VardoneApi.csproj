@@ -10,4 +10,8 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.0.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\VardoneEntities\VardoneEntities.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -3,12 +3,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.FriendsControllers
+namespace VardoneApi.Controllers.users.GetControllers
 {
     [ApiController, Route("users/[controller]")]
-    public class DeleteFriendController : ControllerBase
+    public class GetUserController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId)
@@ -16,25 +18,25 @@ namespace VardoneApi.Controllers.users.FriendsControllers
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (userId == secondId) return BadRequest("Username equal friend userId");
+                if (userId == secondId) return BadRequest("Username equal user userId");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
-                if (!Core.UserChecks.IsFriends(userId, secondId)) return Ok();
+                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
+                if (!Core.UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
 
-                var friendsList = Program.DataContext.FriendsList;
-                friendsList.Include(p => p.From).Include(p => p.To).Load();
                 var users = Program.DataContext.Users;
-                var user1 = users.First(p => p.Id == userId);
-                var user2 = users.First(p => p.Id == secondId);
+                users.Include(p => p.Info).Load();
+
                 try
                 {
-                    var first = friendsList.First(p =>
-                        p.From == user1 && p.To == user2 ||
-                        p.From == user2 && p.To == user1);
-                    friendsList.Remove(first);
-                    Program.DataContext.SaveChanges();
-                    return Ok();
+                    var user = users.First(p => p.Id == secondId);
+                    return new JsonResult(JsonConvert.SerializeObject(new User
+                    {
+                        UserId = user.Id,
+                        Username = user.Username,
+                        Description = user.Info?.Description,
+                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
+                    }));
                 }
                 catch (Exception e)
                 {

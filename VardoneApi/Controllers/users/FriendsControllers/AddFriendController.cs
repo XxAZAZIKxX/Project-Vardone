@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
-using VardoneApi.Models.Users;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.FriendsControllers
 {
@@ -10,50 +12,55 @@ namespace VardoneApi.Controllers.users.FriendsControllers
     public class AddFriendController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] string username, [FromHeader] string token, [FromQuery] string usernameFriend)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId)
         {
-            if (string.IsNullOrWhiteSpace(username)) return Unauthorized("Username empty");
-            if (string.IsNullOrWhiteSpace(token)) return Unauthorized("Token empty");
-            if (string.IsNullOrWhiteSpace(usernameFriend)) return BadRequest("Friend username empty");
-            if (username == usernameFriend) return BadRequest("Username equal friend username");
-            if (!Core.UserChecks.CheckToken(new TokenUserModel {Username = username, Token = token}))
-                return Unauthorized("Invalid token");
-            if (!Core.UserChecks.UserExists(usernameFriend)) return BadRequest("Friend does not exist");
+            return Task.Run(new Func<IActionResult>(() =>
+            {
 
-            var friendsList = Program.DataContext.FriendsList;
-            friendsList.Include(p=>p.From).Include(p=>p.To).Load();
-            var users = Program.DataContext.Users;
+                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
+                if (userId == secondId) return BadRequest("Username equal friend userId");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
+                if (Core.UserChecks.IsFriends(userId, secondId)) return Ok();
 
-            try
-            {
-                var list = friendsList.First(p =>
-                    p.From.Username == username && p.To.Username == usernameFriend ||
-                    p.From.Username == usernameFriend && p.To.Username == username);
-                list.Confirmed = true;
-                Program.DataContext.SaveChanges();
-                return Ok();
-            }
-            catch
-            {
-                // ignored
-            }
+                var friendsList = Program.DataContext.FriendsList;
+                friendsList.Include(p => p.From).Include(p => p.To).Load();
+                var users = Program.DataContext.Users;
+                var user1 = users.First(p => p.Id == userId);
+                var user2 = users.First(p => p.Id == secondId);
+                try
+                {
+                    var list = friendsList.First(p =>
+                        p.From == user1 && p.To == user2 ||
+                        p.From == user2 && p.To == user1);
+                    list.Confirmed = true;
+                    Program.DataContext.SaveChanges();
+                    return Ok();
+                }
+                catch
+                {
+                    // ignored
+                }
 
-            var newFl = new FriendsList
-            {
-                From = users.First(p => p.Username == username), To = users.First(p => p.Username == usernameFriend),
-                Confirmed = false
-            };
+                var newFl = new FriendsListTable
+                {
+                    From = user1,
+                    To = user2,
+                    Confirmed = false
+                };
 
-            try
-            {
-                friendsList.Add(newFl);
-                Program.DataContext.SaveChanges();
-                return Ok();
-            }
-            catch
-            {
-                return BadRequest();
-            }
+                try
+                {
+                    friendsList.Add(newFl);
+                    Program.DataContext.SaveChanges();
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e);
+                }
+            })).GetAwaiter().GetResult();
         }
     }
 }
