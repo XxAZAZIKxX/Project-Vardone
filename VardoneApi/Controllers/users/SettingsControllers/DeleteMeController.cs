@@ -22,7 +22,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
 
                 try
                 {
-                    users.Remove(users.First(p => p.Id == userId));
+                    users.Remove(users.First(p => p.UserId == userId));
                     Program.DataContext.SaveChanges();
                     return Ok();
                 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
+using System.Windows.Input;
+using Vardone.Core;
+using Vardone.Pages;
 using VardoneEntities.Entities;
 
 namespace Vardone.Controls.ItemControls
@@ -18,20 +20,13 @@ namespace Vardone.Controls.ItemControls
             Username.Content = user.Username;
             if (user.Base64Avatar is not null)
             {
-                Avatar.ImageSource = ToImage(Convert.FromBase64String(user.Base64Avatar));
+                Avatar.ImageSource = Base64ToBitmap.ToImage(Convert.FromBase64String(user.Base64Avatar));
             }
         }
 
-        private static BitmapImage ToImage(byte[] array)
+        private void GridClick(object sender, MouseButtonEventArgs e)
         {
-            if (array is null) return null;
-            using var ms = new System.IO.MemoryStream(array);
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.CacheOption = BitmapCacheOption.OnLoad; // here
-            image.StreamSource = ms;
-            image.EndInit();
-            return image;
+            MainPage.GetInstance().LoadPrivateChat(user.UserId);
         }
     }
 }

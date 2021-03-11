@@ -25,7 +25,7 @@ namespace VardoneApi.Controllers.chats
 
                 try
                 {
-                    var message = messages.First(p => p.From.Id == userId && p.Id == idMessage);
+                    var message = messages.First(p => p.From.UserId == userId && p.MessageId == idMessage);
                     messages.Remove(message);
                     Program.DataContext.SaveChanges();
                     return Ok();

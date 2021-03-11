@@ -24,31 +24,31 @@ namespace VardoneApi.Controllers.chats
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
 
                 var privateChats = Program.DataContext.PrivateChats;
-                privateChats.Include(p => p.From).Load();
-                privateChats.Include(p => p.To).Load();
-                privateChats.Include(p => p.From.Info).Load();
-                privateChats.Include(p => p.To.Info).Load();
+                privateChats.Include(p => p.FromUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
+                privateChats.Include(p => p.FromUser.Info).Load();
+                privateChats.Include(p => p.ToUser.Info).Load();
                 var users = Program.DataContext.Users;
 
                 try
                 {
                     var first = privateChats.First(p =>
-                        p.From.Id == userId && p.To.Id == secondId || p.From.Id == secondId && p.To.Id == userId);
-                    var user1 = first.From.Id == userId ? first.From : first.To;
-                    var user2 = first.From.Id != userId ? first.From : first.To;
+                        p.FromUser.UserId == userId && p.ToUser.UserId == secondId || p.FromUser.UserId == secondId && p.ToUser.UserId == userId);
+                    var user1 = first.FromUser.UserId == userId ? first.FromUser : first.ToUser;
+                    var user2 = first.FromUser.UserId != userId ? first.FromUser : first.ToUser;
                     var chat = new PrivateChat
                     {
-                        ChatId = first.Id,
+                        ChatId = first.ChatId,
                         FromUser = new User
                         {
-                            UserId = user1.Id,
+                            UserId = user1.UserId,
                             Username = user1.Username,
                             Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
                             Description = user1.Info?.Description
                         },
                         ToUser = new User
                         {
-                            UserId = user2.Id,
+                            UserId = user2.UserId,
                             Username = user2.Username,
                             Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
                             Description = user2.Info?.Description
@@ -61,25 +61,25 @@ namespace VardoneApi.Controllers.chats
                     try
                     {
                         var newChat = new PrivateChatsTable
-                        { From = users.First(p => p.Id == userId), To = users.First(p => p.Id == secondId) };
+                        { FromUser = users.First(p => p.UserId == userId), ToUser = users.First(p => p.UserId == secondId) };
                         privateChats.Add(newChat);
                         Program.DataContext.SaveChanges();
                         var chat = new PrivateChat
                         {
-                            ChatId = newChat.From.Id,
+                            ChatId = newChat.FromUser.UserId,
                             FromUser = new User
                             {
-                                UserId = newChat.From.Id,
-                                Username = newChat.From.Username,
-                                Base64Avatar = newChat.From.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.From.Info.Avatar),
-                                Description = newChat.From.Info?.Description
+                                UserId = newChat.FromUser.UserId,
+                                Username = newChat.FromUser.Username,
+                                Base64Avatar = newChat.FromUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.FromUser.Info.Avatar),
+                                Description = newChat.FromUser.Info?.Description
                             },
                             ToUser = new User
                             {
-                                UserId = newChat.To.Id,
-                                Username = newChat.To.Username,
-                                Base64Avatar = newChat.To.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.To.Info.Avatar),
-                                Description = newChat.To.Info?.Description
+                                UserId = newChat.ToUser.UserId,
+                                Username = newChat.ToUser.Username,
+                                Base64Avatar = newChat.ToUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.ToUser.Info.Avatar),
+                                Description = newChat.ToUser.Info?.Description
                             }
                         };
                         return new JsonResult(JsonConvert.SerializeObject(chat));

@@ -58,7 +58,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
 
                 tokens.Add(newToken);
                 Program.DataContext.SaveChanges();
-                var response = new UserTokenModel {Token = newToken.Token, UserId = user.Id};
+                var response = new UserTokenModel {Token = newToken.Token, UserId = user.UserId};
                 return new JsonResult(response);
             })).GetAwaiter().GetResult();
         }

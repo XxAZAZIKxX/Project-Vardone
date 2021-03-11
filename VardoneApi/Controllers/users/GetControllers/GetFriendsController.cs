@@ -30,13 +30,13 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 var users = new List<User>();
 
-                foreach (var row in friendsList.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId))
+                foreach (var row in friendsList.Where(p => (p.FromUser.UserId == userId || p.ToUser.UserId == userId) && p.Confirmed))
                 {
-                    var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
+                    var friend = row.FromUser.UserId != userId ? row.FromUser : row.ToUser;
 
                     users.Add(new User
                     {
-                        UserId = friend.Id,
+                        UserId = friend.UserId,
                         Username = friend.Username,
                         Base64Avatar = friend.Info?.Avatar == null ? null : Convert.ToBase64String(friend.Info.Avatar),
                         Description = friend.Info?.Description

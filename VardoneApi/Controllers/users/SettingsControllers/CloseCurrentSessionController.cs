@@ -23,7 +23,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
 
                 try
                 {
-                    var first = tokens.First(p => p.User.Id == userId && p.Token == token);
+                    var first = tokens.First(p => p.User.UserId == userId && p.Token == token);
                     tokens.Remove(first);
                     Program.DataContext.SaveChanges();
                     return Ok();

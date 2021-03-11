@@ -6,7 +6,7 @@ namespace VardoneApi.Entity.Models
     [Table("users")]
     public class UsersTable
     {
-        [Column("id"), Key] public long Id { get; set; }
+        [Column("id"), Key] public long UserId { get; set; }
         [Column("username"), Required] public string Username { get; set; }
         [Column("password"), Required] public string Password { get; set; }
         [Column("email"), Required] public string Email { get; set; }

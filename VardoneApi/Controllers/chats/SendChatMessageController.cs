@@ -28,28 +28,28 @@ namespace VardoneApi.Controllers.chats
                     return BadRequest("Empty message");
 
                 var chats = Program.DataContext.PrivateChats;
-                chats.Include(p => p.From).Load();
-                chats.Include(p => p.To).Load();
+                chats.Include(p => p.FromUser).Load();
+                chats.Include(p => p.ToUser).Load();
                 var messages = Program.DataContext.PrivateMessages;
                 messages.Include(p => p.From).Load();
                 messages.Include(p => p.Chat).Load();
                 var users = Program.DataContext.Users;
-                var user1 = users.First(p => p.Id == userId);
-                var user2 = users.First(p => p.Id == secondId);
+                var user1 = users.First(p => p.UserId == userId);
+                var user2 = users.First(p => p.UserId == secondId);
 
                 PrivateChatsTable chat;
 
                 if (!Core.PrivateChatsChecks.IsChatExists(userId, secondId))
                 {
-                    chat = new PrivateChatsTable { From = user1, To = user2 };
+                    chat = new PrivateChatsTable { FromUser = user1, ToUser = user2 };
                     chats.Add(chat);
                     Program.DataContext.SaveChanges();
                 }
                 else
                 {
                     chat = chats.First(p =>
-                        p.From == user1 && p.To == user2 ||
-                        p.From == user2 && p.To == user1);
+                        p.FromUser == user1 && p.ToUser == user2 ||
+                        p.FromUser == user2 && p.ToUser == user1);
                 }
 
                 try

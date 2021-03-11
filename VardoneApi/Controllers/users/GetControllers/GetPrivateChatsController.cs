@@ -23,32 +23,32 @@ namespace VardoneApi.Controllers.users.GetControllers
                     return Unauthorized("Invalid token");
 
                 var chatsTable = Program.DataContext.PrivateChats;
-                chatsTable.Include(p => p.From).Load();
-                chatsTable.Include(p => p.To).Load();
-                chatsTable.Include(p => p.From.Info).Load();
-                chatsTable.Include(p => p.To.Info).Load();
+                chatsTable.Include(p => p.FromUser).Load();
+                chatsTable.Include(p => p.ToUser).Load();
+                chatsTable.Include(p => p.FromUser.Info).Load();
+                chatsTable.Include(p => p.ToUser.Info).Load();
 
                 var chats = new List<PrivateChat>();
 
                 try
                 {
-                    foreach (var row in chatsTable.Where(p => p.From.Id == userId || p.To.Id == userId))
+                    foreach (var row in chatsTable.Where(p => p.FromUser.UserId == userId || p.ToUser.UserId == userId))
                     {
-                        var user = row.From.Id == userId ? row.From : row.To;
-                        var anotherUser = row.From.Id != userId ? row.From : row.To;
+                        var user = row.FromUser.UserId == userId ? row.FromUser : row.ToUser;
+                        var anotherUser = row.FromUser.UserId != userId ? row.FromUser : row.ToUser;
                         chats.Add(new PrivateChat
                         {
-                            ChatId = row.Id,
+                            ChatId = row.ChatId,
                             FromUser = new User
                             {
-                                UserId = user.Id,
+                                UserId = user.UserId,
                                 Username = user.Username,
                                 Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar),
                                 Description = user.Info?.Description
                             },
                             ToUser = new User
                             {
-                                UserId = anotherUser.Id,
+                                UserId = anotherUser.UserId,
                                 Username = anotherUser.Username,
                                 Base64Avatar = anotherUser.Info?.Avatar == null ? null : Convert.ToBase64String(anotherUser.Info.Avatar),
                                 Description = anotherUser.Info?.Description

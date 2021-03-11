@@ -14,7 +14,7 @@ namespace VardoneEntities.Models.GeneralModels.Users
             get => _base64Image;
             set
             {
-                if (Convert.TryFromBase64String(value, new Span<byte>(new byte[value.Length]), out _))
+                if (value is not null && Convert.TryFromBase64String(value, new Span<byte>(new byte[value.Length]), out _))
                     _base64Image = value;
             }
         }

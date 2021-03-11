@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Vardone.Controls"
              Width="250" Height="50">
-    <Grid Cursor="Hand">
+    <Grid Cursor="Hand" MouseDown="GridClick">
         <Ellipse x:Name="Ellipse" VerticalAlignment="Center"
                           Width="30" Height="30" Margin="30,0,0,0"
                  HorizontalAlignment="Left">

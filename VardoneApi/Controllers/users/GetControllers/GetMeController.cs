@@ -26,10 +26,10 @@ namespace VardoneApi.Controllers.users.GetControllers
                     var users = Program.DataContext.Users;
                     Program.DataContext.Users.Include(p => p.Info).Load();
 
-                    var user = users.First(p => p.Id == userId);
+                    var user = users.First(p => p.UserId == userId);
                     return new JsonResult(JsonConvert.SerializeObject(new User
                     {
-                        UserId = user.Id,
+                        UserId = user.UserId,
                         Username = user.Username,
                         Email = user.Email,
                         Description = user.Info?.Description,

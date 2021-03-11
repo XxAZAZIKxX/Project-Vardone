@@ -25,8 +25,8 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 var friendsList = Program.DataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Include(p => p.ToUser).Load();
                 var users = Program.DataContext.Users;
-                var user1 = users.First(p => p.Id == userId);
-                var user2 = users.First(p => p.Id == secondId);
+                var user1 = users.First(p => p.UserId == userId);
+                var user2 = users.First(p => p.UserId == secondId);
                 try
                 {
                     var first = friendsList.First(p =>

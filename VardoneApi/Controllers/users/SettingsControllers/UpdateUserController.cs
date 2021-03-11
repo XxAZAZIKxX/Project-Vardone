@@ -27,7 +27,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 var usersInfos = Program.DataContext.UserInfos;
                 usersInfos.Include(p => p.User).Load();
 
-                var user = users.First(p => p.Id == userId);
+                var user = users.First(p => p.UserId == userId);
                 var userInfo = user.Info ?? new UserInfosTable();
 
                 userInfo.User = user;
@@ -60,7 +60,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                     Program.DataContext.SaveChanges();
                     try
                     {
-                        var where = usersInfos.Where(p => p.User.Id == user.Id && p.Id != user.Info.Id);
+                        var where = usersInfos.Where(p => p.User.UserId == user.UserId && p.UserInfoId != user.Info.UserInfoId);
                         if (where.ToArray().Length == 0) throw new Exception();
                         usersInfos.RemoveRange(where);
                     }

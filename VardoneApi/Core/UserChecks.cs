@@ -14,7 +14,7 @@ namespace VardoneApi.Core
             tokens.Include(p => p.User).Load();
             try
             {
-                var _ = tokens.First(t => t.Token == token.Token && t.User.Id == token.UserId);
+                var _ = tokens.First(t => t.Token == token.Token && t.User.UserId == token.UserId);
                 return true;
             }
             catch (Exception)
@@ -30,7 +30,7 @@ namespace VardoneApi.Core
 
             try
             {
-                var _ = users.First(p => p.Id == id);
+                var _ = users.First(p => p.UserId == id);
                 return true;
             }
             catch
@@ -47,8 +47,8 @@ namespace VardoneApi.Core
             try
             {
                 var first = friends.First(p =>
-                    p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser ||
-                    p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
+                    p.FromUser.UserId == idFirstUser && p.ToUser.UserId == idSecondUser ||
+                    p.FromUser.UserId == idSecondUser && p.ToUser.UserId == idFirstUser);
                 return first.Confirmed;
             }
             catch
@@ -65,8 +65,8 @@ namespace VardoneApi.Core
             var users = Program.DataContext.Users;
             if (IsUserExists(idFirstUser) || IsUserExists(idSecondUser)) return false;
 
-            var user1 = users.First(p => p.Id == idFirstUser);
-            var user2 = users.First(p => p.Id == idSecondUser);
+            var user1 = users.First(p => p.UserId == idFirstUser);
+            var user2 = users.First(p => p.UserId == idSecondUser);
 
             try
             {

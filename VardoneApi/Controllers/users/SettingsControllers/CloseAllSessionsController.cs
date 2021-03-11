@@ -23,7 +23,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
 
                 try
                 {
-                    var @where = tokens.Where(p => p.User.Id == userId);
+                    var @where = tokens.Where(p => p.User.UserId == userId);
                     tokens.RemoveRange(@where);
                     Program.DataContext.SaveChanges();
                     return Ok();

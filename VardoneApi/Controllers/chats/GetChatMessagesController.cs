@@ -22,13 +22,14 @@ namespace VardoneApi.Controllers.chats
                 if (chatId <= 0) return BadRequest("ChatId lower 0");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
-                if (!Core.UserChecks.IsUserExists(chatId)) return BadRequest("Second user does not exists");
+                if (!Core.PrivateChatsChecks.IsChatExists(chatId)) return BadRequest();
+                if (!Core.PrivateChatsChecks.IsCanWriteMessage(userId, chatId)) return BadRequest("No access");
 
                 var privateChats = Program.DataContext.PrivateChats;
-                privateChats.Include(p => p.From).Load();
-                privateChats.Include(p => p.To).Load();
-                privateChats.Include(p => p.From.Info).Load();
-                privateChats.Include(p => p.To.Info).Load();
+                privateChats.Include(p => p.FromUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
+                privateChats.Include(p => p.FromUser.Info).Load();
+                privateChats.Include(p => p.ToUser.Info).Load();
                 var privateMessages = Program.DataContext.PrivateMessages;
                 privateMessages.Include(p => p.From).Load();
                 privateMessages.Include(p => p.From.Info).Load();
@@ -37,28 +38,28 @@ namespace VardoneApi.Controllers.chats
                 try
                 {
                     var messages = new List<PrivateMessage>();
-                    var chat = privateChats.First(p => p.Id == chatId);
+                    var chat = privateChats.First(p => p.ChatId == chatId);
                     var privateMessagesTables = privateMessages.Where(p => p.Chat == chat);
                     foreach (var message in privateMessagesTables)
                     {
-                        var user1 = message.Chat.From.Id == userId ? message.Chat.From : message.Chat.To;
-                        var user2 = message.Chat.From.Id != userId ? message.Chat.From : message.Chat.To;
+                        var user1 = message.Chat.FromUser.UserId == userId ? message.Chat.FromUser : message.Chat.ToUser;
+                        var user2 = message.Chat.FromUser.UserId != userId ? message.Chat.FromUser : message.Chat.ToUser;
                         messages.Add(new PrivateMessage
                         {
-                            MessageId = message.Id,
+                            MessageId = message.MessageId,
                             Chat = new PrivateChat
                             {
-                                ChatId = chat.Id,
+                                ChatId = chat.ChatId,
                                 FromUser = new User
                                 {
-                                    UserId = user1.Id,
+                                    UserId = user1.UserId,
                                     Username = user1.Username,
                                     Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
                                     Description = user1.Info?.Description
                                 },
                                 ToUser = new User
                                 {
-                                    UserId = user2.Id,
+                                    UserId = user2.UserId,
                                     Username = user2.Username,
                                     Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
                                     Description = user2.Info?.Description
@@ -66,7 +67,7 @@ namespace VardoneApi.Controllers.chats
                             },
                             Author = new User
                             {
-                                UserId = message.From.Id,
+                                UserId = message.From.UserId,
                                 Username = message.From.Username,
                                 Base64Avatar = message.From.Info?.Avatar == null ? null : Convert.ToBase64String(message.From.Info.Avatar),
                                 Description = message.From.Info?.Description
