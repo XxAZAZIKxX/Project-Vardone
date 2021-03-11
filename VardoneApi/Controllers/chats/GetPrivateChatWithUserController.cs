@@ -23,12 +23,13 @@ namespace VardoneApi.Controllers.chats
                     return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
 
-                var privateChats = Program.DataContext.PrivateChats;
+                var dataContext = Program.DataContext;
+                var privateChats = dataContext.PrivateChats;
                 privateChats.Include(p => p.FromUser).Load();
                 privateChats.Include(p => p.ToUser).Load();
                 privateChats.Include(p => p.FromUser.Info).Load();
                 privateChats.Include(p => p.ToUser.Info).Load();
-                var users = Program.DataContext.Users;
+                var users = dataContext.Users;
 
                 try
                 {
@@ -63,7 +64,7 @@ namespace VardoneApi.Controllers.chats
                         var newChat = new PrivateChatsTable
                         { FromUser = users.First(p => p.Id == userId), ToUser = users.First(p => p.Id == secondId) };
                         privateChats.Add(newChat);
-                        Program.DataContext.SaveChanges();
+                        dataContext.SaveChanges();
                         var chat = new PrivateChat
                         {
                             ChatId = newChat.FromUser.Id,

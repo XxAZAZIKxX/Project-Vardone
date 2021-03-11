@@ -23,8 +23,9 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 try
                 {
-                    var users = Program.DataContext.Users;
-                    Program.DataContext.Users.Include(p => p.Info).Load();
+                    var dataContext = Program.DataContext;
+                    var users = dataContext.Users;
+                    dataContext.Users.Include(p => p.Info).Load();
 
                     var user = users.First(p => p.Id == userId);
                     return new JsonResult(JsonConvert.SerializeObject(new User

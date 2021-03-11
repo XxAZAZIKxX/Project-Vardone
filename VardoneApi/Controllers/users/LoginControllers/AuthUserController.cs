@@ -21,8 +21,9 @@ namespace VardoneApi.Controllers.users.LoginControllers
             {
                 if (loginRequestModel == null) return BadRequest("Empty model");
 
-                var users = Program.DataContext.Users;
-                var tokens = Program.DataContext.Tokens;
+                var dataContext = Program.DataContext;
+                var users = dataContext.Users;
+                var tokens = dataContext.Tokens;
                 tokens.Include(p => p.User).Load();
                 UsersTable user;
                 try
@@ -57,7 +58,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
                 }
 
                 tokens.Add(newToken);
-                Program.DataContext.SaveChanges();
+                dataContext.SaveChanges();
                 var response = new UserTokenModel {Token = newToken.Token, UserId = user.Id};
                 return new JsonResult(response);
             })).GetAwaiter().GetResult();

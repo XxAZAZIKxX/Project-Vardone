@@ -18,12 +18,13 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized();
 
-                var users = Program.DataContext.Users;
+                var dataContext = Program.DataContext;
+                var users = dataContext.Users;
 
                 try
                 {
                     users.Remove(users.First(p => p.Id == userId));
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch (Exception e)

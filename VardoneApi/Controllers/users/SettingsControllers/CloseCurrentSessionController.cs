@@ -18,14 +18,15 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
-                var tokens = Program.DataContext.Tokens;
+                var dataContext = Program.DataContext;
+                var tokens = dataContext.Tokens;
                 tokens.Include(p => p.User).Load();
 
                 try
                 {
                     var first = tokens.First(p => p.User.Id == userId && p.Token == token);
                     tokens.Remove(first);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch

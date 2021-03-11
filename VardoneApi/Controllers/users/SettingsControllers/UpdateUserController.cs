@@ -24,9 +24,10 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 if (updateUserModel.Email is not null && !Core.UserChecks.IsEmailAvailable(updateUserModel.Email))
                     return BadRequest("Email is booked");
 
-                var users = Program.DataContext.Users;
+                var dataContext = Program.DataContext;
+                var users = dataContext.Users;
                 users.Include(p => p.Info).Load();
-                var usersInfos = Program.DataContext.UserInfos;
+                var usersInfos = dataContext.UserInfos;
                 usersInfos.Include(p => p.User).Load();
 
                 var user = users.First(p => p.Id == userId);
@@ -56,10 +57,10 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 try
                 {
                     usersInfos.Update(userInfo);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     user.Info = userInfo;
                     users.Update(user);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     try
                     {
                         var where = usersInfos.Where(p => p.User.Id == user.Id && p.Id != user.Info.Id);
@@ -72,7 +73,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                     }
                     finally
                     {
-                        Program.DataContext.SaveChanges();
+                        dataContext.SaveChanges();
                     }
 
                     return Ok();

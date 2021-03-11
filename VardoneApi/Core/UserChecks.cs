@@ -73,7 +73,7 @@ namespace VardoneApi.Core
                 var _ = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }

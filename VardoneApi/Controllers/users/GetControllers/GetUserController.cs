@@ -24,7 +24,8 @@ namespace VardoneApi.Controllers.users.GetControllers
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
                 if (!Core.UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
 
-                var users = Program.DataContext.Users;
+                var dataContext = Program.DataContext;
+                var users = dataContext.Users;
                 users.Include(p => p.Info).Load();
 
                 try

@@ -17,7 +17,8 @@ namespace VardoneApi.Controllers.users.LoginControllers
             {
                 if (registerRequestModel == null) return BadRequest();
 
-                var users = Program.DataContext.Users;
+                var dataContext = Program.DataContext;
+                var users = dataContext.Users;
                 try
                 {
                     var _ = users.First(u => u.Email == registerRequestModel.Email);
@@ -39,7 +40,7 @@ namespace VardoneApi.Controllers.users.LoginControllers
 
                 try
                 {
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch (Exception e)

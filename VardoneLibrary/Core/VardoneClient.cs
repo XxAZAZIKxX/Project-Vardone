@@ -12,7 +12,7 @@ using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core
 {
-    public partial class VardoneClient : VardoneBaseClient
+    public class VardoneClient : VardoneBaseClient
     {
         private Thread _checkingMessageThread;
         private bool _isCheckMessageThreadWork;
@@ -28,7 +28,7 @@ namespace VardoneLibrary.Core
                 var dictionary = new Dictionary<long, long>();
                 foreach (var chat in GetPrivateChats())
                 {
-                    var message = GetPrivateMessagesFromChat(chat.ChatId, 1)?[0];
+                    var message = GetPrivateMessagesFromChat(chat.ChatId, 1)[0];
                     if (message is null) continue;
                     dictionary.TryAdd(chat.ChatId, message.MessageId);
                 }
@@ -37,18 +37,12 @@ namespace VardoneLibrary.Core
                 {
                     foreach (var chat in GetPrivateChats())
                     {
-                        var messages = GetPrivateMessagesFromChat(chat.ChatId);
-                        var message = messages.Last();
+                        var message = GetPrivateMessagesFromChat(chat.ChatId, 1)[0];
                         if (message is null) continue;
                         if (!dictionary.ContainsKey(chat.ChatId)) dictionary.Add(chat.ChatId, message.MessageId);
                         if (dictionary[chat.ChatId] == message.MessageId) continue;
                         dictionary[chat.ChatId] = message.MessageId;
-                        AddPrivateMessage?.Invoke(message);
-
-                        foreach (var (key, value) in dictionary)
-                        {
-                            Console.WriteLine(key + " => " + value);
-                        }
+                        Events.Events.newPrivateMessage?.Invoke(message);
                     }
                     Thread.Sleep(500);
                 }

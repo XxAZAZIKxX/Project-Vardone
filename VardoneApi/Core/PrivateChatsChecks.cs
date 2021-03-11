@@ -7,8 +7,8 @@ namespace VardoneApi.Core
     {
         public static bool IsChatExists(long idFirstUser, long idSecondUser)
         {
-
-            var chats = Program.DataContext.PrivateChats;
+            var dataContext = Program.DataContext;
+            var chats = dataContext.PrivateChats;
             chats.Include(p => p.FromUser).Load();
             chats.Include(p => p.ToUser).Load();
             try
@@ -25,8 +25,8 @@ namespace VardoneApi.Core
         }
         public static bool IsChatExists(long chatId)
         {
-
-            var chats = Program.DataContext.PrivateChats;
+            var dataContext = Program.DataContext;
+            var chats = dataContext.PrivateChats;
             chats.Include(p => p.FromUser).Load();
             chats.Include(p => p.ToUser).Load();
             try
@@ -43,7 +43,8 @@ namespace VardoneApi.Core
         public static bool IsCanReadMessages(long userId, long chatId)
         {
             if (!IsChatExists(chatId)) return false;
-            var chats = Program.DataContext.PrivateChats;
+            var dataContext = Program.DataContext;
+            var chats = dataContext.PrivateChats;
             chats.Include(p=>p.FromUser).Load();
             chats.Include(p=>p.ToUser).Load();
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using VardoneApi.Entity;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -24,13 +25,14 @@ namespace VardoneApi.Controllers.chats
                     return Unauthorized("Invalid token");
                 if (!Core.PrivateChatsChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
                 if (!Core.PrivateChatsChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
-
-                var privateChats = Program.DataContext.PrivateChats;
+                var dataContext = Program.DataContext;
+                var privateChats = dataContext.PrivateChats;
                 privateChats.Include(p => p.FromUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
                 privateChats.Include(p => p.ToUser).Load();
                 privateChats.Include(p => p.FromUser.Info).Load();
                 privateChats.Include(p => p.ToUser.Info).Load();
-                var privateMessages = Program.DataContext.PrivateMessages;
+                var privateMessages = dataContext.PrivateMessages;
                 privateMessages.Include(p => p.From).Load();
                 privateMessages.Include(p => p.From.Info).Load();
                 privateMessages.Include(p => p.Chat).Load();
@@ -40,6 +42,7 @@ namespace VardoneApi.Controllers.chats
                     var messages = new List<PrivateMessage>();
                     var chat = privateChats.First(p => p.Id == chatId);
                     var privateMessagesTables = privateMessages.Where(p => p.Chat == chat).Take(limit <= 0 ? privateMessages.Count() : limit);
+                    if (limit == 1) privateMessagesTables = privateMessagesTables.OrderByDescending(p => p.Id).Take(1);
                     foreach (var message in privateMessagesTables)
                     {
                         var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;

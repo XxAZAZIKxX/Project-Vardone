@@ -24,10 +24,11 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
                 if (Core.UserChecks.IsFriends(userId, secondId)) return Ok();
 
-                var friendsList = Program.DataContext.FriendsList;
+                var dataContext = Program.DataContext;
+                var friendsList = dataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Load();
                 friendsList.Include(p => p.ToUser).Load();
-                var users = Program.DataContext.Users;
+                var users = dataContext.Users;
                 var user1 = users.First(p => p.Id == userId);
                 var user2 = users.First(p => p.Id == secondId);
                 try
@@ -38,7 +39,7 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                         );
                     if (list.CreatedByUser == user1) return Ok();
                     list.Confirmed = true;
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch
@@ -57,7 +58,7 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 try
                 {
                     friendsList.Add(newFl);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch (Exception e)

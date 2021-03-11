@@ -20,14 +20,15 @@ namespace VardoneApi.Controllers.chats
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
 
-                var messages = Program.DataContext.PrivateMessages;
+                var dataContext = Program.DataContext;
+                var messages = dataContext.PrivateMessages;
                 messages.Include(p => p.From).Load();
 
                 try
                 {
                     var message = messages.First(p => p.From.Id == userId && p.Id == idMessage);
                     messages.Remove(message);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch

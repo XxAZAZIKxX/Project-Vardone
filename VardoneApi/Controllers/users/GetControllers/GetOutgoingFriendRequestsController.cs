@@ -21,7 +21,8 @@ namespace VardoneApi.Controllers.users.GetControllers
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
 
-                var friendsList = Program.DataContext.FriendsList;
+                var dataContext = Program.DataContext;
+                var friendsList = dataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Load();
                 friendsList.Include(p => p.ToUser).Load();
                 friendsList.Include(p => p.ToUser.Info).Load();

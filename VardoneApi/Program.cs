@@ -10,7 +10,9 @@ namespace VardoneApi
 {
     public static class Program
     {
-        public static DataContext DataContext { get; private set; }
+        public static DataContext DataContext => new(ConnectionString);
+
+        public static string ConnectionString { get; private set; }
 
         public static void Main(string[] args)
         {
@@ -21,7 +23,7 @@ namespace VardoneApi
                 Password = "root",
                 Database = "VardoneApi"
             };
-            DataContext = new DataContext(builder.ConnectionString);
+            ConnectionString = builder.ConnectionString;
             CreateHostBuilder(args).Build().Run();
         }
 

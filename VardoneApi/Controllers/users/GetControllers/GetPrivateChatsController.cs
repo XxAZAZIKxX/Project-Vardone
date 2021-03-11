@@ -22,7 +22,8 @@ namespace VardoneApi.Controllers.users.GetControllers
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
 
-                var chatsTable = Program.DataContext.PrivateChats;
+                var dataContext = Program.DataContext;
+                var chatsTable = dataContext.PrivateChats;
                 chatsTable.Include(p => p.FromUser).Load();
                 chatsTable.Include(p => p.ToUser).Load();
                 chatsTable.Include(p => p.FromUser.Info).Load();

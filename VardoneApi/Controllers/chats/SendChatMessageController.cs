@@ -27,13 +27,14 @@ namespace VardoneApi.Controllers.chats
                 if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image))
                     return BadRequest("Empty message");
 
-                var chats = Program.DataContext.PrivateChats;
+                var dataContext = Program.DataContext;
+                var chats = dataContext.PrivateChats;
                 chats.Include(p => p.FromUser).Load();
                 chats.Include(p => p.ToUser).Load();
-                var messages = Program.DataContext.PrivateMessages;
+                var messages = dataContext.PrivateMessages;
                 messages.Include(p => p.From).Load();
                 messages.Include(p => p.Chat).Load();
-                var users = Program.DataContext.Users;
+                var users = dataContext.Users;
                 var user1 = users.First(p => p.Id == userId);
                 var user2 = users.First(p => p.Id == secondId);
 
@@ -43,7 +44,7 @@ namespace VardoneApi.Controllers.chats
                 {
                     chat = new PrivateChatsTable { FromUser = user1, ToUser = user2 };
                     chats.Add(chat);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                 }
                 else
                 {
@@ -63,7 +64,7 @@ namespace VardoneApi.Controllers.chats
                         CreatedTime = DateTime.Now
                     };
                     messages.Add(newMessage);
-                    Program.DataContext.SaveChanges();
+                    dataContext.SaveChanges();
                     return Ok();
                 }
                 catch (Exception e)
