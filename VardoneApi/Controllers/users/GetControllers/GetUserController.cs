@@ -29,10 +29,10 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 try
                 {
-                    var user = users.First(p => p.UserId == secondId);
+                    var user = users.First(p => p.Id == secondId);
                     return new JsonResult(JsonConvert.SerializeObject(new User
                     {
-                        UserId = user.UserId,
+                        UserId = user.Id,
                         Username = user.Username,
                         Description = user.Info?.Description,
                         Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)

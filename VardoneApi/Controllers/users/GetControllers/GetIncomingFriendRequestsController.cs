@@ -29,11 +29,11 @@ namespace VardoneApi.Controllers.users.GetControllers
                 var users = new List<User>();
                 try
                 {
-                    foreach (var row in friendsList.Where(p => p.ToUser.UserId == userId && p.Confirmed == false))
+                    foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                     {
                         users.Add(new User
                         {
-                            UserId = row.ToUser.UserId,
+                            UserId = row.ToUser.Id,
                             Username = row.ToUser.Username,
                             Base64Avatar = row.ToUser.Info?.Avatar == null
                                 ? null

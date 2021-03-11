@@ -14,8 +14,8 @@ namespace VardoneApi.Core
             try
             {
                 var _ = chats.First(p =>
-                   p.FromUser.UserId == idFirstUser && p.ToUser.UserId == idSecondUser ||
-                   p.FromUser.UserId == idSecondUser && p.ToUser.UserId == idFirstUser);
+                   p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser ||
+                   p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
                 return true;
             }
             catch
@@ -31,7 +31,7 @@ namespace VardoneApi.Core
             chats.Include(p => p.ToUser).Load();
             try
             {
-                var _ = chats.First(p =>p.ChatId == chatId);
+                var _ = chats.First(p =>p.Id == chatId);
                 return true;
             }
             catch
@@ -47,8 +47,8 @@ namespace VardoneApi.Core
             chats.Include(p=>p.FromUser).Load();
             chats.Include(p=>p.ToUser).Load();
 
-            var chat = chats.First(p => p.ChatId == chatId);
-            return chat.FromUser.UserId == userId || chat.ToUser.UserId == userId;
+            var chat = chats.First(p => p.Id == chatId);
+            return chat.FromUser.Id == userId || chat.ToUser.Id == userId;
         }
         public static bool IsCanWriteMessage(long idFirstUser, long idSecondUser) => UserChecks.IsFriends(idFirstUser, idSecondUser);
     }

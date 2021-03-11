@@ -25,9 +25,9 @@
 
     <Grid Visibility="Visible">
 
-        <Border CornerRadius="10"  Background="Black" Opacity="0.8" Grid.Column="1" 
-                    Grid.Row="1" >
-            <Grid >
+        <Border CornerRadius="10" Background="Black" Opacity="0.8" Grid.Column="1"
+                Grid.Row="1">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*" />
                     <ColumnDefinition Width="80*" />
@@ -66,7 +66,7 @@
                 <Viewbox Grid.Row="8" Grid.Column="1">
                     <Label VerticalAlignment="Center" FontSize="2">
                         <Hyperlink Click="md_hl" Name="Hyplin" MouseEnter="Hlme" MouseLeave="Hlml"
-                                   FontWeight="Bold" Foreground="#34ebe5">
+                                   FontWeight="Bold" Foreground="#34ebe5" Cursor="Hand">
 
                             Sign up
                         </Hyperlink>

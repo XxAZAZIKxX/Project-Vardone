@@ -32,23 +32,23 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 try
                 {
-                    foreach (var row in chatsTable.Where(p => p.FromUser.UserId == userId || p.ToUser.UserId == userId))
+                    foreach (var row in chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId))
                     {
-                        var user = row.FromUser.UserId == userId ? row.FromUser : row.ToUser;
-                        var anotherUser = row.FromUser.UserId != userId ? row.FromUser : row.ToUser;
+                        var user = row.FromUser.Id == userId ? row.FromUser : row.ToUser;
+                        var anotherUser = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
                         chats.Add(new PrivateChat
                         {
-                            ChatId = row.ChatId,
+                            ChatId = row.Id,
                             FromUser = new User
                             {
-                                UserId = user.UserId,
+                                UserId = user.Id,
                                 Username = user.Username,
                                 Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar),
                                 Description = user.Info?.Description
                             },
                             ToUser = new User
                             {
-                                UserId = anotherUser.UserId,
+                                UserId = anotherUser.Id,
                                 Username = anotherUser.Username,
                                 Base64Avatar = anotherUser.Info?.Avatar == null ? null : Convert.ToBase64String(anotherUser.Info.Avatar),
                                 Description = anotherUser.Info?.Description

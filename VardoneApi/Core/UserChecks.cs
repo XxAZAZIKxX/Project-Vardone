@@ -14,7 +14,7 @@ namespace VardoneApi.Core
             tokens.Include(p => p.User).Load();
             try
             {
-                var _ = tokens.First(t => t.Token == token.Token && t.User.UserId == token.UserId);
+                var _ = tokens.First(t => t.Token == token.Token && t.User.Id == token.UserId);
                 return true;
             }
             catch (Exception)
@@ -30,7 +30,7 @@ namespace VardoneApi.Core
 
             try
             {
-                var _ = users.First(p => p.UserId == id);
+                var _ = users.First(p => p.Id == id);
                 return true;
             }
             catch
@@ -47,8 +47,8 @@ namespace VardoneApi.Core
             try
             {
                 var first = friends.First(p =>
-                    p.FromUser.UserId == idFirstUser && p.ToUser.UserId == idSecondUser ||
-                    p.FromUser.UserId == idSecondUser && p.ToUser.UserId == idFirstUser);
+                    p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser ||
+                    p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
                 return first.Confirmed;
             }
             catch
@@ -63,10 +63,10 @@ namespace VardoneApi.Core
             friendsList.Include(p => p.FromUser).Load();
             friendsList.Include(p => p.ToUser).Load();
             var users = Program.DataContext.Users;
-            if (IsUserExists(idFirstUser) || IsUserExists(idSecondUser)) return false;
+            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
 
-            var user1 = users.First(p => p.UserId == idFirstUser);
-            var user2 = users.First(p => p.UserId == idSecondUser);
+            var user1 = users.First(p => p.Id == idFirstUser);
+            var user2 = users.First(p => p.Id == idSecondUser);
 
             try
             {
@@ -76,6 +76,20 @@ namespace VardoneApi.Core
             catch (Exception e)
             {
                 return false;
+            }
+        }
+
+        public static bool IsEmailAvailable(string email)
+        {
+            var users = Program.DataContext.Users;
+            try
+            {
+                var _ = users.First(p => p.Email == email);
+                return false;
+            }
+            catch
+            {
+                return true;
             }
         }
     }

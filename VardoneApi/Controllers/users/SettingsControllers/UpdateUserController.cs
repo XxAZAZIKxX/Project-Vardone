@@ -21,13 +21,15 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 if (updateUserModel == null) return BadRequest("Empty user model");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
+                if (updateUserModel.Email is not null && !Core.UserChecks.IsEmailAvailable(updateUserModel.Email))
+                    return BadRequest("Email is booked");
 
                 var users = Program.DataContext.Users;
                 users.Include(p => p.Info).Load();
                 var usersInfos = Program.DataContext.UserInfos;
                 usersInfos.Include(p => p.User).Load();
 
-                var user = users.First(p => p.UserId == userId);
+                var user = users.First(p => p.Id == userId);
                 var userInfo = user.Info ?? new UserInfosTable();
 
                 userInfo.User = user;
@@ -60,7 +62,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                     Program.DataContext.SaveChanges();
                     try
                     {
-                        var where = usersInfos.Where(p => p.User.UserId == user.UserId && p.UserInfoId != user.Info.UserInfoId);
+                        var where = usersInfos.Where(p => p.User.Id == user.Id && p.Id != user.Info.Id);
                         if (where.ToArray().Length == 0) throw new Exception();
                         usersInfos.RemoveRange(where);
                     }

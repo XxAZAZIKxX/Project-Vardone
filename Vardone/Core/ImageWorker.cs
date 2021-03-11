@@ -2,9 +2,9 @@
 
 namespace Vardone.Core
 {
-    public abstract class Base64ToBitmap
+    public abstract class ImageWorker
     {
-        public static BitmapImage ToImage(byte[] array)
+        public static BitmapImage ByteArrayToImage(byte[] array)
         {
             if (array is null) return null;
             using var ms = new System.IO.MemoryStream(array);

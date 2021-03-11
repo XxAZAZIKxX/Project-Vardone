@@ -8,7 +8,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 namespace VardoneApi.Controllers.chats
 {
     [ApiController, Route("chats/[controller]")]
-    public class DeleteChatMessageController : Controller
+    public class DeleteChatMessageController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long idMessage)
@@ -16,7 +16,7 @@ namespace VardoneApi.Controllers.chats
             return Task.Run( new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (idMessage <= 0) return BadRequest("ChatId message lower 0");
+                if (idMessage <= 0) return BadRequest("Id message lower 0");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
 
@@ -25,7 +25,7 @@ namespace VardoneApi.Controllers.chats
 
                 try
                 {
-                    var message = messages.First(p => p.From.UserId == userId && p.MessageId == idMessage);
+                    var message = messages.First(p => p.From.Id == userId && p.Id == idMessage);
                     messages.Remove(message);
                     Program.DataContext.SaveChanges();
                     return Ok();

@@ -24,6 +24,8 @@ namespace Vardone
 
         private static MainWindow _instance;
         public static MainWindow GetInstance() => _instance;
+        public static readonly string DLL_PATH = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        public static readonly string PATH = System.IO.Path.GetDirectoryName(DLL_PATH);
         public MainWindow()
         {
             InitializeComponent();

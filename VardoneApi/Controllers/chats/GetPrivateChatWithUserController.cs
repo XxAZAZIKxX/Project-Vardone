@@ -33,22 +33,22 @@ namespace VardoneApi.Controllers.chats
                 try
                 {
                     var first = privateChats.First(p =>
-                        p.FromUser.UserId == userId && p.ToUser.UserId == secondId || p.FromUser.UserId == secondId && p.ToUser.UserId == userId);
-                    var user1 = first.FromUser.UserId == userId ? first.FromUser : first.ToUser;
-                    var user2 = first.FromUser.UserId != userId ? first.FromUser : first.ToUser;
+                        p.FromUser.Id == userId && p.ToUser.Id == secondId || p.FromUser.Id == secondId && p.ToUser.Id == userId);
+                    var user1 = first.FromUser.Id == userId ? first.FromUser : first.ToUser;
+                    var user2 = first.FromUser.Id != userId ? first.FromUser : first.ToUser;
                     var chat = new PrivateChat
                     {
-                        ChatId = first.ChatId,
+                        ChatId = first.Id,
                         FromUser = new User
                         {
-                            UserId = user1.UserId,
+                            UserId = user1.Id,
                             Username = user1.Username,
                             Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
                             Description = user1.Info?.Description
                         },
                         ToUser = new User
                         {
-                            UserId = user2.UserId,
+                            UserId = user2.Id,
                             Username = user2.Username,
                             Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
                             Description = user2.Info?.Description
@@ -61,22 +61,22 @@ namespace VardoneApi.Controllers.chats
                     try
                     {
                         var newChat = new PrivateChatsTable
-                        { FromUser = users.First(p => p.UserId == userId), ToUser = users.First(p => p.UserId == secondId) };
+                        { FromUser = users.First(p => p.Id == userId), ToUser = users.First(p => p.Id == secondId) };
                         privateChats.Add(newChat);
                         Program.DataContext.SaveChanges();
                         var chat = new PrivateChat
                         {
-                            ChatId = newChat.FromUser.UserId,
+                            ChatId = newChat.FromUser.Id,
                             FromUser = new User
                             {
-                                UserId = newChat.FromUser.UserId,
+                                UserId = newChat.FromUser.Id,
                                 Username = newChat.FromUser.Username,
                                 Base64Avatar = newChat.FromUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.FromUser.Info.Avatar),
                                 Description = newChat.FromUser.Info?.Description
                             },
                             ToUser = new User
                             {
-                                UserId = newChat.ToUser.UserId,
+                                UserId = newChat.ToUser.Id,
                                 Username = newChat.ToUser.Username,
                                 Base64Avatar = newChat.ToUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.ToUser.Info.Avatar),
                                 Description = newChat.ToUser.Info?.Description

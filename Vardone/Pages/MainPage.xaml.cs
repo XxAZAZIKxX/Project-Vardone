@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Vardone.Controls.ItemControls;
 using Vardone.Core;
-using Vardone.Pages.Profile;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.PrivateChats;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -22,14 +23,32 @@ namespace Vardone.Pages
         private static MainPage _instance;
         public static MainPage GetInstance() => _instance ??= new MainPage();
         private static VardoneClient _client;
+        public static BitmapImage DefaultAvatar { get; private set; }
+
         private MainPage()
         {
             InitializeComponent();
+            DefaultAvatar = ImageWorker.ByteArrayToImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\avatar.jpg"));
             try
             {
-                VardoneBaseApi.RegisterUser(new RegisterUserModel { Username = "Julie", Email = "test@", Password = "1" });
-                VardoneBaseApi.RegisterUser(new RegisterUserModel { Username = "Ahri", Email = "test1@", Password = "1" });
-                VardoneBaseApi.RegisterUser(new RegisterUserModel { Username = "Katarina", Email = "test2@", Password = "1" });
+                VardoneBaseApi.RegisterUser(new RegisterUserModel
+                {
+                    Username = "Julie",
+                    Email = "test@",
+                    Password = "1"
+                });
+                VardoneBaseApi.RegisterUser(new RegisterUserModel
+                {
+                    Username = "Ahri",
+                    Email = "test1@",
+                    Password = "1"
+                });
+                VardoneBaseApi.RegisterUser(new RegisterUserModel
+                {
+                    Username = "Katarina",
+                    Email = "test2@",
+                    Password = "1"
+                });
             }
             catch
             {
@@ -39,7 +58,6 @@ namespace Vardone.Pages
             var token1 = VardoneBaseApi.GetUserToken("test@", "1");
             var token2 = VardoneBaseApi.GetUserToken("test1@", "1");
             var token3 = VardoneBaseApi.GetUserToken("test2@", "1");
-            
             var julie = new VardoneClient(token1.UserId, token1.Token);
             var ahri = new VardoneClient(token2.UserId, token2.Token);
             var kat = new VardoneClient(token3.UserId, token3.Token);
@@ -56,11 +74,10 @@ namespace Vardone.Pages
             //{
             //    Base64Image = Convert.ToBase64String(File.ReadAllBytes(@"D:\User\Pictures\Pictures\a77fdf812e91550b07452788b7dacbd4.png"))
             //});
-
-            julie.AddFriend(4);
-            ahri.AddFriend(4);
-            kat.AddFriend(4);
-            //ahri.SendPrivateMessage(4, new PrivateMessageModel{Text = "Hi", Base64Image = Convert.ToBase64String(File.ReadAllBytes(@"D:\User\Downloads\photo_2021-03-11_11-13-46.jpg"))});
+            julie.AddFriend(1);
+            ahri.AddFriend(1);
+            kat.AddFriend(1);
+            //ahri.SendPrivateMessage(1, new PrivateMessageModel { Text = "test message"});
         }
 
         public void Load(VardoneClient client)
@@ -69,14 +86,23 @@ namespace Vardone.Pages
             var i = 0;
             foreach (var friend in _client.GetFriends())
             {
-                var friendGridItem = new FriendGridItem(friend) { Margin = new Thickness(0, i, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+                var friendGridItem = new UserItem(friend, MouseDownEventLogic.OpenChat)
+                {
+                    Margin = new Thickness(0, i, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top
+                };
                 FriendsGrid.Children.Add(friendGridItem);
                 i = (int)(friendGridItem.Height + friendGridItem.Margin.Top);
             }
+
             i = 0;
             foreach (var chat in _client.GetPrivateChats())
             {
-                var friendGridItem = new FriendGridItem(chat.ToUser) { Margin = new Thickness(0, i, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+                var friendGridItem = new UserItem(chat.ToUser, MouseDownEventLogic.OpenChat)
+                {
+                    Margin = new Thickness(0, i, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top
+                };
                 MessagesGrid.Children.Add(friendGridItem);
                 i = (int)(friendGridItem.Height + friendGridItem.Margin.Top);
             }
@@ -88,21 +114,75 @@ namespace Vardone.Pages
 
             var me = _client.GetMe();
             MyUsername.Text = me.Username;
-            MyAvatar.ImageSource = me.Base64Avatar == null ? null : Base64ToBitmap.ToImage(Convert.FromBase64String(me.Base64Avatar));
-
+            MyAvatar.ImageSource = me.Base64Avatar == null
+                ? DefaultAvatar
+                : ImageWorker.ByteArrayToImage(Convert.FromBase64String(me.Base64Avatar));
         }
 
         public void LoadPrivateChat(long userId)
         {
-            var i = 0;
+            var i = 40;
             ChatMessagesGrid.Children.Clear();
+            ChatHeader.Children.Clear();
+            var user = _client.GetUser(userId);
+            var userItem = new UserItem(user, MouseDownEventLogic.OpenProfile)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            ChatHeader.Children.Add(userItem);
             foreach (var message in _client.GetPrivateMessagesFromChat(_client.GetPrivateChatWithUser(userId).ChatId))
             {
-                var messageItem = new MessageChatItem(message) { Margin = new Thickness(0, i, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+                var messageItem = new MessageChatItem(message)
+                {
+                    Margin = new Thickness(0, i, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Top
+                };
                 ChatMessagesGrid.Children.Add(messageItem);
                 i = (int)(messageItem.HeightItem + messageItem.Margin.Top);
             }
+
+            ChatScrollViewer.ScrollToEnd();
         }
-        private void UserProfileOpen(object s, MouseEventArgs e) => FrameUserProfile.Navigate(UserProfile.GetInstance());
+
+        private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(_client.GetMe());
+
+        public void UserProfileOpen(User user)
+        {
+            UserProfile.GetInstance().Load(user);
+            MainFrame.Navigate(UserProfile.GetInstance());
+        }
+
+        public void DeployImage(BitmapImage image)
+        {
+            Pages.DeployImage.GetInstance().LoadImage(image);
+            MainFrame.Navigate(Pages.DeployImage.GetInstance());
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e) =>
+            MessagePlaceholder.Visibility = Visibility.Collapsed;
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is not TextBox) return;
+            var textBox = (TextBox)sender;
+            if (!string.IsNullOrEmpty(textBox.Text)) return;
+            MessagePlaceholder.Visibility = Visibility.Visible;
+        }
+
+        private void MessageBoxKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            if (ChatHeader.Children.Count == 0) return;
+            if (ChatHeader.Children[0] is not UserItem) return;
+            var user = ((UserItem)ChatHeader.Children[0]).user;
+            _client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
+            MessageTextBox.Text = "";
+            TextBox_LostFocus(MessageTextBox, null);
+            LoadPrivateChat(user.UserId);
+        }
+
+        private void MessageTextBox_OnTextChanged(object sender, TextChangedEventArgs e) =>
+            TextBox_GotFocus(null, null);
     }
 }

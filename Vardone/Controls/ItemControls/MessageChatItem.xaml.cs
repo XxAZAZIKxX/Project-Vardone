@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Vardone.Core;
+using Vardone.Pages;
 using VardoneEntities.Entities;
 
 namespace Vardone.Controls.ItemControls
@@ -17,21 +20,25 @@ namespace Vardone.Controls.ItemControls
         {
             InitializeComponent();
             this.message = message;
-            if (message.Author.Base64Avatar is not null)
-                Avatar.ImageSource = Base64ToBitmap.ToImage(Convert.FromBase64String(message.Author.Base64Avatar));
+            Avatar.ImageSource = message.Author.Base64Avatar is not null
+                ? ImageWorker.ByteArrayToImage(Convert.FromBase64String(message.Author.Base64Avatar))
+                : MainPage.DefaultAvatar;
+
             CreatedTime.Content = message.CreateTime.ToShortDateString() + " " + message.CreateTime.ToShortTimeString();
             Username.Content = message.Author.Username;
             Text.Content = message.Text;
             if (message.Base64Image is null)
             {
-                HeightItem = 90d;
                 ImageRow.Height = new GridLength(0d);
+                HeightItem = 90d;
             }
             else
             {
+                Image.Source = ImageWorker.ByteArrayToImage(Convert.FromBase64String(message.Base64Image));
                 HeightItem = 290d;
-                Image.Source = Base64ToBitmap.ToImage(Convert.FromBase64String(message.Base64Image));
             }
         }
+
+        private void ImageOnClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().DeployImage(Image.Source as BitmapImage);
     }
 }

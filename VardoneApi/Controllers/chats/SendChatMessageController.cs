@@ -34,8 +34,8 @@ namespace VardoneApi.Controllers.chats
                 messages.Include(p => p.From).Load();
                 messages.Include(p => p.Chat).Load();
                 var users = Program.DataContext.Users;
-                var user1 = users.First(p => p.UserId == userId);
-                var user2 = users.First(p => p.UserId == secondId);
+                var user1 = users.First(p => p.Id == userId);
+                var user2 = users.First(p => p.Id == secondId);
 
                 PrivateChatsTable chat;
 
