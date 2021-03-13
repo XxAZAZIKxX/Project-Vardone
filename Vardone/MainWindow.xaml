@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local1="clr-namespace:Vardone.Controls"
         mc:Ignorable="d"
         Title="Vardone" Height="450" Width="800"
         ResizeMode="CanResize" Visibility="Visible"
@@ -57,8 +58,10 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="Gri">
         <Frame Name="MainFrame" Grid.Row="1" Grid.ColumnSpan="4" Grid.RowSpan="2" NavigationUIVisibility="Hidden" />
+        <local1:RegisterControl x:Name="Auth" Visibility="Hidden" Grid.ColumnSpan="4" Grid.Column="0" Grid.Row="0"
+                         Grid.RowSpan="3" />
         <DockPanel Background="#2d2d2f" Dock="Top" HorizontalAlignment="Stretch" Grid.Row="0"
                    MouseLeftButtonDown="DockPanelMouseLeftButtonDown" Grid.ColumnSpan="4"
                    Grid.Column="0" Height="30">
@@ -75,7 +78,7 @@
                     ◻
                 </Button>
                 <Button Template="{StaticResource CloseTemp}" Name="CloseB" Width="30" Foreground="White"
-                        Background="Transparent" BorderThickness="0" Click="CloseBtnClick">
+                        Background="Transparent" BorderThickness="0" Click="Close">
                     ╳
                 </Button>
             </DockPanel>

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Notifications.Wpf;
+using System.Windows.Media.Imaging;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -29,19 +29,18 @@ namespace Vardone
 
         public static readonly string DLL_PATH = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static readonly string PATH = System.IO.Path.GetDirectoryName(DLL_PATH);
-        public WinForms.NotifyIcon trayIcon;
-        public NotificationManager notificationManager = new();
 
+        public static WinForms.NotifyIcon trayIcon;
         public MainWindow()
         {
             InitializeComponent();
             _instance = this;
-            
+
             InitializeTrayIcon();
             TryLogin();
         }
 
-        private void InitializeTrayIcon()
+        private static void InitializeTrayIcon()
         {
             trayIcon = new WinForms.NotifyIcon
             {
@@ -50,29 +49,8 @@ namespace Vardone
                 Icon = new Icon(PATH + @"\resources\va.ico"),
                 ContextMenuStrip = new WinForms.ContextMenuStrip()
             };
-            trayIcon.MouseClick += TrayIconOnMouseClick;
-            trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
-            trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
-        }
-
-        private void TrayIconOnMouseClick(object sender, WinForms.MouseEventArgs e)
-        {
-            if (e.Button != WinForms.MouseButtons.Left) return;
-            if (ShowInTaskbar) CloseBtnClick(null, null);
-            else TrayOpenClick(null, null);
-        }
-
-        private void TrayOpenClick(object sender, EventArgs e)
-        {
-            Focus();
-            Show();
-            ShowInTaskbar = true;
-        }
-
-        private void TrayCloseClick(object sender, EventArgs e)
-        {
-            trayIcon.Dispose();
-            CloseApp();
+            trayIcon.ContextMenuStrip = new WinForms.ContextMenuStrip();
+            trayIcon.ContextMenuStrip.Items.Add("Tururu");
         }
 
         private void TryLogin()
@@ -94,32 +72,9 @@ namespace Vardone
             MainFrame.Navigate(MainPage.GetInstance());
         }
 
-        private void CloseBtnClick(object sender, RoutedEventArgs e)
-        {
-            CloseApp();
-            ShowInTaskbar = false;
-            Hide();
-            notificationManager.Show(new NotificationContent
-            {
-                Title = "Vardone был свернут в трей",
-                Message = "Иконку можно найти в трее",
-                Type = NotificationType.Information
-            }, "", TimeSpan.FromSeconds(5), () => TrayOpenClick(null, null));
-        }
-
-        private void CloseApp()
-        {
-            trayIcon.Dispose();
-            Environment.Exit(0);
-        }
-
-        //Resize controls
         private void DockPanelMouseLeftButtonDown(object sender, MouseEventArgs mouseEventArgs)
         {
-            try
-            {
-                DragMove();
-            }
+            try { DragMove(); }
             catch
             {
                 // ignored
@@ -175,6 +130,7 @@ namespace Vardone
             if (!(Left + e.HorizontalChange > 10)) return;
             Left += e.HorizontalChange;
             Width -= e.HorizontalChange;
+
         }
 
         private void ThumbBottom_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -221,6 +177,8 @@ namespace Vardone
                 Thumbs();
             }
         }
+
+        private void Close(object sender, RoutedEventArgs e) => Close();
 
         private void Thumbs()
         {
