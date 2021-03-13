@@ -125,7 +125,7 @@ namespace Vardone.Pages
             var user = ((UserItem)ChatHeader.Children[0]).user;
             _client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
             MessageTextBox.Text = "";
-            MessageBoxLostFocus(MessageTextBox, null);
+            MessageBoxLostFocus(null, null);
             LoadPrivateChat(user.UserId);
         }
 

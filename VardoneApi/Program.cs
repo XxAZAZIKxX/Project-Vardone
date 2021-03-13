@@ -1,10 +1,7 @@
-using System.IO;
-using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using VardoneApi.Entity;
-using VardoneApi.Entity.Models;
 
 namespace VardoneApi
 {

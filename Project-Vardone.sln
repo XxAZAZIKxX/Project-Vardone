@@ -11,32 +11,65 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vardone", "Vardone\Vardone.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testLibrary", "test\testLibrary.csproj", "{016A3946-5E36-4CC9-9133-958600058371}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VardoneEntities", "VardoneEntities\VardoneEntities.csproj", "{769C284D-F301-4220-8ADF-8E8950B4D5DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VardoneEntities", "VardoneEntities\VardoneEntities.csproj", "{769C284D-F301-4220-8ADF-8E8950B4D5DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Release 4.0|Any CPU = Release 4.0|Any CPU
+		Release 4.5|Any CPU = Release 4.5|Any CPU
+		Release 4.6.1|Any CPU = Release 4.6.1|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{335A4596-50FA-4E44-BD30-2631C6687A31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{335A4596-50FA-4E44-BD30-2631C6687A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
+		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{335A4596-50FA-4E44-BD30-2631C6687A31}.Release|Any CPU.Build.0 = Release|Any CPU
 		{79F04107-5697-41B9-8724-40CE10169DBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79F04107-5697-41B9-8724-40CE10169DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
+		{79F04107-5697-41B9-8724-40CE10169DBC}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{79F04107-5697-41B9-8724-40CE10169DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79F04107-5697-41B9-8724-40CE10169DBC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{016A3946-5E36-4CC9-9133-958600058371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{016A3946-5E36-4CC9-9133-958600058371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
+		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{016A3946-5E36-4CC9-9133-958600058371}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{016A3946-5E36-4CC9-9133-958600058371}.Release|Any CPU.Build.0 = Release|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
+		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

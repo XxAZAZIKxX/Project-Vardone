@@ -10,7 +10,8 @@ namespace VardoneApi.Core
         public static bool CheckToken(UserTokenModel token)
         {
             if (token == null) return false;
-            var tokens = Program.DataContext.Tokens;
+            var dataContext = Program.DataContext;
+            var tokens = dataContext.Tokens;
             tokens.Include(p => p.User).Load();
             try
             {
@@ -25,8 +26,8 @@ namespace VardoneApi.Core
 
         public static bool IsUserExists(long id)
         {
-
-            var users = Program.DataContext.Users;
+            var dataContext = Program.DataContext;
+            var users = dataContext.Users;
 
             try
             {
@@ -41,7 +42,8 @@ namespace VardoneApi.Core
 
         public static bool IsFriends(long idFirstUser, long idSecondUser)
         {
-            var friends = Program.DataContext.FriendsList;
+            var dataContext = Program.DataContext;
+            var friends = dataContext.FriendsList;
             friends.Include(p => p.FromUser).Load();
             friends.Include(p => p.ToUser).Load();
             try
@@ -59,11 +61,15 @@ namespace VardoneApi.Core
 
         public static bool CanGetUser(long idFirstUser, long idSecondUser)
         {
-            var friendsList = Program.DataContext.FriendsList;
+            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
+            
+            var res = false;
+            
+            var dataContext = Program.DataContext;
+            var friendsList = dataContext.FriendsList;
             friendsList.Include(p => p.FromUser).Load();
             friendsList.Include(p => p.ToUser).Load();
-            var users = Program.DataContext.Users;
-            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
+            var users = dataContext.Users;
 
             var user1 = users.First(p => p.Id == idFirstUser);
             var user2 = users.First(p => p.Id == idSecondUser);
@@ -71,17 +77,20 @@ namespace VardoneApi.Core
             try
             {
                 var _ = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
-                return true;
+                res = true;
             }
             catch
             {
-                return false;
+                // ignored
             }
+
+            return res;
         }
 
         public static bool IsEmailAvailable(string email)
         {
-            var users = Program.DataContext.Users;
+            var dataContext = Program.DataContext;
+            var users = dataContext.Users;
             try
             {
                 var _ = users.First(p => p.Email == email);
