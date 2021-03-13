@@ -53,18 +53,43 @@
                                FontWeight="UltraBlack"
                                Text="WELCOME" />
                 </Viewbox>
-
-                <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
-                         ToolTip="Username" VerticalContentAlignment="Center"
+                <!--Username-->
+                <TextBox x:Name="TbLoginPlaceholder" Grid.Column="1" Grid.Row="3" 
+                         Background="#FF1B1B1D" TabIndex="-1"
+                         Text="Username"
+                         VerticalContentAlignment="Center"
+                         Foreground="Gray" />
+                <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3"
+                         TabIndex="1"
+                         GotFocus="TbLogin_OnGotFocus" LostFocus="TbLogin_OnLostFocus"
+                         TextChanged="TbLogin_OnTextChanged"
+                         Background="Transparent"
+                         VerticalContentAlignment="Center"
                          Foreground="Azure" />
-
-                <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
-                         ToolTip="Email" VerticalContentAlignment="Center"
+                <!--Email-->
+                <TextBox x:Name="TbEmailPlaceholder" Grid.Column="1" Grid.Row="5" 
+                         Background="#FF1B1B1D" TabIndex="-1"
+                         Text="Email"
+                         VerticalContentAlignment="Center"
+                         Foreground="Gray" />
+                <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5" 
+                         TabIndex="2"
+                         GotFocus="TbEmail_OnGotFocus" LostFocus="TbEmail_OnLostFocus"
+                         TextChanged="TbEmail_OnTextChanged"
+                         Background="Transparent"
+                         VerticalContentAlignment="Center"
                          Foreground="Azure" />
-
-
-                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="7" Background="#FF1B1B1D"
-                             ToolTip="Password" VerticalContentAlignment="Center"
+                <!--Password-->
+                <TextBox x:Name="PbPasswordPlaceholder" Grid.Column="1" Grid.Row="7" 
+                         Background="#FF1B1B1D" TabIndex="-1"
+                         Text="Password"
+                         VerticalContentAlignment="Center"
+                         Foreground="Gray" />
+                <PasswordBox KeyDown="PbPassword_OnKeyDown" TabIndex="3" x:Name="PbPassword" Grid.Column="1" Grid.Row="7" 
+                             GotFocus="PbPassword_OnGotFocus" LostFocus="PbPassword_OnLostFocus"
+                             PasswordChanged="PbPassword_OnPasswordChanged"
+                             Background="Transparent"
+                             VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
                 <Button Name="Button" Content="Sign Up" Foreground="azure"

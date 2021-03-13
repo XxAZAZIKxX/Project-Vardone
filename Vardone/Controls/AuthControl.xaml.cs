@@ -1,7 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Pages;
+using Visibility = System.Windows.Visibility;
 
 namespace Vardone.Controls
 {
@@ -40,6 +42,31 @@ namespace Vardone.Controls
 
             if (AuthorizationPage.GetInstance().TryLogin(TblEmail.Text, PbPassword.Password) is not false) return;
             MessageBox.Show("Ошибка авторизации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void TblEmail_OnGotFocus(object sender, RoutedEventArgs e) => EmailPlaceholder.Visibility = Visibility.Collapsed;
+
+        private void TblEmail_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(TblEmail.Text)) return;
+            EmailPlaceholder.Visibility = Visibility.Visible;
+        }
+
+        private void TblEmail_OnTextChanged(object sender, TextChangedEventArgs e) => TblEmail_OnGotFocus(null, null);
+
+        private void PbPassword_OnGotFocus(object sender, RoutedEventArgs e) => PasswordPlaceholder.Visibility = Visibility.Collapsed;
+
+        private void PbPassword_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(PbPassword.Password)) return;
+            PasswordPlaceholder.Visibility = Visibility.Visible;
+        }
+
+        private void PbPassword_OnPasswordChanged(object sender, RoutedEventArgs e) => PbPassword_OnGotFocus(null, null);
+
+        private void PbPassword_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter) LoginBtnClick(null, null);
         }
     }
 }

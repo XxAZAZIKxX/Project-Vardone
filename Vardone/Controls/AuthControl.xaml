@@ -51,13 +51,31 @@
                                Text="WELCOME" />
                 </Viewbox>
 
-                <TextBox x:Name="TblEmail" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
-                         ToolTip="Email" VerticalContentAlignment="Center"
+                <!--Email-->
+                <TextBox x:Name="EmailPlaceholder" TabIndex="-1"
+                         Grid.Column="1" Grid.Row="3" 
+                         Background="#FF1B1B1D"
+                         VerticalContentAlignment="Center"
+                         Text="Email"
+                         Foreground="Gray" />
+                <TextBox x:Name="TblEmail" TabIndex="1"
+                         CaretBrush="White"
+                         GotFocus="TblEmail_OnGotFocus" TextChanged="TblEmail_OnTextChanged" LostFocus="TblEmail_OnLostFocus"
+                         Grid.Column="1" Grid.Row="3" 
+                         Background="Transparent"
+                         VerticalContentAlignment="Center"
                          Foreground="Azure" />
 
-
-                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
-                             ToolTip="Password" VerticalContentAlignment="Center"
+                <!--Password-->
+                <TextBox x:Name="PasswordPlaceholder" Grid.Column="1" Grid.Row="5" 
+                         Background="#FF1B1B1D"  TabIndex="-1"
+                         Text="Password"
+                          VerticalContentAlignment="Center"
+                         Foreground="Gray" />
+                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5"  TabIndex="2"
+                             KeyDown="PbPassword_OnKeyDown" GotFocus="PbPassword_OnGotFocus" LostFocus="PbPassword_OnLostFocus"
+                             PasswordChanged="PbPassword_OnPasswordChanged" Background="Transparent"
+                             VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
                 <Button Click="LoginBtnClick" Name="Button" Content="Sign In" Foreground="azure"
