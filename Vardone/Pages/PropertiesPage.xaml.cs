@@ -18,11 +18,16 @@ namespace Vardone.Pages
     /// <summary>
     /// Логика взаимодействия для PropertiesPage.xaml
     /// </summary>
+    /// private static MainPage _instance;
     public partial class PropertiesPage : Page
     {
-        public PropertiesPage()
+        private static PropertiesPage _instance;
+        public static PropertiesPage GetInstance() => _instance ??= new PropertiesPage(); 
+        private PropertiesPage()
         {
             InitializeComponent();
         }
+
+        private void Grid_MouseEnter(object sender, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
     }
 }
