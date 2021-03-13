@@ -28,53 +28,42 @@
     <Grid >
         <Grid Grid.RowSpan="4" Background="#202020" 
               Grid.ColumnSpan="4" MouseDown="Grid_MouseEnter"/>
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                   Grid.Column="1"  Grid.RowSpan="4" Grid.ColumnSpan="2" >
-            <Viewbox  >
-
-
-                <Grid >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid >
-                        <Button Width="140" HorizontalAlignment="Right"
+        <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" >
+            <Button Width="140" HorizontalAlignment="Right"
                                 Template="{StaticResource buttonExit}" Height="20" Foreground="#CD2020"
                                 Margin="0,30,30,0" VerticalAlignment="Top"
                                 Content="Выйти">
-                        </Button>
+            </Button>
 
-                        <Button Width="140" HorizontalAlignment="Left"
+            <Button Width="140" HorizontalAlignment="Left"
                                 Template="{StaticResource buttonExit}" Foreground="#CD2020" VerticalAlignment="Top"
                                 Height="20" Content="Завершить все сеансы"
                                 Margin="0,60,0,0"/>
-                    </Grid>
-
-
-                    <Border  Grid.Column="2" Grid.Row="1" 
-                Background="#262626" CornerRadius="20">
-
-                        <Grid>
-                            
-                            <Border BorderBrush="LightGray"
+        </Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                   Grid.Column="2" Grid.Row="1"  Grid.RowSpan="2">
+            <!--<Viewbox  >-->
+            <Grid >
+                <Border Background="#262626" CornerRadius="20">
+                    <Grid>
+                        <Border BorderBrush="Gray"
                         BorderThickness="0,0,0,1">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Label Grid.Row="0" Foreground="WhiteSmoke"
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Foreground="WhiteSmoke"
                                            FontWeight="Light" Opacity="0.7" 
-                                           FontSize="20"> Моя учетная запись</Label>
-                                    <Ellipse Grid.Row="1" x:Name="Ellipse" VerticalAlignment="Bottom"
+                                           FontSize="20">Моя учетная запись</Label>
+                                <Ellipse Grid.Row="1" x:Name="Ellipse" VerticalAlignment="Bottom"
                                  Width="100" Height="100" 
                                  HorizontalAlignment="Left">
-                                        <Ellipse.Fill>
-                                            <ImageBrush Stretch="UniformToFill" x:Name="Avatar" />
-                                        </Ellipse.Fill>
-                                    </Ellipse>
-                                    <Label Grid.Row="1" x:Name="Username" Content="User"
+                                    <Ellipse.Fill>
+                                        <ImageBrush Stretch="UniformToFill" x:Name="Avatar" />
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <Label Grid.Row="1" x:Name="Username" Content="User"
                                Foreground="white"
                                Width="160"
                                FontSize="20"
@@ -82,63 +71,63 @@
                                Margin="150,0,0,0"
                                VerticalAlignment="Center" />
 
-                                </Grid>
-                            </Border>
-                            <Border Grid.Row="1" CornerRadius="20" Margin="20"
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="1" CornerRadius="20" Margin="20"
                         Background="#303030">
-                                <Grid VerticalAlignment="Center">
-                                    <TextBlock Margin="20,20,0,0" Height="30"
+                            <Grid VerticalAlignment="Center">
+                                <TextBlock Margin="20,20,0,0" Height="30"
                                    VerticalAlignment="Top"
                                    Text="Username"
                                    Foreground="LightGray">
-                                    </TextBlock>
-                                    <TextBlock Text="Email" Foreground="LightGray"
+                                </TextBlock>
+                                <TextBlock Text="Email" Foreground="LightGray"
                                    Margin="20,50,0,0" Height="30"
                                    VerticalAlignment="Top" />
-                                    <TextBlock Text="Password" Foreground="LightGray"
+                                <TextBlock Text="Password" Foreground="LightGray"
                                    Margin="20,80,0,0" Height="30"
                                    VerticalAlignment="Top">
-                                    </TextBlock>
-                                    <TextBlock Text="Description" Foreground="LightGray"
+                                </TextBlock>
+                                <TextBlock Text="Description" Foreground="LightGray"
                                    Margin="20,110,0,0" Height="30"
                                    VerticalAlignment="Top">
-                                    </TextBlock>
+                                </TextBlock>
 
-                                    <Button Content="Изменить"
+                                <Button Content="Изменить"
                                 Foreground="White" 
                                 Template="{StaticResource buttonChange}"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Right"
                                 Width="100" Height="20"
                                 Margin="0,50,20,0">
-                                    </Button>
-                                    <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
+                                </Button>
+                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                 Width="100" Height="20"
                                 Margin="0,80,20,0">
-                                    </Button>
-                                    <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
+                                </Button>
+                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                 Width="100" Height="20"
                                 Margin="0,110,20,0">
-                                    </Button>
-                                    <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
+                                </Button>
+                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                 Width="100" Height="20"
                                 Margin="0,20,20,0">
-                                    </Button>
-                                </Grid>
+                                </Button>
+                            </Grid>
 
-                            </Border>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25*" />
-                                <RowDefinition Height="65*" />
-                            </Grid.RowDefinitions>
+                        </Border>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25*" />
+                            <RowDefinition Height="65*" />
+                        </Grid.RowDefinitions>
 
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Viewbox>
+                    </Grid>
+                </Border>
+            </Grid>
+            <!--</Viewbox>-->
         </ScrollViewer>
 
 
