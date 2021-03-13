@@ -6,11 +6,11 @@ using Vardone.Pages;
 namespace Vardone.Controls
 {
     /// <summary>
-    /// Interaction logic for Register.xaml
+    /// Interaction logic for RegisterControl.xaml
     /// </summary>
-    public partial class Register
+    public partial class RegisterControl
     {
-        public Register() => InitializeComponent();
+        public RegisterControl() => InitializeComponent();
 
         private void Hlme(object sender, MouseEventArgs e)
         {
@@ -45,11 +45,8 @@ namespace Vardone.Controls
                 return;
             }
 
-            if (AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password) is false)
-            {
-                MessageBox.Show("Ошибка регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password) is not false) return;
+            MessageBox.Show("Ошибка регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

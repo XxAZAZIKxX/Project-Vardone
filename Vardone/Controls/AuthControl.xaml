@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Vardone.Controls.Register"
+﻿<UserControl x:Class="Vardone.Controls.AuthControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -25,8 +25,7 @@
 
     <Grid Visibility="Visible">
 
-        <Border CornerRadius="10" Opacity="0.8"
-                Background="Black" Grid.Column="1"
+        <Border CornerRadius="10" Background="Black" Opacity="0.8" Grid.Column="1"
                 Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -35,17 +34,15 @@
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20*" />
-                    <RowDefinition Height="43*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="20*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="24*" />
-                    <RowDefinition Height="50*" />
+                    <RowDefinition Height="22*" />
+                    <RowDefinition Height="47*" />
+                    <RowDefinition Height="26*" />
+                    <RowDefinition Height="29*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="32*" />
+                    <RowDefinition Height="30*" />
+                    <RowDefinition Height="60*" />
                 </Grid.RowDefinitions>
                 <Viewbox Grid.Column="1" Grid.Row="1">
                     <TextBlock Name="Title" Foreground="Azure"
@@ -54,34 +51,30 @@
                                Text="WELCOME" />
                 </Viewbox>
 
-                <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
-                         ToolTip="Username" VerticalContentAlignment="Center"
-                         Foreground="Azure" />
-
-                <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
+                <TextBox x:Name="TblEmail" Grid.Column="1" Grid.Row="3" Background="#FF1B1B1D"
                          ToolTip="Email" VerticalContentAlignment="Center"
                          Foreground="Azure" />
 
 
-                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="7" Background="#FF1B1B1D"
+                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5" Background="#FF1B1B1D"
                              ToolTip="Password" VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
-                <Button Name="Button" Content="Sign Up" Foreground="azure"
-                        Grid.Column="1" Grid.Row="9" FontWeight="Bold" Click="RegisterBtnClick"
-                        Background="DimGray" Template="{StaticResource ButtonGo}" />
-                <Viewbox Grid.Row="10" Grid.Column="1">
+                <Button Click="LoginBtnClick" Name="Button" Content="Sign In" Foreground="azure"
+                        Grid.Column="1" Grid.Row="7" FontWeight="Bold" Background="DimGray"
+                        Template="{StaticResource ButtonGo}" />
+                <Viewbox Grid.Row="8" Grid.Column="1">
                     <Label VerticalAlignment="Center" FontSize="2">
-                        <Hyperlink Name="Hyplin" Click="Hlmd" MouseEnter="Hlme" MouseLeave="Hlml"
-                                   FontWeight="Bold" Foreground="#34ebe5">
+                        <Hyperlink Click="md_hl" Name="Hyplin" MouseEnter="Hlme" MouseLeave="Hlml"
+                                   FontWeight="Bold" Foreground="#34ebe5" Cursor="Hand">
 
-                            Sign in
+                            Sign up
                         </Hyperlink>
                     </Label>
                 </Viewbox>
+
             </Grid>
         </Border>
-
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />

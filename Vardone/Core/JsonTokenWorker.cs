@@ -10,7 +10,7 @@ namespace Vardone.Core
         private static readonly string FilePath = MainWindow.PATH + @"\token.json";
         public static UserTokenModel GetToken()
         {
-            if (!System.IO.File.Exists(FilePath)) return null;
+            if (!File.Exists(FilePath)) return null;
             var s = Encoding.Default.GetString(File.ReadAllBytes(FilePath));
             return JsonConvert.DeserializeObject<UserTokenModel>(s);
         }

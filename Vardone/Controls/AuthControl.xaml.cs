@@ -2,16 +2,15 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Pages;
-using Brush = System.Windows.Media.Brush;
 
 namespace Vardone.Controls
 {
     /// <summary>
-    /// Interaction logic for Auth.xaml
+    /// Interaction logic for AuthControl.xaml
     /// </summary>
-    public partial class Auth
+    public partial class AuthControl
     {
-        public Auth() => InitializeComponent();
+        public AuthControl() => InitializeComponent();
 
         private void Hlme(object sender, MouseEventArgs e)
         {
@@ -39,11 +38,8 @@ namespace Vardone.Controls
                 return;
             }
 
-            if (AuthorizationPage.GetInstance().TryLogin(TblEmail.Text, PbPassword.Password) is false)
-            {
-                MessageBox.Show("Ошибка авторизации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (AuthorizationPage.GetInstance().TryLogin(TblEmail.Text, PbPassword.Password) is not false) return;
+            MessageBox.Show("Ошибка авторизации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

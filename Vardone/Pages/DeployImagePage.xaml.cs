@@ -4,14 +4,14 @@ using System.Windows.Media.Imaging;
 namespace Vardone.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для DeployImage.xaml
+    /// Логика взаимодействия для DeployImagePage.xaml
     /// </summary>
-    public partial class DeployImage
+    public partial class DeployImagePage
     {
-        private static DeployImage _instance;
-        public static DeployImage GetInstance() => _instance ??= new DeployImage();
+        private static DeployImagePage _instance;
+        public static DeployImagePage GetInstance() => _instance ??= new DeployImagePage();
         public BitmapImage image;
-        private DeployImage() => InitializeComponent();
+        private DeployImagePage() => InitializeComponent();
 
         public void LoadImage(BitmapImage loadImage) => Image.Source = image = loadImage;
 

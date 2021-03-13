@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Vardone.Core;
 using VardoneEntities.Entities;
@@ -7,14 +6,14 @@ using VardoneEntities.Entities;
 namespace Vardone.Pages
 {
     /// <summary>
-    /// Interaction logic for UserProfile.xaml
+    /// Interaction logic for UserProfilePage.xaml
     /// </summary>
-    public partial class UserProfile : Page
+    public partial class UserProfilePage
     {
-        private static UserProfile _instance;
-        public static UserProfile GetInstance() => _instance ??= new UserProfile();
+        private static UserProfilePage _instance;
+        public static UserProfilePage GetInstance() => _instance ??= new UserProfilePage();
         public User User { get; private set; }
-        private UserProfile() => InitializeComponent();
+        private UserProfilePage() => InitializeComponent();
         public void Load(User user)
         {
             User = user;

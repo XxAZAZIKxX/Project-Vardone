@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -24,12 +26,35 @@ namespace Vardone
 
         private static MainWindow _instance;
         public static MainWindow GetInstance() => _instance;
+
         public static readonly string DLL_PATH = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static readonly string PATH = System.IO.Path.GetDirectoryName(DLL_PATH);
+
+        public static WinForms.NotifyIcon trayIcon;
         public MainWindow()
         {
             InitializeComponent();
             _instance = this;
+
+            InitializeTrayIcon();
+            TryLogin();
+        }
+
+        private static void InitializeTrayIcon()
+        {
+            trayIcon = new WinForms.NotifyIcon
+            {
+                Visible = true,
+                Text = "Vardone",
+                Icon = new Icon(PATH + @"\resources\va.ico"),
+                ContextMenuStrip = new WinForms.ContextMenuStrip()
+            };
+            trayIcon.ContextMenuStrip = new WinForms.ContextMenuStrip();
+            trayIcon.ContextMenuStrip.Items.Add("Tururu");
+        }
+
+        private void TryLogin()
+        {
             var token = JsonTokenWorker.GetToken();
             if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
             else

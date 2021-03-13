@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,9 +8,7 @@ using Vardone.Controls.ItemControls;
 using Vardone.Core;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.PrivateChats;
-using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
-using VardoneLibrary.Core.Base;
 
 namespace Vardone.Pages
 {
@@ -29,55 +26,6 @@ namespace Vardone.Pages
         {
             InitializeComponent();
             DefaultAvatar = ImageWorker.ByteArrayToImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\avatar.jpg"));
-            try
-            {
-                VardoneBaseApi.RegisterUser(new RegisterUserModel
-                {
-                    Username = "Julie",
-                    Email = "test@",
-                    Password = "1"
-                });
-                VardoneBaseApi.RegisterUser(new RegisterUserModel
-                {
-                    Username = "Ahri",
-                    Email = "test1@",
-                    Password = "1"
-                });
-                VardoneBaseApi.RegisterUser(new RegisterUserModel
-                {
-                    Username = "Katarina",
-                    Email = "test2@",
-                    Password = "1"
-                });
-            }
-            catch
-            {
-                // ignored
-            }
-
-            var token1 = VardoneBaseApi.GetUserToken("test@", "1");
-            var token2 = VardoneBaseApi.GetUserToken("test1@", "1");
-            var token3 = VardoneBaseApi.GetUserToken("test2@", "1");
-            var julie = new VardoneClient(token1.UserId, token1.Token);
-            var ahri = new VardoneClient(token2.UserId, token2.Token);
-            var kat = new VardoneClient(token3.UserId, token3.Token);
-
-            //julie.UpdateUser(new UpdateUserModel
-            //{
-            //    Base64Image = Convert.ToBase64String(File.ReadAllBytes(@"D:\User\Downloads\photo_2021-03-10_20-42-00.jpg"))
-            //});
-            //ahri.UpdateUser(new UpdateUserModel
-            //{
-            //    Base64Image = Convert.ToBase64String(File.ReadAllBytes(@"D:\User\Pictures\Pictures\4501618-anime-anime-girls-picture-in-picture.png"))
-            //});
-            //kat.UpdateUser(new UpdateUserModel
-            //{
-            //    Base64Image = Convert.ToBase64String(File.ReadAllBytes(@"D:\User\Pictures\Pictures\a77fdf812e91550b07452788b7dacbd4.png"))
-            //});
-            julie.AddFriend(1);
-            ahri.AddFriend(1);
-            kat.AddFriend(1);
-            //ahri.SendPrivateMessage(1, new PrivateMessageModel { Text = "test message"});
         }
 
         public void Load(VardoneClient client)
@@ -86,7 +34,7 @@ namespace Vardone.Pages
             var i = 0;
             foreach (var friend in _client.GetFriends())
             {
-                var friendGridItem = new UserItem(friend, MouseDownEventLogic.OpenChat)
+                var friendGridItem = new UserItem(friend, MouseDownEventLogic.OpenProfile)
                 {
                     Margin = new Thickness(0, i, 0, 0),
                     VerticalAlignment = VerticalAlignment.Top
@@ -149,14 +97,14 @@ namespace Vardone.Pages
 
         public void UserProfileOpen(User user)
         {
-            UserProfile.GetInstance().Load(user);
-            MainFrame.Navigate(UserProfile.GetInstance());
+            UserProfilePage.GetInstance().Load(user);
+            MainFrame.Navigate(UserProfilePage.GetInstance());
         }
 
         public void DeployImage(BitmapImage image)
         {
-            Pages.DeployImage.GetInstance().LoadImage(image);
-            MainFrame.Navigate(Pages.DeployImage.GetInstance());
+            DeployImagePage.GetInstance().LoadImage(image);
+            MainFrame.Navigate(DeployImagePage.GetInstance());
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e) =>
@@ -182,7 +130,6 @@ namespace Vardone.Pages
             LoadPrivateChat(user.UserId);
         }
 
-        private void MessageTextBox_OnTextChanged(object sender, TextChangedEventArgs e) =>
-            TextBox_GotFocus(null, null);
+        private void MessageTextBox_OnTextChanged(object sender, TextChangedEventArgs e) => TextBox_GotFocus(null, null);
     }
 }

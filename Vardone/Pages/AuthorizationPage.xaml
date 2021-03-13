@@ -9,7 +9,7 @@
       Title="AuthorizationPage">
 
     <Grid>
-        <local1:Auth x:Name="Auth" Visibility="Visible" />
-        <local1:Register x:Name="Register" Visibility="Hidden" />
+        <local1:AuthControl x:Name="Auth" Visibility="Visible" />
+        <local1:RegisterControl x:Name="Register" Visibility="Hidden" />
     </Grid>
 </Page>
