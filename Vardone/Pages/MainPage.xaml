@@ -112,6 +112,7 @@
 
                 <Image Cursor="Hand" Source="/resources/gear.png"
                        HorizontalAlignment="Right"
+                       MouseLeftButtonDown="Image_MouseLeftButtonDown"
                        Margin="10,10,30,10" />
             </Grid>
         </Border>

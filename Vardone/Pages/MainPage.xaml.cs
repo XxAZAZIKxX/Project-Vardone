@@ -131,5 +131,8 @@ namespace Vardone.Pages
         }
 
         private void MessageTextBox_OnTextChanged(object sender, TextChangedEventArgs e) => TextBox_GotFocus(null, null);
+
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) =>  MainFrame.Navigate(PropertiesPage.GetInstance());
+    
     }
 }
