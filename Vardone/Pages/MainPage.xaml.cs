@@ -107,29 +107,27 @@ namespace Vardone.Pages
             MainFrame.Navigate(DeployImagePage.GetInstance());
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e) =>
-            MessagePlaceholder.Visibility = Visibility.Collapsed;
+        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) => MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        private void MessageBoxLostFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is not TextBox) return;
-            var textBox = (TextBox)sender;
-            if (!string.IsNullOrEmpty(textBox.Text)) return;
-            MessagePlaceholder.Visibility = Visibility.Visible;
+            if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
+            MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
         }
+        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) => MessageBoxGotFocus(null, null);
 
         private void MessageBoxKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
+            if(string.IsNullOrWhiteSpace(MessageTextBox.Text))return;
             if (ChatHeader.Children.Count == 0) return;
             if (ChatHeader.Children[0] is not UserItem) return;
             var user = ((UserItem)ChatHeader.Children[0]).user;
             _client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
             MessageTextBox.Text = "";
-            TextBox_LostFocus(MessageTextBox, null);
+            MessageBoxLostFocus(MessageTextBox, null);
             LoadPrivateChat(user.UserId);
         }
 
-        private void MessageTextBox_OnTextChanged(object sender, TextChangedEventArgs e) => TextBox_GotFocus(null, null);
     }
 }

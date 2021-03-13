@@ -133,10 +133,10 @@
                     VerticalAlignment="Bottom" Margin="20,0,20,20">
                 <Grid>
                     <TextBox BorderBrush="Transparent" VerticalContentAlignment="Center" Background="Transparent"
-                             VerticalAlignment="Center" Height="30" Foreground="Gray" x:Name="MessagePlaceholder"
+                             VerticalAlignment="Center" Height="30" Foreground="Gray" x:Name="MessageTextBoxPlaceholder"
                              Text="Enter message..." />
-                    <TextBox TextChanged="MessageTextBox_OnTextChanged" KeyDown="MessageBoxKeyDown"
-                             GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" Text=""
+                    <TextBox TextChanged="MessageTextBoxOnTextChanged" KeyDown="MessageBoxKeyDown"
+                             GotFocus="MessageBoxGotFocus" LostFocus="MessageBoxLostFocus" Text=""
                              x:Name="MessageTextBox" BorderThickness="0" Height="30"
                              VerticalContentAlignment="Center" CaretBrush="White"
                              Foreground="LightGray" Background="Transparent" />
