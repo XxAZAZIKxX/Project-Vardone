@@ -3,131 +3,169 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:Vardone.Pages"
       mc:Ignorable="d"
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="800" d:DesignWidth="800"
       Title="PropertiesPage">
     <Page.Resources>
-        <ControlTemplate x:Key="buttonExit" TargetType="Button">
+        <ControlTemplate x:Key="ButtonExit" TargetType="Button">
             <Border
                 BorderBrush="#CD2020" BorderThickness="1" CornerRadius="5"
-                Background="#202020" Cursor="Hand" >
+                Background="#202020" Cursor="Hand">
 
                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
-        <ControlTemplate x:Key="buttonChange" TargetType="Button">
+        <ControlTemplate x:Key="ButtonChange" TargetType="Button">
             <Border
-                BorderThickness="1" CornerRadius="5"  Cursor="Hand"
+                BorderThickness="1" CornerRadius="5" Cursor="Hand"
                 Background="#7288D9">
 
                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
     </Page.Resources>
-    <Grid >
-        <Grid Grid.RowSpan="4" Background="#202020" 
-              Grid.ColumnSpan="4" MouseDown="Grid_MouseEnter"/>
-        <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" >
-            <Button Width="140" HorizontalAlignment="Right"
-                                Template="{StaticResource buttonExit}" Height="20" Foreground="#CD2020"
-                                Margin="0,30,30,0" VerticalAlignment="Top"
-                                Content="Выйти">
-            </Button>
-
-            <Button Width="140" HorizontalAlignment="Left"
-                                Template="{StaticResource buttonExit}" Foreground="#CD2020" VerticalAlignment="Top"
-                                Height="20" Content="Завершить все сеансы"
-                                Margin="0,60,0,0"/>
-        </Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                   Grid.Column="2" Grid.Row="1"  Grid.RowSpan="2">
-            <!--<Viewbox  >-->
-            <Grid >
-                <Border Background="#262626" CornerRadius="20">
-                    <Grid>
-                        <Border BorderBrush="Gray"
-                        BorderThickness="0,0,0,1">
+    <Grid>
+        <Grid Grid.RowSpan="4" Background="#202020"
+              Grid.ColumnSpan="4" MouseDown="Grid_MouseEnter" />
+        <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" />
+        <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                      Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
+            <Grid>
+                <StackPanel>
+                    <!--Userpage-->
+                    <StackPanel>
+                        <Label Foreground="WhiteSmoke"
+                               FontWeight="Light" Opacity="0.7"
+                               FontSize="20" Content="Моя учётная запись" />
+                        <Border Background="#262626" CornerRadius="20" VerticalAlignment="Top">
                             <Grid>
+                                <Border BorderBrush="Gray"
+                                        BorderThickness="0,0,0,1">
+                                    <Grid Height="100">
+                                        <Ellipse Cursor="Hand" Margin="30,0,0,0"
+                                                 VerticalAlignment="Center"
+                                                 Width="70" Height="70"
+                                                 HorizontalAlignment="Left">
+                                            <Ellipse.Fill>
+                                                <ImageBrush ImageSource="../Resources/avatar.jpg"
+                                                            Stretch="UniformToFill" x:Name="Avatar" />
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <Label x:Name="Username" Content="User"
+                                               Foreground="white"
+                                               Width="160"
+                                               FontSize="20"
+                                               HorizontalAlignment="Left"
+                                               Margin="130,0,0,0"
+                                               VerticalAlignment="Center" />
+                                        <Button Width="140" HorizontalAlignment="Right"
+                                                Template="{StaticResource ButtonExit}"
+                                                Height="30" Foreground="#CD2020"
+                                                FontSize="16"
+                                                Margin="0,5,30,0"
+                                                VerticalAlignment="Center"
+                                                Content="Выйти" />
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" CornerRadius="20" Margin="20"
+                                        Background="#303030">
+                                    <Grid VerticalAlignment="Top">
+                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                                 BorderBrush="Transparent"
+                                                 Background="Transparent" FontSize="18" Margin="20,20,0,0" Height="30"
+                                                 VerticalAlignment="Top"
+                                                 Text="Username" IsEnabled="False"
+                                                 Foreground="LightGray" />
+                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                                 BorderBrush="Transparent"
+                                                 Background="Transparent" FontSize="18" Text="Email"
+                                                 Foreground="LightGray"
+                                                 Margin="20,60,0,0" Height="30"
+                                                 VerticalAlignment="Top" IsEnabled="False" />
+
+                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                                 BorderBrush="Transparent"
+                                                 Background="Transparent" FontSize="18" Text="Description"
+                                                 Foreground="LightGray"
+                                                 Margin="20,100,0,20" Height="30"
+                                                 VerticalAlignment="Top" IsEnabled="False" />
+
+                                        <Button Content="Изменить"
+                                                Foreground="White"
+                                                Template="{StaticResource ButtonChange}"
+                                                VerticalAlignment="Top"
+                                                HorizontalAlignment="Right"
+                                                Width="100" Height="25"
+                                                Margin="0,25,20,0" />
+                                        <Button Content="Изменить" Foreground="White"
+                                                Template="{StaticResource ButtonChange}"
+                                                VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                Width="100" Height="25"
+                                                Margin="0,65,20,0" />
+                                        <Button Content="Изменить" Foreground="White"
+                                                Template="{StaticResource ButtonChange}"
+                                                VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                Width="100" Height="25"
+                                                Margin="0,105,20,0" />
+                                    </Grid>
+                                </Border>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
+                                    <RowDefinition Height="25*" />
+                                    <RowDefinition Height="65*" />
                                 </Grid.RowDefinitions>
-                                <Label Grid.Row="0" Foreground="WhiteSmoke"
-                                           FontWeight="Light" Opacity="0.7" 
-                                           FontSize="20">Моя учетная запись</Label>
-                                <Ellipse Grid.Row="1" x:Name="Ellipse" VerticalAlignment="Bottom"
-                                 Width="100" Height="100" 
-                                 HorizontalAlignment="Left">
-                                    <Ellipse.Fill>
-                                        <ImageBrush Stretch="UniformToFill" x:Name="Avatar" />
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <Label Grid.Row="1" x:Name="Username" Content="User"
-                               Foreground="white"
-                               Width="160"
-                               FontSize="20"
-                               HorizontalAlignment="Left"
-                               Margin="150,0,0,0"
-                               VerticalAlignment="Center" />
-
                             </Grid>
                         </Border>
-                        <Border Grid.Row="1" CornerRadius="20" Margin="20"
-                        Background="#303030">
-                            <Grid VerticalAlignment="Center">
-                                <TextBlock Margin="20,20,0,0" Height="30"
-                                   VerticalAlignment="Top"
-                                   Text="Username"
-                                   Foreground="LightGray">
-                                </TextBlock>
-                                <TextBlock Text="Email" Foreground="LightGray"
-                                   Margin="20,50,0,0" Height="30"
-                                   VerticalAlignment="Top" />
-                                <TextBlock Text="Password" Foreground="LightGray"
-                                   Margin="20,80,0,0" Height="30"
-                                   VerticalAlignment="Top">
-                                </TextBlock>
-                                <TextBlock Text="Description" Foreground="LightGray"
-                                   Margin="20,110,0,0" Height="30"
-                                   VerticalAlignment="Top">
-                                </TextBlock>
+                    </StackPanel>
+                    <!--Password-->
+                    <StackPanel>
+                        <Label Foreground="WhiteSmoke"
+                               FontWeight="Light" Opacity="0.7"
+                               FontSize="20" Content="Изменение пароля" />
+                        <Grid>
+                            <Button Content="Изменить" Foreground="White"
+                                    Template="{StaticResource ButtonChange}"
+                                    VerticalAlignment="Top" HorizontalAlignment="Left"
+                                    Width="100" Height="30" Margin="0,20,0,0" />
+                            <PasswordBox CaretBrush="White" HorizontalAlignment="Right" Width="360"
+                                         BorderBrush="Red"
+                                         Background="Transparent" FontSize="18"
+                                         Foreground="LightGray"
+                                         Margin="0,20,0,0" Height="30"
+                                         VerticalAlignment="Top" IsEnabled="False" />
+                            <PasswordBox CaretBrush="White" HorizontalAlignment="Right" Width="360"
+                                         BorderBrush="Red"
+                                         Background="Transparent" FontSize="18"
+                                         Foreground="LightGray"
+                                         Margin="20,70,0,20" Height="30"
+                                         VerticalAlignment="Top" IsEnabled="False" />
+                        </Grid>
+                    </StackPanel>
+                    <!--Addition-->
+                    <StackPanel>
+                        <Label Foreground="WhiteSmoke"
+                               FontWeight="Light" Opacity="0.7"
+                               FontSize="20" Content="Дополнительные настройки" />
+                        <Grid>
+                            <Button Width="200" HorizontalAlignment="Left"
+                                    Template="{StaticResource ButtonExit}"
+                                    Height="35" Foreground="#CD2020"
+                                    FontSize="16"
+                                    Margin="30,20,30,0"
+                                    VerticalAlignment="Center"
+                                    Content="Завершить все сеансы" />
+                            <Button Width="200" HorizontalAlignment="Right"
+                                    Template="{StaticResource ButtonExit}"
+                                    Height="35" Foreground="#CD2020"
+                                    FontSize="16"
+                                    Margin="0,20,30,0"
+                                    VerticalAlignment="Center"
+                                    Content="Удалить учётную запись" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
 
-                                <Button Content="Изменить"
-                                Foreground="White" 
-                                Template="{StaticResource buttonChange}"
-                                VerticalAlignment="Top"
-                                HorizontalAlignment="Right"
-                                Width="100" Height="20"
-                                Margin="0,50,20,0">
-                                </Button>
-                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
-                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Width="100" Height="20"
-                                Margin="0,80,20,0">
-                                </Button>
-                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
-                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Width="100" Height="20"
-                                Margin="0,110,20,0">
-                                </Button>
-                                <Button Content="Изменить" Foreground="White" Template="{StaticResource buttonChange}"
-                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Width="100" Height="20"
-                                Margin="0,20,20,0">
-                                </Button>
-                            </Grid>
 
-                        </Border>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="25*" />
-                            <RowDefinition Height="65*" />
-                        </Grid.RowDefinitions>
-
-                    </Grid>
-                </Border>
             </Grid>
-            <!--</Viewbox>-->
         </ScrollViewer>
 
 
@@ -138,10 +176,9 @@
             <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="30*" />
-            <ColumnDefinition Width="50*" />
-            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="500" />
+            <ColumnDefinition Width="30*" />
         </Grid.ColumnDefinitions>
     </Grid>
 </Page>

@@ -20,7 +20,7 @@ namespace Vardone.Pages
             Username.Text = user.Username;
             Avatar.ImageSource = user.Base64Avatar == null
                 ? MainPage.DefaultAvatar
-                : ImageWorker.ByteArrayToImage(Convert.FromBase64String(user.Base64Avatar));
+                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar));
             Description.Text = user.Description;
         }
         private void BackToMainPage(object s, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);

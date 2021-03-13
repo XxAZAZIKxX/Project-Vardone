@@ -14,7 +14,7 @@
                 <GradientStop Color="White" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
-        <Border Background="#141313" BorderThickness="3" BorderBrush="#141313" Grid.Column="0" Grid.Row="0">
+        <Border Background="#141313" BorderThickness="0" BorderBrush="#141313" Grid.Column="0" Grid.Row="0">
             <Image Cursor="Hand" Source="/Resources/va.ico" />
         </Border>
         <Grid Grid.Row="1" Grid.Column="0" Background="#141313">
@@ -24,7 +24,6 @@
                        VerticalAlignment="Top" Opacity="0.3" />
             <!--<ScrollViewer Width="5" HorizontalAlignment="Right" Visibility="Collapsed">-->
             <DataGrid Foreground="White" Margin="0,2,0,0" BorderThickness="0" Background="#141313">
-
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#141313" />
@@ -40,7 +39,7 @@
                 <RowDefinition Height="10*" />
                 <RowDefinition Height="90*" />
             </Grid.RowDefinitions>
-            <Border Background="#202020" Cursor="Hand" CornerRadius="0,50,0,0"
+            <Border Background="#202020" Cursor="Hand" BorderThickness="0" CornerRadius="0,50,0,0"
                     Grid.Row="0">
                 <TextBlock Text="Найти.." Foreground="WhiteSmoke"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -53,12 +52,12 @@
                             BorderThickness="0">
                     <TabItem Foreground="Gray" Header="Friends ">
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <Grid x:Name="FriendsGrid" VerticalAlignment="Top" />
+                            <StackPanel x:Name="FriendsGrid" VerticalAlignment="Top" />
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Foreground="Gray" Header="Messages">
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <Grid x:Name="MessagesGrid" />
+                            <StackPanel x:Name="MessagesGrid" />
                         </ScrollViewer>
                     </TabItem>
                     <TabControl.Resources>
@@ -95,7 +94,7 @@
                        Height="1" Width="200" />
 
         </Grid>
-        <Border Background="#141313" CornerRadius="50,0,50,0" Grid.Column="1" Grid.Row="0">
+        <Border Background="#141313" CornerRadius="0,0,50,0" Grid.Column="1" Grid.Row="0">
             <Grid>
                 <Ellipse MouseDown="MyProfileOpen" Cursor="Hand" Margin="30,5,0,5"
                          HorizontalAlignment="Left" Width="30">
@@ -126,7 +125,7 @@
                 <RowDefinition Height="15*" />
             </Grid.RowDefinitions>
             <ScrollViewer x:Name="ChatScrollViewer" Visibility="Visible" VerticalScrollBarVisibility="Hidden">
-                <Grid x:Name="ChatMessagesGrid" VerticalAlignment="Top" />
+                <StackPanel x:Name="ChatMessagesGrid" VerticalAlignment="Bottom" />
             </ScrollViewer>
 
             <Border Grid.Row="1" CornerRadius="7" BorderThickness="3"
@@ -134,7 +133,8 @@
                     VerticalAlignment="Bottom" Margin="20,0,20,20">
                 <Grid>
                     <TextBox BorderBrush="Transparent" VerticalContentAlignment="Center" Background="Transparent"
-                             VerticalAlignment="Center" Height="30" Foreground="Gray" x:Name="MessageTextBoxPlaceholder"
+                             VerticalAlignment="Center" Height="30" Foreground="Gray"
+                             x:Name="MessageTextBoxPlaceholder"
                              Text="Enter message..." />
                     <TextBox TextChanged="MessageTextBoxOnTextChanged" KeyDown="MessageBoxKeyDown"
                              GotFocus="MessageBoxGotFocus" LostFocus="MessageBoxLostFocus" Text=""

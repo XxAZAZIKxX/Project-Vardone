@@ -14,7 +14,14 @@
         <Border Grid.Row="1" Grid.Column="1">
             <Image x:Name="Image" />
         </Border>
-
+        <Image MouseDown="DownloadImageMouseDown" 
+            HorizontalAlignment="Center" 
+               VerticalAlignment="Center" 
+               Height="40" 
+               Grid.Row="0" 
+               Grid.Column="2" 
+               Opacity="0.2"
+               Source="../Resources/download.png"/>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20*" />
             <ColumnDefinition Width="60*" />

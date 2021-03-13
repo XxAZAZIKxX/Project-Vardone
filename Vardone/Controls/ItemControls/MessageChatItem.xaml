@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition x:Name="ImageRow" Height="200" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="30" MaxHeight="50" />
         </Grid.RowDefinitions>
         <Ellipse x:Name="Ellipse" VerticalAlignment="Top"
                  Width="30" Height="30" Margin="10,0,0,0"
