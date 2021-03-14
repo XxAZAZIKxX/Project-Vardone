@@ -145,7 +145,8 @@
                             <Button x:Name="changeButton" Content="Изменить" Foreground="White"
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Width="100" Height="30" Click="Button_SaveClick"
+                                    Width="100" Height="30" 
+                                    Click="Button_SaveClick"
                                     Margin="0,20,0,20" >
 
                             </Button>
@@ -159,14 +160,17 @@
                             </Button>
                             <PasswordBox Visibility="Collapsed"
                                          CaretBrush="White" 
-                                         HorizontalAlignment="Right" Width="360"
+                                         HorizontalAlignment="Right" 
+                                         Width="360"
                                          BorderBrush="Red" 
                                          x:Name="Passwordbox1"
-                                         Background="Transparent" FontSize="18"
+                                         Background="Transparent"
+                                         FontSize="18"
                                          Foreground="LightGray"
                                          Margin="0,20,0,0" Height="30"
-                                         VerticalAlignment="Top" IsEnabled="False" >
-                            </PasswordBox>
+                                         VerticalAlignment="Top"
+                                         IsEnabled="False"  />
+
                             <PasswordBox Visibility="Collapsed"
                                          x:Name="Passwordbox2"
                                          CaretBrush="White" HorizontalAlignment="Right" Width="360"

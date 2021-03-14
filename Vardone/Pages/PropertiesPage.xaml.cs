@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using VardoneEntities.Entities;
 using Vardone.Core;
+using Notifications.Wpf;
 
 namespace Vardone.Pages
 {
@@ -43,6 +44,7 @@ namespace Vardone.Pages
             CancelBtn.Visibility = (CancelBtn.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             Passwordbox1.Visibility = (Passwordbox1.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             Passwordbox2.Visibility = (Passwordbox2.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
+
         }
         private void Button_CancelClick(object sender, RoutedEventArgs e)
         {
@@ -50,26 +52,87 @@ namespace Vardone.Pages
             CancelBtn.Visibility = (CancelBtn.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             Passwordbox1.Visibility = (Passwordbox1.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             Passwordbox2.Visibility = (Passwordbox2.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-        }
+            //if (string.IsNullOrWhiteSpace(Username_tb.Text))
+            //{
+            //    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+            //    {
+            //        Title = "Проверьте введенные данные",
+            //        Message = "Пожалуйста введите пароль корректно",
+            //        Type = NotificationType.Warning
 
-
-
-        private void Username_ChangeBtn(object sender, RoutedEventArgs e)
+            //    }); 
+            //}
+            //else
+            //{
+            //    if (Username_changeButton.Content.ToString() == "Сохранить")
+            //    {
+            //        MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+            //        {
+            //            Password = Passwordbox1.Password
+            //        });
+            //    }
+            //}
+        } private void Username_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(Username_tb.Text))
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите логин корректно",
+                    Type = NotificationType.Warning
+
+                }); return;
+            }
+            else
+            {
+                if (Username_changeButton.Content.ToString() == "Сохранить")
+                {
+                    MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                    {
+                        Username = Username_tb.Text
+                    });
+                }
+            }
             Username_changeButton.Content = Username_changeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
             Username_tb.IsEnabled = Username_changeButton.Content.ToString() == "Сохранить" ? true : false;
-
 
         }
 
         private void Email_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(Email_tb.Text))
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите email корректно",
+                    Type = NotificationType.Warning
+
+                }); return;
+            }
+            else
+            {
+                if (Email_changeButton.Content.ToString() == "Сохранить")
+                {
+                    MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                    {
+                        Email = Email_tb.Text
+                    });
+                }
+            }
             Email_changeButton.Content = (Email_changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
             Email_tb.IsEnabled = Email_changeButton.Content.ToString() == "Сохранить" ? true : false;
-
         }
         private void Description_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (Desc_changeButton.Content.ToString() == "Сохранить")
+            {
+                MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                {
+                    Description = Desc_tb.Text
+                });
+            }
             Desc_changeButton.Content = (Desc_changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
             Desc_tb.IsEnabled = Desc_changeButton.Content.ToString() == "Сохранить" ? true : false;
         }
