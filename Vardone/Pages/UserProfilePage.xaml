@@ -26,7 +26,9 @@
                          Margin="20,30,0,0"
                          Width="70" Height="70">
                     <Ellipse.Fill>
-                        <ImageBrush Stretch="UniformToFill" x:Name="Avatar" ImageSource="/Resources/avatar.jpg" />
+                        <ImageBrush Stretch="UniformToFill"
+                                    x:Name="Avatar" 
+                                    ImageSource="/Resources/avatar.jpg" />
                     </Ellipse.Fill>
                 </Ellipse>
                 <TextBlock x:Name="Username" Text="Julie Lynx" FontSize="20"

@@ -34,7 +34,7 @@ namespace VardoneLibrary.Core.Base
             if (response.StatusCode == HttpStatusCode.BadRequest) return null;
             return JsonConvert.DeserializeObject<UserTokenModel>(response.Content);
         }
-
+        
         public static bool RegisterUser(RegisterUserModel register)
         {
             var response = ExecutePost(@"/users/registerUser", JsonConvert.SerializeObject(register));
