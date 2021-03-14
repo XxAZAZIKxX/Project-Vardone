@@ -5,7 +5,6 @@ namespace VardoneEntities.Models.GeneralModels.Users
     public class UpdateUserModel
     {
         public string Username { get; set; } = null;
-        public string Password { get; set; } = null;
         public string Email { get; set; } = null;
         public string Description { get; set; } = null;
         private string _base64Image;

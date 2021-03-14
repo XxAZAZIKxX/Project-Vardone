@@ -36,7 +36,6 @@ namespace VardoneApi.Controllers.users.SettingsControllers
                 userInfo.User = user;
 
                 if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
-                if (updateUserModel.Password is not null) user.Password = updateUserModel.Password;
                 if (updateUserModel.Description is not null)
                     userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description)
                         ? null

@@ -23,9 +23,13 @@ namespace Vardone.Controls.ItemControls
             InitializeComponent();
             this.user = user;
             Username.Content = user.Username;
-            Avatar.ImageSource = user.Base64Avatar is not null
-                ? ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
-                : MainPage.DefaultAvatar;
+
+            if (!MainPage.UserAvatars.ContainsKey(user.UserId))
+                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar is null ? MainPage.DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar)));
+            
+            Avatar.ImageSource = MainPage.UserAvatars[user.UserId];
+
+
             ClickLogic = logic;
             Grid.MouseDown += ClickLogic switch
             {

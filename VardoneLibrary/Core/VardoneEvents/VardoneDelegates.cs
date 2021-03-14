@@ -1,8 +1,8 @@
 ﻿using VardoneEntities.Entities;
 
-namespace VardoneLibrary.Core.Events
+namespace VardoneLibrary.Core.VardoneEvents
 {
-    public class Delegates
+    public class VardoneDelegates
     {
         public delegate void NewPrivateMessageHandler(PrivateMessage message);
     }

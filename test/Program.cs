@@ -1,11 +1,7 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using VardoneEntities.Entities;
-using VardoneEntities.Models.GeneralModels.PrivateChats;
-using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
-using VardoneLibrary.Core.Base;
-using VardoneLibrary.Core.Events;
+using VardoneLibrary.Core.VardoneEvents;
 
 namespace testLibrary
 {
@@ -13,10 +9,9 @@ namespace testLibrary
     {
         private static void Main()
         {
-            Console.ReadKey(false);
-            var client = new VardoneClient(1, "3FBA7EC5CF079C7437A519C3BB958562");
+            var client = new VardoneClient(1, "907FFCF82A1E87FE98254AEE12FDE0F0");
             Console.WriteLine("Started...");
-            Events.newPrivateMessage += ClientOnAddPrivateMessage;
+            VardoneEvents.newPrivateMessage += ClientOnAddPrivateMessage;
             client.StartReceiving();
             Console.ReadKey(false);
         }

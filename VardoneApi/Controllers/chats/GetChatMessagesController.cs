@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using VardoneApi.Entity;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -15,7 +14,7 @@ namespace VardoneApi.Controllers.chats
     public class GetChatMessagesController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId, [FromQuery] int limit)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId, [FromQuery] int limit, [FromQuery] long startFrom)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
@@ -25,6 +24,7 @@ namespace VardoneApi.Controllers.chats
                     return Unauthorized("Invalid token");
                 if (!Core.PrivateChatsChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
                 if (!Core.PrivateChatsChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
+
                 var dataContext = Program.DataContext;
                 var privateChats = dataContext.PrivateChats;
                 privateChats.Include(p => p.FromUser).Load();
@@ -41,9 +41,10 @@ namespace VardoneApi.Controllers.chats
                 {
                     var messages = new List<PrivateMessage>();
                     var chat = privateChats.First(p => p.Id == chatId);
-                    var privateMessagesTables = privateMessages.Where(p => p.Chat == chat).Take(limit <= 0 ? privateMessages.Count() : limit);
-                    if (limit == 1) privateMessagesTables = privateMessagesTables.OrderByDescending(p => p.Id).Take(1);
-                    foreach (var message in privateMessagesTables)
+                    var selectedMessages = privateMessages.Where(p => p.Chat == chat);
+                    if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
+                    if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
+                    foreach (var message in selectedMessages)
                     {
                         var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;
                         var user2 = message.Chat.FromUser.Id != userId ? message.Chat.FromUser : message.Chat.ToUser;
