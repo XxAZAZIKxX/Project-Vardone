@@ -19,6 +19,7 @@ namespace Vardone.Pages
     /// </summary>
     public partial class MainPage
     {
+        public User user;
         private static MainPage _instance;
         public static MainPage GetInstance() => _instance ??= new MainPage();
         public static VardoneClient _client;
@@ -139,7 +140,11 @@ namespace Vardone.Pages
             MessageBoxLostFocus(null, null);
             LoadPrivateChat(user.UserId);
         }
-
-        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(PropertiesPage.GetInstance());
+        public void PropertiesProfileOpen(User user)
+        {
+            PropertiesPage.GetInstance().Load(user);
+            MainFrame.Navigate(PropertiesPage.GetInstance());
+        }
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => GetInstance().PropertiesProfileOpen(_client.GetMe());
     }
 }

@@ -23,6 +23,15 @@
                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
+
+        <Storyboard x:Key="OnMouseEnter1">
+            <ColorAnimationUsingKeyFrames 
+            Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" 
+            Storyboard.TargetName="Passwordbox1">
+                <EasingColorKeyFrame KeyTime="0" Value="Blue"/>
+                <EasingColorKeyFrame KeyTime="0:0:2" Value="Red"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
     </Page.Resources>
     <Grid>
         <Grid Grid.RowSpan="4" Background="#202020"
@@ -36,22 +45,24 @@
                     <StackPanel>
                         <Label Foreground="WhiteSmoke"
                                FontWeight="Light" Opacity="0.7"
-                               FontSize="20" Content="Моя учётная запись" />
+                               FontSize="20" Height="50" 
+                               Content="Моя учётная запись" />
                         <Border Background="#262626" CornerRadius="20" VerticalAlignment="Top">
                             <Grid>
                                 <Border BorderBrush="Gray"
                                         BorderThickness="0,0,0,1">
                                     <Grid Height="100">
-                                        <Ellipse Cursor="Hand" Margin="30,0,0,0"
+                                        <Ellipse MouseDown="Change_Avatar" Cursor="Hand" Margin="30,0,0,0"
+                                                 x:Name="Avatar"
                                                  VerticalAlignment="Center"
                                                  Width="70" Height="70"
                                                  HorizontalAlignment="Left">
                                             <Ellipse.Fill>
-                                                <ImageBrush ImageSource="../Resources/avatar.jpg"
-                                                            Stretch="UniformToFill" x:Name="Avatar" />
+                                                <ImageBrush  x:Name="AvatarImage" ImageSource="../Resources/avatar.jpg"
+                                                            Stretch="UniformToFill"  />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <Label x:Name="Username" Content="User"
+                                        <Label x:Name="UsernameLabel" Content="User"
                                                Foreground="white"
                                                Width="160"
                                                FontSize="20"
@@ -70,20 +81,21 @@
                                 <Border Grid.Row="1" CornerRadius="20" Margin="20"
                                         Background="#303030">
                                     <Grid VerticalAlignment="Top">
-                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="Username_tb"
+                                            CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Margin="20,20,0,0" Height="30"
                                                  VerticalAlignment="Top"
                                                  Text="Username" IsEnabled="False"
                                                  Foreground="LightGray" />
-                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="Email_tb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Email"
                                                  Foreground="LightGray"
                                                  Margin="20,60,0,0" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
 
-                                        <TextBox CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="Desc_tb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Description"
                                                  Foreground="LightGray"
@@ -92,21 +104,27 @@
 
                                         <Button Content="Изменить"
                                                 Foreground="White"
+                                                Name="Username_changeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top"
                                                 HorizontalAlignment="Right"
                                                 Width="100" Height="25"
-                                                Margin="0,25,20,0" />
+                                                Margin="0,25,20,0"
+                                                Click="Username_ChangeBtn"/>
                                         <Button Content="Изменить" Foreground="White"
+                                                Name="Email_changeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
-                                                Margin="0,65,20,0" />
+                                                Margin="0,65,20,0"
+                                                Click="Email_ChangeBtn"/>
                                         <Button Content="Изменить" Foreground="White"
+                                                Name="Desc_changeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
-                                                Margin="0,105,20,0" />
+                                                Margin="0,105,20,0"
+                                                Click="Description_ChangeBtn"/>
                                     </Grid>
                                 </Border>
                                 <Grid.RowDefinitions>
@@ -119,20 +137,43 @@
                     <!--Password-->
                     <StackPanel>
                         <Label Foreground="WhiteSmoke"
-                               FontWeight="Light" Opacity="0.7"
+                               FontWeight="Light"  Height="50"
+                               VerticalContentAlignment="Bottom"
+                               Opacity="0.7"
                                FontSize="20" Content="Изменение пароля" />
                         <Grid>
-                            <Button Content="Изменить" Foreground="White"
+                            <Button x:Name="changeButton" Content="Изменить" Foreground="White"
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Width="100" Height="30" Margin="0,20,0,0" />
-                            <PasswordBox CaretBrush="White" HorizontalAlignment="Right" Width="360"
-                                         BorderBrush="Red"
-                                         Background="Transparent" FontSize="18"
+                                    Width="100" Height="30" 
+                                    Click="Button_SaveClick"
+                                    Margin="0,20,0,20" >
+
+                            </Button>
+                            <Button Visibility="Collapsed"
+                                x:Name="CancelBtn" Content="Отменить" Foreground="White"
+                                    Template="{StaticResource ButtonChange}"
+                                    VerticalAlignment="Top" HorizontalAlignment="Left"
+                                    Width="100" Height="30" Click="Button_CancelClick"
+                                    Margin="0,70,0,20" >
+
+                            </Button>
+                            <PasswordBox Visibility="Collapsed"
+                                         CaretBrush="White" 
+                                         HorizontalAlignment="Right" 
+                                         Width="360"
+                                         BorderBrush="Red" 
+                                         x:Name="Passwordbox1"
+                                         Background="Transparent"
+                                         FontSize="18"
                                          Foreground="LightGray"
                                          Margin="0,20,0,0" Height="30"
-                                         VerticalAlignment="Top" IsEnabled="False" />
-                            <PasswordBox CaretBrush="White" HorizontalAlignment="Right" Width="360"
+                                         VerticalAlignment="Top"
+                                         IsEnabled="False"  />
+
+                            <PasswordBox Visibility="Collapsed"
+                                         x:Name="Passwordbox2"
+                                         CaretBrush="White" HorizontalAlignment="Right" Width="360"
                                          BorderBrush="Red"
                                          Background="Transparent" FontSize="18"
                                          Foreground="LightGray"
@@ -146,18 +187,18 @@
                                FontWeight="Light" Opacity="0.7"
                                FontSize="20" Content="Дополнительные настройки" />
                         <Grid>
-                            <Button Width="200" HorizontalAlignment="Left"
-                                    Template="{StaticResource ButtonExit}"
-                                    Height="35" Foreground="#CD2020"
-                                    FontSize="16"
-                                    Margin="30,20,30,0"
-                                    VerticalAlignment="Center"
-                                    Content="Завершить все сеансы" />
-                            <Button Width="200" HorizontalAlignment="Right"
+                            <Button Width="240" HorizontalAlignment="Left"
                                     Template="{StaticResource ButtonExit}"
                                     Height="35" Foreground="#CD2020"
                                     FontSize="16"
                                     Margin="0,20,30,0"
+                                    VerticalAlignment="Center"
+                                    Content="Завершить все сеансы" />
+                            <Button Width="240" HorizontalAlignment="Right"
+                                    Template="{StaticResource ButtonExit}"
+                                    Height="35" Foreground="#CD2020"
+                                    FontSize="16"
+                                    Margin="0,20,0,0"
                                     VerticalAlignment="Center"
                                     Content="Удалить учётную запись" />
                         </Grid>
