@@ -259,5 +259,7 @@ namespace Vardone.Pages
             MessageTextBox.Clear();
             LoadPrivateChat(userId);
         }
+
+        private void FindMouseDown(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(FriendsProperies.GetInstance());
     }
 }

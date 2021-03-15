@@ -23,14 +23,7 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Top" Opacity="0.3" />
             <!--<ScrollViewer Width="5" HorizontalAlignment="Right" Visibility="Collapsed">-->
-            <DataGrid Foreground="White" Margin="0,2,0,0" BorderThickness="0" Background="#141313">
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#141313" />
-                    </Style>
-                </DataGrid.Resources>
-            </DataGrid>
-            <!--</ScrollViewer>-->
+     
         </Grid>
 
 
@@ -40,22 +33,23 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Border Background="#202020" Cursor="Hand" BorderThickness="0" CornerRadius="0,50,0,0"
-                    Grid.Row="0">
-                <TextBlock Text="Найти.." Foreground="WhiteSmoke"
+                    Grid.Row="0"   MouseDown="FindMouseDown">
+                <TextBlock Text="Настройки друзей" Foreground="WhiteSmoke"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
-                           Background="Transparent" />
+                           Background="Transparent"
+                         />
             </Border>
             <Border Grid.Row="1" Background="#202020">
 
                 <TabControl TabStripPlacement="Top"
                             Background="#202020"
                             BorderThickness="0">
-                    <TabItem Foreground="Gray" Header="Friends ">
+                    <TabItem Foreground="Gray" Header=" Друзья  ">
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
                             <StackPanel x:Name="FriendListGrid" VerticalAlignment="Top" />
                         </ScrollViewer>
                     </TabItem>
-                    <TabItem Foreground="Gray" Header="Messages">
+                    <TabItem Foreground="Gray" Header="Сообщения">
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
                             <StackPanel x:Name="ChatListGrid" />
                         </ScrollViewer>
@@ -67,7 +61,7 @@
                                     <ControlTemplate TargetType="{x:Type TabItem}">
                                         <Grid>
                                             <Border x:Name="Border" Cursor="Hand" BorderThickness="0"
-                                                    Padding="27,0,26.6,0">
+                                                    Padding="22.9,0,21,0">
                                                 <ContentPresenter VerticalAlignment="Center"
                                                                   HorizontalAlignment="Center"
                                                                   ContentSource="Header" Margin="11,2,11.5,2"
