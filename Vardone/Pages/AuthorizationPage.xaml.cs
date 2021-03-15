@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
@@ -37,11 +38,7 @@ namespace Vardone.Pages
 
         public bool TryRegister(string username, string email, string password)
         {
-            if (VardoneBaseApi.RegisterUser(new RegisterUserModel
-            { Email = email, Password = password, Username = username }) is false)
-            {
-                return false;
-            }
+            var res = VardoneBaseApi.RegisterUser(new RegisterUserModel {Email = email, Password = password, Username = username});
 
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;

@@ -61,13 +61,12 @@ namespace VardoneApi.Controllers.chats
                 {
                     try
                     {
-                        var newChat = new PrivateChatsTable
-                        { FromUser = users.First(p => p.Id == userId), ToUser = users.First(p => p.Id == secondId) };
+                        var newChat = new PrivateChatsTable { FromUser = users.First(p => p.Id == userId), ToUser = users.First(p => p.Id == secondId) };
                         privateChats.Add(newChat);
                         dataContext.SaveChanges();
                         var chat = new PrivateChat
                         {
-                            ChatId = newChat.FromUser.Id,
+                            ChatId = newChat.Id,
                             FromUser = new User
                             {
                                 UserId = newChat.FromUser.Id,

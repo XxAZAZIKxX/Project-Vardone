@@ -11,7 +11,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 namespace VardoneApi.Controllers.chats
 {
     [ApiController, Route("chats/[controller]")]
-    public class GetChatMessagesController : ControllerBase
+    public class GetPrivateChatMessagesController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId, [FromQuery] int limit, [FromQuery] long startFrom)

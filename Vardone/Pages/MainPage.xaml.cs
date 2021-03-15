@@ -57,7 +57,7 @@ namespace Vardone.Pages
             MainWindow.GetInstance().notificationManager.Show(new NotificationContent
             {
                 Title = "Новые запросы в друзья",
-                Message = "Проверьте новый запрос в друзья",
+                Message = "Проверьте новые запросы в друзья",
                 Type = NotificationType.Information
             });
         }
@@ -80,7 +80,7 @@ namespace Vardone.Pages
             Dispatcher.Invoke(() =>
             {
                 if (ChatHeader.Children.Count == 0) return;
-                var userId = ((UserItem)ChatHeader.Children[0]).user.UserId;
+                var userId = ((UserItem) ChatHeader.Children[0]).user.UserId;
                 if (userId == message.Author.UserId) LoadPrivateChat(userId);
             });
         }
@@ -107,8 +107,10 @@ namespace Vardone.Pages
         {
             var me = client.GetMe();
             if (!UserAvatars.ContainsKey(me.UserId))
-                UserAvatars.Add(me.UserId, me.Base64Avatar is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(me.Base64Avatar)));
-
+                UserAvatars.Add(me.UserId,
+                    me.Base64Avatar is null
+                        ? DefaultAvatar
+                        : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(me.Base64Avatar)));
             MyUsername.Text = me.Username;
             MyAvatar.ImageSource = UserAvatars[me.UserId];
         }
@@ -117,7 +119,6 @@ namespace Vardone.Pages
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-
                 ChatListGrid.Children.Clear();
                 foreach (var friendGridItem in client.GetPrivateChats()
                     .Select(chat => new UserItem(chat.ToUser, MouseDownEventLogic.OpenChat)))
@@ -149,8 +150,7 @@ namespace Vardone.Pages
                 var user1 = client.GetUser(userId);
                 var userItem = new UserItem(user1, MouseDownEventLogic.OpenProfile)
                 {
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Left
+                    VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left
                 };
                 ChatHeader.Children.Add(userItem);
                 foreach (var message in client
@@ -168,8 +168,9 @@ namespace Vardone.Pages
                 if (ChatScrollViewer.VerticalOffset != 0) return;
                 if (ChatHeader.Children.Count == 0) return;
                 if (ChatMessagesGrid.Children.Count == 0) return;
-                var privateMessagesFromChat = client.GetPrivateMessagesFromChat(client.GetPrivateChatWithUser(((UserItem)ChatHeader.Children[0]).user.UserId).ChatId, 5,
-                    ((MessageChatItem)ChatMessagesGrid.Children[0]).message.MessageId);
+                var privateMessagesFromChat = client.GetPrivateMessagesFromChat(
+                    client.GetPrivateChatWithUser(((UserItem) ChatHeader.Children[0]).user.UserId).ChatId, 5,
+                    ((MessageChatItem) ChatMessagesGrid.Children[0]).message.MessageId);
                 foreach (var messageItem in privateMessagesFromChat.Select(message => new MessageChatItem(message)))
                 {
                     ChatMessagesGrid.Children.Insert(0, messageItem);
@@ -194,7 +195,8 @@ namespace Vardone.Pages
             MainFrame.Navigate(DeployImagePage.GetInstance());
         }
 
-        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) => MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
+        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) =>
+            MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
 
         private void MessageBoxLostFocus(object sender, RoutedEventArgs e)
         {
@@ -202,7 +204,8 @@ namespace Vardone.Pages
             MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
         }
 
-        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) => MessageBoxGotFocus(null, null);
+        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) =>
+            MessageBoxGotFocus(null, null);
 
         private void MessageBoxKeyDown(object sender, KeyEventArgs e)
         {
@@ -210,18 +213,21 @@ namespace Vardone.Pages
             if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
             if (ChatHeader.Children.Count == 0) return;
             if (ChatHeader.Children[0] is not UserItem) return;
-            var user = ((UserItem)ChatHeader.Children[0]).user;
-            client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
+            var user = ((UserItem) ChatHeader.Children[0]).user;
+            client.SendPrivateMessage(user.UserId, new PrivateMessageModel {Text = MessageTextBox.Text});
             MessageTextBox.Text = "";
             MessageBoxLostFocus(null, null);
             LoadPrivateChat(user.UserId);
         }
+
         public void PropertiesProfileOpen(User user)
         {
             PropertiesPage.GetInstance().Load();
             MainFrame.Navigate(PropertiesPage.GetInstance());
         }
-        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => GetInstance().PropertiesProfileOpen(client.GetMe());
+
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) =>
+            GetInstance().PropertiesProfileOpen(client.GetMe());
 
         public void ExitFromAccount()
         {
@@ -243,23 +249,23 @@ namespace Vardone.Pages
             if (ChatHeader.Children.Count == 0) return;
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
-                Multiselect = false
+                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg", Multiselect = false
             };
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
-
             if (!openFileDialog.CheckFileExists) return;
-            var userId = ((UserItem)ChatHeader.Children[0]).user.UserId;
-            client.SendPrivateMessage(userId, new PrivateMessageModel
-            {
-                Text = MessageTextBox.Text,
-                Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
-            });
+            var userId = ((UserItem) ChatHeader.Children[0]).user.UserId;
+            client.SendPrivateMessage(userId,
+                new PrivateMessageModel
+                {
+                    Text = MessageTextBox.Text,
+                    Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
+                });
             MessageTextBox.Clear();
             LoadPrivateChat(userId);
         }
 
-        private void FindMouseDown(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(FriendsProperies.GetInstance());
+        private void FindMouseDown(object sender, MouseButtonEventArgs e) =>
+            MainFrame.Navigate(FriendsProperties.GetInstance());
     }
 }

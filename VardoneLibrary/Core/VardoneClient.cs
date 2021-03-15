@@ -144,7 +144,7 @@ namespace VardoneLibrary.Core
                         if (friends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
                         if (list1.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
                         list = friends;
-                        Thread.Sleep(30 * 1000);
+                        Thread.Sleep(10 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -164,7 +164,7 @@ namespace VardoneLibrary.Core
                     {
                         foreach (var _ in GetPrivateChats().Where(privateChat => !list.Contains(privateChat)))
                             onUpdateChatList?.Invoke();
-                        Thread.Sleep(30 * 1000);
+                        Thread.Sleep(10 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -195,7 +195,7 @@ namespace VardoneLibrary.Core
                             dict[user.UserId] = onlineUser;
                         }
 
-                        Thread.Sleep(30 * 1000);
+                        Thread.Sleep(10 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -216,16 +216,16 @@ namespace VardoneLibrary.Core
                         var incomingFriends = GetIncomingFriendRequests();
                         if (list.Count != incomingFriends.Count)
                         {
-                            onUpdateFriendList?.Invoke();
+                            onUpdateIncomingFriendRequestList?.Invoke();
                             list = incomingFriends;
                             continue;
                         }
 
                         var list1 = list;
-                        if (incomingFriends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
-                        else if (list1.Any(user => !incomingFriends.Contains(user))) onUpdateFriendList?.Invoke();
+                        if (incomingFriends.Any(user => !list1.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke();
+                        else if (list1.Any(user => !incomingFriends.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke();
                         list = incomingFriends;
-                        Thread.Sleep(30 * 1000);
+                        Thread.Sleep(10 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -243,7 +243,7 @@ namespace VardoneLibrary.Core
                 {
                     while (_isCheckUpdatesOutgoingRequestThreadWork)
                     {
-                        var outgoingFriends = GetIncomingFriendRequests();
+                        var outgoingFriends = GetOutgoingFriendRequests();
                         if (list.Count != outgoingFriends.Count)
                         {
                             onUpdateFriendList?.Invoke();
@@ -252,10 +252,10 @@ namespace VardoneLibrary.Core
                         }
 
                         var list1 = list;
-                        if (outgoingFriends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
-                        else if (list1.Any(user => !outgoingFriends.Contains(user))) onUpdateFriendList?.Invoke();
+                        if (outgoingFriends.Any(user => !list1.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
+                        else if (list1.Any(user => !outgoingFriends.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                         list = outgoingFriends;
-                        Thread.Sleep(30 * 1000);
+                        Thread.Sleep(10 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -359,7 +359,7 @@ namespace VardoneLibrary.Core
 
         public List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0)
         {
-            var response = ExecutePostWithToken("chats/getChatMessages", null,
+            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
                 new Dictionary<string, string>
                 {
                     {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}
@@ -367,10 +367,8 @@ namespace VardoneLibrary.Core
             return response.StatusCode switch
             {
                 HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateMessagesFromChat"),
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(
-                    "Unauthorized GetPrivateMessagesFromChat"),
-                _ => JsonConvert.DeserializeObject<List<PrivateMessage>>(
-                    JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetPrivateMessagesFromChat"),
+                _ => JsonConvert.DeserializeObject<List<PrivateMessage>>(JsonConvert.DeserializeObject<string>(response.Content))
             };
         }
 
@@ -409,15 +407,21 @@ namespace VardoneLibrary.Core
             }
         }
 
-        public void AddFriend(long idUser)
+        public void AddFriend(string secondUsername)
         {
             var response = ExecutePostWithToken("users/addFriend", null,
-                new Dictionary<string, string> { { "secondId", idUser.ToString() } });
+                new Dictionary<string, string> { { "secondUsername", secondUsername } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest AddFriend");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized AddFriend");
-                default: return;
+                default:
+                    {
+                        onUpdateFriendList?.Invoke();
+                        onUpdateIncomingFriendRequestList?.Invoke();
+                        onUpdateOutgoingFriendRequestList?.Invoke();
+                        return;
+                    }
             }
         }
 
@@ -429,7 +433,13 @@ namespace VardoneLibrary.Core
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteFriend");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteFriend");
-                default: return;
+                default:
+                    {
+                        onUpdateFriendList?.Invoke();
+                        onUpdateIncomingFriendRequestList?.Invoke();
+                        onUpdateOutgoingFriendRequestList?.Invoke();
+                        return;
+                    }
             }
         }
 

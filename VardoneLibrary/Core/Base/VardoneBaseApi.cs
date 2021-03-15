@@ -38,15 +38,14 @@ namespace VardoneLibrary.Core.Base
         public static bool RegisterUser(RegisterUserModel register)
         {
             var response = ExecutePost(@"/users/registerUser", JsonConvert.SerializeObject(register));
-            if (response.StatusCode == HttpStatusCode.BadRequest) return false;
+            if (response.StatusCode == HttpStatusCode.BadRequest) throw new Exception(response.Content);
             return response.StatusCode == HttpStatusCode.OK;
         }
 
         public static bool CheckToken(long userId, string token)
         {
             var response = ExecutePost(@"/users/checkUserToken", JsonConvert.SerializeObject(new UserTokenModel { UserId = userId, Token = token }));
-            if (response.StatusCode == HttpStatusCode.BadRequest) return false;
-            return JsonConvert.DeserializeObject<bool>(response.Content);
+            return response.StatusCode != HttpStatusCode.BadRequest && JsonConvert.DeserializeObject<bool>(response.Content);
         }
     }
 }

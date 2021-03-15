@@ -24,6 +24,22 @@ namespace VardoneApi.Core
             }
         }
 
+        public static bool IsUserExists(string username)
+        {
+            var dataContext = Program.DataContext;
+            var users = dataContext.Users;
+
+            try
+            {
+                var _ = users.First(p => p.Username == username);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool IsUserExists(long id)
         {
             var dataContext = Program.DataContext;
@@ -59,12 +75,31 @@ namespace VardoneApi.Core
             }
         }
 
+        public static bool IsFriends(long idFirstUser, string usernameSecondUser)
+        {
+            var dataContext = Program.DataContext;
+            var friends = dataContext.FriendsList;
+            friends.Include(p => p.FromUser).Load();
+            friends.Include(p => p.ToUser).Load();
+            try
+            {
+                var first = friends.First(p =>
+                    p.FromUser.Id == idFirstUser && p.ToUser.Username == usernameSecondUser ||
+                    p.FromUser.Username == usernameSecondUser && p.ToUser.Id == idFirstUser);
+                return first.Confirmed;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool CanGetUser(long idFirstUser, long idSecondUser)
         {
             if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
-            
+
             var res = false;
-            
+
             var dataContext = Program.DataContext;
             var friendsList = dataContext.FriendsList;
             friendsList.Include(p => p.FromUser).Load();

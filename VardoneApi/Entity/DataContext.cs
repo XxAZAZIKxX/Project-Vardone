@@ -7,7 +7,6 @@ namespace VardoneApi.Entity
     public sealed class DataContext : DbContext
     {
         private readonly string _connectionString;
-        private readonly object _lockerSave = new();
         public DbSet<UsersTable> Users { get; set; }
         public DbSet<UserInfosTable> UserInfos { get; set; }
         public DbSet<TokensTable> Tokens { get; set; }
@@ -25,12 +24,12 @@ namespace VardoneApi.Entity
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Default Property
-            //------------------------------------------------------------------------------------Null
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Description).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
+            modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();
             //Foreign
             modelBuilder.Entity<UsersTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
         }
@@ -39,11 +38,6 @@ namespace VardoneApi.Entity
         {
             optionsBuilder.UseMySql(_connectionString);
             base.OnConfiguring(optionsBuilder);
-        }
-
-        public override int SaveChanges()
-        {
-            lock (_lockerSave) return base.SaveChanges();
         }
     }
 }

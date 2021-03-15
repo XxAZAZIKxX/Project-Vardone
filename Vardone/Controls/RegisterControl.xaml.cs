@@ -64,7 +64,22 @@ namespace Vardone.Controls
                 return;
             }
 
-            if (AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password) is false)
+            bool tryRegister;
+            try
+            {
+                tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password);
+            }
+            catch (Exception exception)
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = exception.Message,
+                    Type = NotificationType.Error
+                });
+                return;
+            }
+            if (tryRegister is false)
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {

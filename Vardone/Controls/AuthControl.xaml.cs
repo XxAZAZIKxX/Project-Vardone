@@ -52,7 +52,8 @@ namespace Vardone.Controls
                 return;
             }
 
-            if (AuthorizationPage.GetInstance().TryLogin(TblEmail.Text, PbPassword.Password) is false)
+            var tryLogin = AuthorizationPage.GetInstance().TryLogin(TblEmail.Text, PbPassword.Password);
+            if (tryLogin is false)
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {

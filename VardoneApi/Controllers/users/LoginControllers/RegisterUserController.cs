@@ -28,6 +28,15 @@ namespace VardoneApi.Controllers.users.LoginControllers
                 {
                     // ignored
                 }
+                try
+                {
+                    var _ = users.First(u => u.Username == registerRequestModel.Username);
+                    return BadRequest("Username is already booked");
+                }
+                catch
+                {
+                    // ignored
+                }
 
                 var user = new UsersTable
                 {
