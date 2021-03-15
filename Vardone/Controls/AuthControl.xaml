@@ -53,27 +53,34 @@
 
                 <!--Email-->
                 <TextBox x:Name="EmailPlaceholder" TabIndex="-1"
-                         Grid.Column="1" Grid.Row="3" 
+                         Grid.Column="1" Grid.Row="3"
                          Background="#FF1B1B1D"
                          VerticalContentAlignment="Center"
                          Text="Email"
+                         HorizontalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TblEmail" TabIndex="1"
                          CaretBrush="White"
-                         GotFocus="TblEmail_OnGotFocus" TextChanged="TblEmail_OnTextChanged" LostFocus="TblEmail_OnLostFocus"
-                         Grid.Column="1" Grid.Row="3" 
+                         HorizontalContentAlignment="Center"
+                         GotFocus="TblEmail_OnGotFocus"
+                         TextChanged="TblEmail_OnTextChanged"
+                         LostFocus="TblEmail_OnLostFocus"
+                         Grid.Column="1" Grid.Row="3"
                          Background="Transparent"
                          VerticalContentAlignment="Center"
                          Foreground="Azure" />
 
                 <!--Password-->
-                <TextBox x:Name="PasswordPlaceholder" Grid.Column="1" Grid.Row="5" 
-                         Background="#FF1B1B1D"  TabIndex="-1"
+                <TextBox x:Name="PasswordPlaceholder" Grid.Column="1" Grid.Row="5"
+                         Background="#FF1B1B1D" TabIndex="-1"
                          Text="Password"
-                          VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         VerticalContentAlignment="Center"
                          Foreground="Gray" />
-                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5"  TabIndex="2"
-                             KeyDown="PbPassword_OnKeyDown" GotFocus="PbPassword_OnGotFocus" LostFocus="PbPassword_OnLostFocus"
+                <PasswordBox x:Name="PbPassword" Grid.Column="1" Grid.Row="5" TabIndex="2"
+                             HorizontalContentAlignment="Center"
+                             KeyDown="PbPassword_OnKeyDown" GotFocus="PbPassword_OnGotFocus"
+                             LostFocus="PbPassword_OnLostFocus"
                              PasswordChanged="PbPassword_OnPasswordChanged" Background="Transparent"
                              VerticalContentAlignment="Center"
                              Foreground="Azure" />

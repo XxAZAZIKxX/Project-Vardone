@@ -1,155 +1,187 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
-using VardoneEntities.Entities;
 using Vardone.Core;
 using Notifications.Wpf;
+using VardoneEntities.Models.GeneralModels.Users;
 
 namespace Vardone.Pages
 {
     /// <summary>
     /// Логика взаимодействия для PropertiesPage.xaml
     /// </summary>
-    /// private static MainPage _instance;
-    public partial class PropertiesPage : Page
+    public partial class PropertiesPage
     {
-        public User User { get; private set; }
         private static PropertiesPage _instance;
         public static PropertiesPage GetInstance() => _instance ??= new PropertiesPage();
-        private PropertiesPage()
+        private PropertiesPage() => InitializeComponent();
+
+        public void Load()
         {
-            InitializeComponent();
-        }
-        public void Load(User user)
-        {
-            User = user;
-            AvatarImage.ImageSource = user.Base64Avatar == null
-                ? MainPage.DefaultAvatar
-                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar));
+            var user = MainPage.client.GetMe();
+            if (!MainPage.UserAvatars.ContainsKey(user.UserId))
+                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar switch
+                {
+                    null => MainPage.DefaultAvatar,
+                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
+                });
+            AvatarImage.ImageSource = MainPage.UserAvatars[user.UserId];
             UsernameLabel.Content = user.Username;
-            Username_tb.Text = user.Username;
-            Email_tb.Text = user.Email;
-            Desc_tb.Text = (user.Description == null) ? "Description" : user.Description;
-
+            UsernameTb.Text = user.Username;
+            EmailTb.Text = user.Email;
+            DescTb.Text = user.Description ?? "Description";
         }
+        private void CloseMouseDown(object sender, System.Windows.Input.MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
-        private void Grid_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
-
-        private void Button_SaveClick(object sender, RoutedEventArgs e)
+        private void PasswordButton_SaveClick(object sender, RoutedEventArgs e)
         {
-            changeButton.Content = (changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
-            CancelBtn.Visibility = (CancelBtn.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            Passwordbox1.Visibility = (Passwordbox1.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            Passwordbox2.Visibility = (Passwordbox2.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-
-        }
-        private void Button_CancelClick(object sender, RoutedEventArgs e)
-        {
-            changeButton.Content = (changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
-            CancelBtn.Visibility = (CancelBtn.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            Passwordbox1.Visibility = (Passwordbox1.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            Passwordbox2.Visibility = (Passwordbox2.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            //if (string.IsNullOrWhiteSpace(Username_tb.Text))
-            //{
-            //    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
-            //    {
-            //        Title = "Проверьте введенные данные",
-            //        Message = "Пожалуйста введите пароль корректно",
-            //        Type = NotificationType.Warning
-
-            //    }); 
-            //}
-            //else
-            //{
-            //    if (Username_changeButton.Content.ToString() == "Сохранить")
-            //    {
-            //        MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
-            //        {
-            //            Password = Passwordbox1.Password
-            //        });
-            //    }
-            //}
-        } private void Username_ChangeBtn(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(Username_tb.Text))
+            if (ChangeButton.Content is "Сохранить")
             {
-                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                if (string.IsNullOrWhiteSpace(PasswordBox1.Password) || string.IsNullOrWhiteSpace(PasswordBox2.Password))
                 {
-                    Title = "Проверьте введенные данные",
-                    Message = "Пожалуйста введите логин корректно",
-                    Type = NotificationType.Warning
-
-                }); return;
-            }
-            else
-            {
-                if (Username_changeButton.Content.ToString() == "Сохранить")
-                {
-                    MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                     {
-                        Username = Username_tb.Text
+                        Title = "Проверьте введенные данные",
+                        Message = "Пожалуйста введите пароль",
+                        Type = NotificationType.Warning
                     });
+                    return;
+                }
+
+                try
+                {
+                    MainPage.client.UpdatePassword(new UpdatePasswordModel
+                    {
+                        PreviousPassword = PasswordBox1.Password,
+                        NewPassword = PasswordBox2.Password
+                    });
+                    PasswordButton_CancelClick(null, null);
+                    return;
+                }
+                catch
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Неверный пароль",
+                        Message = "Введите корректный пароль",
+                        Type = NotificationType.Error
+                    });
+                    return;
                 }
             }
-            Username_changeButton.Content = Username_changeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
-            Username_tb.IsEnabled = Username_changeButton.Content.ToString() == "Сохранить" ? true : false;
 
+            ChangeButton.Content = ChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            CancelBtn.Visibility = CancelBtn.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            PasswordBox1.Visibility = PasswordBox2.Visibility = PasswordBox1.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void PasswordButton_CancelClick(object sender, RoutedEventArgs e)
+        {
+            ChangeButton.Content = ChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            CancelBtn.Visibility = CancelBtn.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            PasswordBox1.Password = PasswordBox2.Password = string.Empty;
+            PasswordBox1.Visibility = PasswordBox2.Visibility = PasswordBox1.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void Username_ChangeBtn(object sender, RoutedEventArgs e)
+        {
+            if (UsernameChangeButton.Content is "Сохранить")
+            {
+                if (string.IsNullOrWhiteSpace(UsernameTb.Text))
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Проверьте введенные данные",
+                        Message = "Пожалуйста введите логин",
+                        Type = NotificationType.Warning
+                    });
+                    return;
+                }
+
+                MainPage.client.UpdateUser(new UpdateUserModel
+                {
+                    Username = UsernameTb.Text
+                });
+                Load();
+            }
+
+            UsernameChangeButton.Content = UsernameChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            UsernameTb.IsEnabled = UsernameChangeButton.Content.ToString() == "Сохранить";
         }
 
         private void Email_ChangeBtn(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Email_tb.Text))
+            if (EmailChangeButton.Content is "Сохранить")
             {
-                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                if (string.IsNullOrWhiteSpace(EmailTb.Text))
                 {
-                    Title = "Проверьте введенные данные",
-                    Message = "Пожалуйста введите email корректно",
-                    Type = NotificationType.Warning
-
-                }); return;
-            }
-            else
-            {
-                if (Email_changeButton.Content.ToString() == "Сохранить")
-                {
-                    MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                     {
-                        Email = Email_tb.Text
+                        Title = "Проверьте введенные данные",
+                        Message = "Пожалуйста введите email",
+                        Type = NotificationType.Warning
                     });
+                    return;
                 }
+
+                MainPage.client.UpdateUser(new UpdateUserModel
+                {
+                    Email = EmailTb.Text
+                });
+                Load();
             }
-            Email_changeButton.Content = (Email_changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
-            Email_tb.IsEnabled = Email_changeButton.Content.ToString() == "Сохранить" ? true : false;
+
+            EmailChangeButton.Content = EmailChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            EmailTb.IsEnabled = EmailChangeButton.Content.ToString() == "Сохранить";
         }
+
         private void Description_ChangeBtn(object sender, RoutedEventArgs e)
         {
-            if (Desc_changeButton.Content.ToString() == "Сохранить")
+            if (DescChangeButton.Content.ToString() == "Сохранить")
             {
-                MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+                MainPage.client.UpdateUser(new UpdateUserModel
                 {
-                    Description = Desc_tb.Text
+                    Description = DescTb.Text.Trim()
                 });
+                Load();
             }
-            Desc_changeButton.Content = (Desc_changeButton.Content.ToString() == "Сохранить") ? "Изменить" : "Сохранить";
-            Desc_tb.IsEnabled = Desc_changeButton.Content.ToString() == "Сохранить" ? true : false;
+
+            DescChangeButton.Content = DescChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            DescTb.IsEnabled = DescChangeButton.Content.ToString() == "Сохранить";
+
         }
 
         private void Change_Avatar(object sender, MouseButtonEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
-            };
+            var openFileDialog = new OpenFileDialog { Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg", Multiselect = false };
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
-            MainPage._client.UpdateUser(new VardoneEntities.Models.GeneralModels.Users.UpdateUserModel
+            MainPage.client.UpdateUser(new UpdateUserModel
             {
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });
+            Load();
+        }
+
+        private void ExitButtonClick(object sender, RoutedEventArgs e)
+        {
+            MainPage.client.CloseCurrentSession();
+            MainPage.GetInstance().ExitFromAccount();
+        }
+
+        private void ExitEverywhereButtonClick(object sender, RoutedEventArgs e)
+        {
+            MainPage.client.CloseAllSessions();
+            MainPage.GetInstance().ExitFromAccount();
+        }
+
+        private void DeleteAccountButtonClick(object sender, RoutedEventArgs e)
+        {
+            MainPage.client.DeleteMe();
+            MainPage.GetInstance().ExitFromAccount();
         }
     }
 }

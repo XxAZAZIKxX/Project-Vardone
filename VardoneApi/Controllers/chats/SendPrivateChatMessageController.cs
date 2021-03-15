@@ -10,7 +10,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 namespace VardoneApi.Controllers.chats
 {
     [ApiController, Route("chats/[controller]")]
-    public class SendChatMessageController : ControllerBase
+    public class SendPrivateChatMessageController : ControllerBase
     {
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long secondId, [FromBody] PrivateMessageModel message)

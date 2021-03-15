@@ -31,9 +31,8 @@
                                     ImageSource="/Resources/avatar.jpg" />
                     </Ellipse.Fill>
                 </Ellipse>
-                <TextBlock x:Name="Username" Text="Julie Lynx" FontSize="20"
-                           Margin="100,45,0,0" Foreground="White">
-                </TextBlock>
+                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="Username" Text="Julie Lynx" FontSize="20"
+                           Margin="100,45,0,0" Foreground="White" />
                 <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="online" FontSize="15"
                            Margin="100,75,0,0"
                            Foreground="LightGray" />
@@ -54,8 +53,17 @@
                         Width="200" Margin="0,0,0,40">
                     <TextBlock x:Name="Description" MaxWidth="200" Padding="10"
                                Text=" Tell everyone your story.."
-                               Foreground="LightGray" FontWeight="DemiBold" HorizontalAlignment="Center" />
+                               Foreground="LightGray" FontWeight="DemiBold" 
+                               HorizontalAlignment="Center" />
                 </Border>
+                <Image Width="17" 
+                       Cursor="Hand"
+                       x:Name="Message"
+                       MouseDown="Message_OnMouseDown"
+                       Margin="0,79,74,0"
+                       Source="../Resources/message.png" 
+                       VerticalAlignment="Top" 
+                       HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 

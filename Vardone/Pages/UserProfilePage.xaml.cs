@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using Vardone.Core;
 using VardoneEntities.Entities;
@@ -14,15 +15,24 @@ namespace Vardone.Pages
         public static UserProfilePage GetInstance() => _instance ??= new UserProfilePage();
         public User User { get; private set; }
         private UserProfilePage() => InitializeComponent();
-        public void Load(User user)
+        public void Load(User user, bool isMe = false)
         {
             User = user;
             Username.Text = user.Username;
-            Avatar.ImageSource = user.Base64Avatar == null
-                ? MainPage.DefaultAvatar
-                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar));
+            Avatar.ImageSource = user.Base64Avatar switch
+            {
+                null => MainPage.DefaultAvatar,
+                _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
+            };
             Description.Text = user.Description;
+            Message.Visibility = isMe ? Visibility.Hidden : Visibility.Visible;
         }
         private void BackToMainPage(object s, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
+
+        private void Message_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MainPage.GetInstance().LoadPrivateChat(User.UserId);
+            MainPage.GetInstance().MainFrame.Navigate(null);
+        }
     }
 }

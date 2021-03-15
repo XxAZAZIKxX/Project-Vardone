@@ -20,7 +20,6 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
-                if (!Core.UserChecks.IsFriends(userId, secondId)) return Ok();
 
                 var dataContext = Program.DataContext;
                 var friendsList = dataContext.FriendsList;

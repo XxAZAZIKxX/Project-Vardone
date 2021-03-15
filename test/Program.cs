@@ -1,7 +1,7 @@
 ﻿using System;
 using VardoneEntities.Entities;
 using VardoneLibrary.Core;
-using VardoneLibrary.Core.VardoneEvents;
+using VardoneLibrary.VardoneEvents;
 
 namespace testLibrary
 {
@@ -11,8 +11,7 @@ namespace testLibrary
         {
             var client = new VardoneClient(1, "907FFCF82A1E87FE98254AEE12FDE0F0");
             Console.WriteLine("Started...");
-            VardoneEvents.newPrivateMessage += ClientOnAddPrivateMessage;
-            client.StartReceiving();
+            VardoneEvents.onNewPrivateMessage += ClientOnAddPrivateMessage;
             Console.ReadKey(false);
         }
 

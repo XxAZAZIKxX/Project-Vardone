@@ -19,8 +19,11 @@ namespace Vardone.Controls.ItemControls
             InitializeComponent();
             this.message = message;
             if (!MainPage.UserAvatars.ContainsKey(message.Author.UserId))
-                MainPage.UserAvatars.Add(message.Author.UserId, message.Author.Base64Avatar is null ? MainPage.DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Author.Base64Avatar)));
-
+                MainPage.UserAvatars.Add(message.Author.UserId, message.Author.Base64Avatar switch
+                {
+                    null => MainPage.DefaultAvatar,
+                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Author.Base64Avatar))
+                });
             Avatar.ImageSource = MainPage.UserAvatars[message.Author.UserId];
 
             CreatedTime.Content = message.CreateTime.ToShortDateString() + " " + message.CreateTime.ToShortTimeString();

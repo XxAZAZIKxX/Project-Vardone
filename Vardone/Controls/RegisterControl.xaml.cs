@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Notifications.Wpf;
 using Vardone.Pages;
 
 namespace Vardone.Controls
@@ -31,24 +33,54 @@ namespace Vardone.Controls
         {
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
             {
-                MessageBox.Show("Пустой логин", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите имя пользователя",
+                    Type = NotificationType.Warning
+                });
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(PbPassword.Password))
             {
-                MessageBox.Show("Пустой пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите пароль",
+                    Type = NotificationType.Warning
+                });
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(TbEmail.Text))
             {
-                MessageBox.Show("Пустой емейл", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите email",
+                    Type = NotificationType.Warning
+                });
                 return;
             }
 
-            if (AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password) is not false) return;
-            MessageBox.Show("Ошибка регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password) is false)
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Попытка регистрации завершилась неудачно",
+                    Type = NotificationType.Error
+                });
+                return;
+            }
+
+            TbLogin.Text = string.Empty;
+            TbLogin_OnLostFocus(null, null);
+            TbEmail.Text = string.Empty;
+            TbEmail_OnLostFocus(null, null);
+            PbPassword.Password = string.Empty;
+            PbPassword_OnLostFocus(null, null);
         }
 
         private void TbLogin_OnGotFocus(object sender, RoutedEventArgs e) => TbLoginPlaceholder.Visibility = Visibility.Collapsed;

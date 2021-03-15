@@ -36,8 +36,8 @@
 
         <Grid Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="10*" />
-                <RowDefinition Height="90*" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Border Background="#202020" Cursor="Hand" BorderThickness="0" CornerRadius="0,50,0,0"
                     Grid.Row="0">
@@ -57,7 +57,7 @@
                     </TabItem>
                     <TabItem Foreground="Gray" Header="Messages">
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <StackPanel x:Name="MessageListGrid" />
+                            <StackPanel x:Name="ChatListGrid" />
                         </ScrollViewer>
                     </TabItem>
                     <TabControl.Resources>
@@ -121,10 +121,10 @@
         </Border>
         <Grid Grid.Row="1" Grid.Column="2" Background="#262525">
             <Grid.RowDefinitions>
-                <RowDefinition Height="85*" />
-                <RowDefinition Height="15*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="65" />
             </Grid.RowDefinitions>
-            <ScrollViewer x:Name="ChatScrollViewer" Visibility="Visible" VerticalScrollBarVisibility="Visible">
+            <ScrollViewer x:Name="ChatScrollViewer" Visibility="Visible" VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="ChatMessagesGrid" VerticalAlignment="Bottom" />
             </ScrollViewer>
 
@@ -141,6 +141,7 @@
                              x:Name="MessageTextBox" BorderThickness="0" Height="30"
                              VerticalContentAlignment="Center" CaretBrush="White"
                              Foreground="LightGray" Background="Transparent" />
+                    <Image MouseDown="ClipMouseDown" Opacity="0.6" Width="25" Source="../Resources/clip.png" VerticalAlignment="Center" HorizontalAlignment="Right"></Image>
                 </Grid>
             </Border>
         </Grid>

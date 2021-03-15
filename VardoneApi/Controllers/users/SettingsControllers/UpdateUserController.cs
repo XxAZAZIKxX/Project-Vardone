@@ -12,8 +12,7 @@ namespace VardoneApi.Controllers.users.SettingsControllers
     public class UpdateUserController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token,
-            [FromBody] UpdateUserModel updateUserModel)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromBody] UpdateUserModel updateUserModel)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {

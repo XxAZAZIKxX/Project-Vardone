@@ -54,39 +54,49 @@
                                Text="WELCOME" />
                 </Viewbox>
                 <!--Username-->
-                <TextBox x:Name="TbLoginPlaceholder" Grid.Column="1" Grid.Row="3" 
+                <TextBox x:Name="TbLoginPlaceholder" Grid.Column="1" Grid.Row="3"
                          Background="#FF1B1B1D" TabIndex="-1"
+                         HorizontalContentAlignment="Center"
                          Text="Username"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3"
                          TabIndex="1"
+                         CaretBrush="White"
+                         HorizontalContentAlignment="Center"
                          GotFocus="TbLogin_OnGotFocus" LostFocus="TbLogin_OnLostFocus"
                          TextChanged="TbLogin_OnTextChanged"
                          Background="Transparent"
                          VerticalContentAlignment="Center"
                          Foreground="Azure" />
                 <!--Email-->
-                <TextBox x:Name="TbEmailPlaceholder" Grid.Column="1" Grid.Row="5" 
+                <TextBox x:Name="TbEmailPlaceholder" Grid.Column="1" Grid.Row="5"
                          Background="#FF1B1B1D" TabIndex="-1"
+                         HorizontalContentAlignment="Center"
                          Text="Email"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
-                <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5" 
+                <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5"
                          TabIndex="2"
+                         CaretBrush="White"
+                         HorizontalContentAlignment="Center"
                          GotFocus="TbEmail_OnGotFocus" LostFocus="TbEmail_OnLostFocus"
                          TextChanged="TbEmail_OnTextChanged"
                          Background="Transparent"
                          VerticalContentAlignment="Center"
                          Foreground="Azure" />
                 <!--Password-->
-                <TextBox x:Name="PbPasswordPlaceholder" Grid.Column="1" Grid.Row="7" 
+                <TextBox x:Name="PbPasswordPlaceholder" Grid.Column="1" Grid.Row="7"
                          Background="#FF1B1B1D" TabIndex="-1"
+                         HorizontalContentAlignment="Center"
                          Text="Password"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
-                <PasswordBox KeyDown="PbPassword_OnKeyDown" TabIndex="3" x:Name="PbPassword" Grid.Column="1" Grid.Row="7" 
+                <PasswordBox KeyDown="PbPassword_OnKeyDown" TabIndex="3" x:Name="PbPassword" Grid.Column="1"
+                             Grid.Row="7"
+                             CaretBrush="White"
                              GotFocus="PbPassword_OnGotFocus" LostFocus="PbPassword_OnLostFocus"
+                             HorizontalContentAlignment="Center"
                              PasswordChanged="PbPassword_OnPasswordChanged"
                              Background="Transparent"
                              VerticalContentAlignment="Center"

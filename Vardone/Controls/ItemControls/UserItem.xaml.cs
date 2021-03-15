@@ -25,8 +25,11 @@ namespace Vardone.Controls.ItemControls
             Username.Content = user.Username;
 
             if (!MainPage.UserAvatars.ContainsKey(user.UserId))
-                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar is null ? MainPage.DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar)));
-            
+                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar switch
+                {
+                    null => MainPage.DefaultAvatar,
+                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
+                });
             Avatar.ImageSource = MainPage.UserAvatars[user.UserId];
 
 
