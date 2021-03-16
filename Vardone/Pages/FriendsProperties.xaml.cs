@@ -1,7 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using Notifications.Wpf;
-
+using System.Linq;
+using VardoneLibrary.Core;
+using Vardone.Controls.ItemControls;
+using Application = System.Windows.Application;
 namespace Vardone.Pages
 {
     /// <summary>
@@ -10,8 +13,12 @@ namespace Vardone.Pages
     public partial class FriendsProperties
     {
         private static FriendsProperties _instance;
+            public static VardoneClient client;
         public static FriendsProperties GetInstance() => _instance ??= new FriendsProperties();
-        public FriendsProperties() => InitializeComponent();
+        public FriendsProperties()
+        {
+            InitializeComponent();
+        }
 
         private void CloseMouseDown(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
@@ -32,6 +39,8 @@ namespace Vardone.Pages
                 });
             }
 
+   
         }
+    
     }
 }

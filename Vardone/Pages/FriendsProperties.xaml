@@ -100,31 +100,23 @@
                          HorizontalContentAlignment="Center">
                     <Border Background="#303030">
                         <Grid MinWidth="760" MinHeight="400">
-
-                            <StackPanel>
+                            <StackPanel  x:Name="IncomingRequest">
                                 <ScrollViewer VerticalScrollBarVisibility="Hidden" />
                             </StackPanel>
-
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="730" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="380" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
                         </Grid>
                     </Border>
 
                 </TabItem>
                 <TabItem Foreground="Gray" Header="Входящие заявки"
                          HorizontalContentAlignment="Center">
-                    <ScrollViewer
-                        VerticalScrollBarVisibility="Hidden">
-                        <StackPanel Name="IncomingRequests" />
-                    </ScrollViewer>
+                    <Border Background="#303030">
+                        <Grid MinWidth="760" MinHeight="400">
+                            <StackPanel x:Name="OutgoingRequest">
+                                <ScrollViewer 
+                                    VerticalScrollBarVisibility="Hidden" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </TabItem>
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">

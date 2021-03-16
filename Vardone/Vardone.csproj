@@ -15,10 +15,12 @@
     <None Remove="Resources\avatar.jpg" />
     <None Remove="Resources\Backgrounds\wallpaper.jpg" />
     <None Remove="Resources\clip.png" />
+    <None Remove="Resources\cross.ico" />
     <None Remove="Resources\download.png" />
     <None Remove="Resources\exit.png" />
     <None Remove="Resources\gear.png" />
     <None Remove="Resources\message.png" />
+    <None Remove="Resources\tick.ico" />
     <None Remove="Resources\va.ico" />
   </ItemGroup>
 
@@ -32,6 +34,9 @@
     <Content Include="Resources\clip.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\cross.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\download.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -42,6 +47,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\message.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\tick.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
