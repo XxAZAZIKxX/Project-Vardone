@@ -100,7 +100,7 @@ namespace Vardone.Pages
                     return;
                 }
 
-                MainPage.client.UpdateUser(new UpdateUserModel
+                MainPage.client.UpdateMe(new UpdateUserModel
                 {
                     Username = UsernameTb.Text
                 });
@@ -126,7 +126,7 @@ namespace Vardone.Pages
                     return;
                 }
 
-                MainPage.client.UpdateUser(new UpdateUserModel
+                MainPage.client.UpdateMe(new UpdateUserModel
                 {
                     Email = EmailTb.Text
                 });
@@ -141,7 +141,7 @@ namespace Vardone.Pages
         {
             if (DescChangeButton.Content.ToString() == "Сохранить")
             {
-                MainPage.client.UpdateUser(new UpdateUserModel
+                MainPage.client.UpdateMe(new UpdateUserModel
                 {
                     Description = DescTb.Text.Trim()
                 });
@@ -159,7 +159,7 @@ namespace Vardone.Pages
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
-            MainPage.client.UpdateUser(new UpdateUserModel
+            MainPage.client.UpdateMe(new UpdateUserModel
             {
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });

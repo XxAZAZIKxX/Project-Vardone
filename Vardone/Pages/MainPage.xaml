@@ -118,7 +118,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="65" />
             </Grid.RowDefinitions>
-            <ScrollViewer x:Name="ChatScrollViewer" Visibility="Visible" VerticalScrollBarVisibility="Hidden">
+            <ScrollViewer x:Name="ChatScrollViewer" ScrollChanged="ChatScrollViewer_OnScrollChanged" Visibility="Visible" VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="ChatMessagesGrid" VerticalAlignment="Bottom" />
             </ScrollViewer>
 
