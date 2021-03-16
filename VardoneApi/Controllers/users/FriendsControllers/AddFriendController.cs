@@ -36,7 +36,7 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                         p.FromUser == user1 && p.ToUser == user2 ||
                         p.FromUser == user2 && p.ToUser == user1
                         );
-                    if (list.CreatedByUser == user1) return Ok();
+                    if (list.FromUser == user1) return Ok();
                     list.Confirmed = true;
                     dataContext.SaveChanges();
                     return Ok();
@@ -50,7 +50,6 @@ namespace VardoneApi.Controllers.users.FriendsControllers
                 {
                     FromUser = user1,
                     ToUser = user2,
-                    CreatedByUser = user1,
                     Confirmed = false
                 };
 

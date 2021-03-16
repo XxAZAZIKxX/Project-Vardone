@@ -19,8 +19,7 @@ namespace VardoneApi.Controllers.users.GetControllers
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel {UserId = userId, Token = token}))
-                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel {UserId = userId, Token = token})) return Unauthorized("Invalid token");
 
                 var dataContext = Program.DataContext;
                 var friendsList = dataContext.FriendsList;
@@ -34,12 +33,12 @@ namespace VardoneApi.Controllers.users.GetControllers
                     {
                         users.Add(new User
                         {
-                            UserId = row.ToUser.Id,
-                            Username = row.ToUser.Username,
-                            Base64Avatar = row.ToUser.Info?.Avatar == null
+                            UserId = row.FromUser.Id,
+                            Username = row.FromUser.Username,
+                            Base64Avatar = row.FromUser.Info?.Avatar == null
                                 ? null
-                                : Convert.ToBase64String(row.ToUser.Info.Avatar),
-                            Description = row.ToUser.Info?.Description
+                                : Convert.ToBase64String(row.FromUser.Info.Avatar),
+                            Description = row.FromUser.Info?.Description
                         });
                     }
                 }

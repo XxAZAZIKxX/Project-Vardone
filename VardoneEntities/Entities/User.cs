@@ -16,24 +16,12 @@ namespace VardoneEntities.Entities
             return secondUser is User user && Equals(user);
         }
 
-        protected bool Equals(User other)
-        {
-            return UserId == other.UserId && Username == other.Username && Email == other.Email && Base64Avatar == other.Base64Avatar && Description == other.Description;
-        }
+        protected bool Equals(User other) => UserId == other.UserId && Username == other.Username && Email == other.Email && Base64Avatar == other.Base64Avatar && Description == other.Description;
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(UserId, Username, Email, Base64Avatar, Description);
-        }
+        public override int GetHashCode() => HashCode.Combine(UserId, Username, Email, Base64Avatar, Description);
 
-        public static bool operator ==(User left, User right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(User left, User right) => left is not null && left.Equals(right);
 
-        public static bool operator !=(User left, User right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(User left, User right) => left is not null && !left.Equals(right);
     }
 }

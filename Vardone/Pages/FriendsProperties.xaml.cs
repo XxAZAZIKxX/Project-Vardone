@@ -16,6 +16,36 @@ namespace Vardone.Pages
 
         private FriendsProperties() => InitializeComponent();
 
+        //Loads
+
+        public void Load()
+        {
+            LoadIncomingRequests();
+            LoadOutgoingRequests();
+        }
+
+        public void LoadIncomingRequests()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IncomingRequest.Children.Clear();
+                var requests = MainPage.client.GetIncomingFriendRequests();
+                foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Incoming)))
+                    IncomingRequest.Children.Add(friendRequestItem);
+            });
+        }
+
+        public void LoadOutgoingRequests()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                OutgoingRequest.Children.Clear();
+                var requests = MainPage.client.GetOutgoingFriendRequests();
+                foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Outgoing)))
+                    OutgoingRequest.Children.Add(friendRequestItem);
+            });
+        }
+
         private void CloseMouseDown(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
         private void AddFriendClick(object sender, RoutedEventArgs e)
@@ -40,6 +70,8 @@ namespace Vardone.Pages
                     Type = NotificationType.Success
                 });
                 TbFriendName.Text = "";
+                LoadOutgoingRequests();
+                LoadIncomingRequests();
             }
             catch
             {
@@ -49,15 +81,6 @@ namespace Vardone.Pages
                     Message = "Такого пользователя не существует",
                     Type = NotificationType.Error
                 });
-            }
-        }
-
-        public void LoadIncomingRequests()
-        {
-            var requests = MainPage.client.GetIncomingFriendRequests();
-            foreach (var friendRequestItem in requests.OrderBy(p=>p.Username).Select(user => new FriendRequestItem(user)))
-            {
-                IncomingRequest.Children.Add(friendRequestItem);
             }
         }
     }

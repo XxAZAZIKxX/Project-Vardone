@@ -46,11 +46,25 @@ namespace Vardone.Pages
             VardoneEvents.onUpdateFriendList += OnUpdateFriendList;
         }
 
+        public void ExitFromAccount()
+        {
+            client = null;
+            ChatListGrid.Children.Clear();
+            FriendListGrid.Children.Clear();
+            ChatHeader.Children.Clear();
+            ChatMessagesGrid.Children.Clear();
+            MyAvatar.ImageSource = null;
+            MyUsername.Text = null;
+            JsonTokenWorker.SetToken(null);
+            _instance = null;
+            AuthorizationPage.GetInstance().OpenAuth();
+            MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
+        }
+
+        //Events
         private void OnUpdateFriendList() => LoadFriendList();
 
-        private void OnUpdateOutgoingFriendRequestList()
-        {
-        }
+        private void OnUpdateOutgoingFriendRequestList() => FriendsProperties.GetInstance().LoadOutgoingRequests();
 
         private void OnUpdateIncomingFriendRequestList(bool becameLess)
         {
@@ -63,6 +77,7 @@ namespace Vardone.Pages
                     Type = NotificationType.Information
                 });
             }
+            FriendsProperties.GetInstance().LoadIncomingRequests();
         }
 
         private void OnUpdateOnline(User user)
@@ -98,6 +113,25 @@ namespace Vardone.Pages
             if (user.UserId == client.UserId) LoadMe();
         }
 
+        private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (ChatScrollViewer.VerticalOffset != 0) return;
+            if (ChatHeader.Children.Count == 0) return;
+            if (ChatMessagesGrid.Children.Count == 0) return;
+            var privateMessagesFromChat = client.GetPrivateMessagesFromChat(
+                client.GetPrivateChatWithUser(((UserItem)ChatHeader.Children[0]).user.UserId).ChatId, 5,
+                ((MessageChatItem)ChatMessagesGrid.Children[0]).message.MessageId);
+            foreach (var messageItem in privateMessagesFromChat.Select(message => new MessageChatItem(message)))
+            {
+                ChatMessagesGrid.Children.Insert(0, messageItem);
+            }
+
+            if (privateMessagesFromChat.Count > 0)
+                ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+        }
+
+        //Loads
+
         public void Load(VardoneClient vardoneClient)
         {
             client = vardoneClient;
@@ -123,7 +157,8 @@ namespace Vardone.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 ChatListGrid.Children.Clear();
-                foreach (var friendGridItem in client.GetPrivateChats().Select(chat => new UserItem(chat.ToUser, MouseDownEventLogic.OpenChat)))
+                foreach (var friendGridItem in client.GetPrivateChats()
+                    .Select(chat => new UserItem(chat.ToUser, MouseDownEventLogic.OpenChat)))
                 {
                     ChatListGrid.Children.Add(friendGridItem);
                 }
@@ -156,7 +191,9 @@ namespace Vardone.Pages
                     HorizontalAlignment = HorizontalAlignment.Left
                 };
                 ChatHeader.Children.Add(userItem);
-                foreach (var message in client.GetPrivateMessagesFromChat(client.GetPrivateChatWithUser(userId).ChatId, 5).OrderBy(p => p.MessageId))
+                foreach (var message in client
+                    .GetPrivateMessagesFromChat(client.GetPrivateChatWithUser(userId).ChatId, 5)
+                    .OrderBy(p => p.MessageId))
                 {
                     var messageItem = new MessageChatItem(message);
                     ChatMessagesGrid.Children.Add(messageItem);
@@ -166,6 +203,7 @@ namespace Vardone.Pages
             });
         }
 
+        //Opens
         private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(client.GetMe(), true);
 
         public void UserProfileOpen(User user, bool isMe = false)
@@ -180,53 +218,12 @@ namespace Vardone.Pages
             MainFrame.Navigate(DeployImagePage.GetInstance());
         }
 
-        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) =>
-            MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
-
-        private void MessageBoxLostFocus(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
-            MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
-        }
-
-        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) =>
-            MessageBoxGotFocus(null, null);
-
-        private void MessageBoxKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter) return;
-            if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
-            if (ChatHeader.Children.Count == 0) return;
-            if (ChatHeader.Children[0] is not UserItem) return;
-            var user = ((UserItem)ChatHeader.Children[0]).user;
-            client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
-            MessageTextBox.Text = "";
-            MessageBoxLostFocus(null, null);
-            LoadPrivateChat(user.UserId);
-        }
+        private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) => GetInstance().PropertiesProfileOpen();
 
         public void PropertiesProfileOpen()
         {
             PropertiesPage.GetInstance().Load();
             MainFrame.Navigate(PropertiesPage.GetInstance());
-        }
-
-        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) =>
-            GetInstance().PropertiesProfileOpen();
-
-        public void ExitFromAccount()
-        {
-            client = null;
-            ChatListGrid.Children.Clear();
-            FriendListGrid.Children.Clear();
-            ChatHeader.Children.Clear();
-            ChatMessagesGrid.Children.Clear();
-            MyAvatar.ImageSource = null;
-            MyUsername.Text = null;
-            JsonTokenWorker.SetToken(null);
-            _instance = null;
-            AuthorizationPage.GetInstance().OpenAuth();
-            MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
         }
 
         private void ClipMouseDown(object sender, MouseButtonEventArgs e)
@@ -251,24 +248,37 @@ namespace Vardone.Pages
             LoadPrivateChat(userId);
         }
 
-        private void FindMouseDown(object sender, MouseButtonEventArgs e) =>
-            MainFrame.Navigate(FriendsProperties.GetInstance());
-
-        private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        private void OpenFriendsProperties(object sender, MouseButtonEventArgs e)
         {
-            if (ChatScrollViewer.VerticalOffset != 0) return;
-            if (ChatHeader.Children.Count == 0) return;
-            if (ChatMessagesGrid.Children.Count == 0) return;
-            var privateMessagesFromChat = client.GetPrivateMessagesFromChat(
-                client.GetPrivateChatWithUser(((UserItem)ChatHeader.Children[0]).user.UserId).ChatId, 5,
-                ((MessageChatItem)ChatMessagesGrid.Children[0]).message.MessageId);
-            foreach (var messageItem in privateMessagesFromChat.Select(message => new MessageChatItem(message)))
-            {
-                ChatMessagesGrid.Children.Insert(0, messageItem);
-            }
+            FriendsProperties.GetInstance().Load();
+            MainFrame.Navigate(FriendsProperties.GetInstance());
+        }
 
-            if (privateMessagesFromChat.Count > 0)
-                ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+        //Placeholders
+
+        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) =>
+            MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
+
+        private void MessageBoxLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
+            MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
+        }
+
+        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) =>
+            MessageBoxGotFocus(null, null);
+
+        private void MessageBoxKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
+            if (ChatHeader.Children.Count == 0) return;
+            if (ChatHeader.Children[0] is not UserItem) return;
+            var user = ((UserItem)ChatHeader.Children[0]).user;
+            client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
+            MessageTextBox.Text = "";
+            MessageBoxLostFocus(null, null);
+            LoadPrivateChat(user.UserId);
         }
     }
 }

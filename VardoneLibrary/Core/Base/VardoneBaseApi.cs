@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
 using VardoneEntities.Models.ClientModels;
 using VardoneEntities.Models.GeneralModels.Users;
-using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
 {
