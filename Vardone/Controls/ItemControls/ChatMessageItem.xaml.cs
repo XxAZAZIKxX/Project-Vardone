@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Vardone.Core;
 using Vardone.Pages;
@@ -11,28 +12,35 @@ namespace Vardone.Controls.ItemControls
     /// <summary>
     /// Логика взаимодействия для MessageGridItem.xaml
     /// </summary>
-    public partial class MessageChatItem
+    public partial class ChatMessageItem
     {
-        public PrivateMessage message;
-        public MessageChatItem(PrivateMessage message)
+        public PrivateMessage Message { get; }
+        public User Author { get; }
+        public ChatMessageItem(PrivateMessage message)
         {
             InitializeComponent();
-            this.message = message;
-            if (!MainPage.UserAvatars.ContainsKey(message.Author.UserId))
-                MainPage.UserAvatars.Add(message.Author.UserId, message.Author.Base64Avatar switch
-                {
-                    null => MainPage.DefaultAvatar,
-                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Author.Base64Avatar))
-                });
-            Avatar.ImageSource = MainPage.UserAvatars[message.Author.UserId];
+
+            Message = message;
+            Author = message.Author;
+
+            Avatar.ImageSource = AvatarsWorker.GetAvatarUser(Author.UserId);
 
             CreatedTime.Content = message.CreateTime.ToShortDateString() + " " + message.CreateTime.ToShortTimeString();
-            Username.Content = message.Author.Username;
+            Username.Content = Author.Username;
             Text.Content = message.Text;
             if (message.Base64Image is null) ImageRow.Height = new GridLength(0d);
             else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
         }
 
         private void ImageOnClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().DeployImage(Image.Source as BitmapImage);
+
+        public void SetStatus(bool online)
+        {
+            OnlineStatus.Fill = online switch
+            {
+                true => new SolidColorBrush(Colors.LimeGreen),
+                false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
+            };
+        }
     }
 }

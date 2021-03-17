@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Vardone.Core;
 using Notifications.Wpf;
 using VardoneEntities.Models.GeneralModels.Users;
+using Application = System.Windows.Application;
 
 namespace Vardone.Pages
 {
@@ -20,18 +21,15 @@ namespace Vardone.Pages
 
         public void Load()
         {
-            var user = MainPage.client.GetMe();
-            if (!MainPage.UserAvatars.ContainsKey(user.UserId))
-                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar switch
-                {
-                    null => MainPage.DefaultAvatar,
-                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
-                });
-            AvatarImage.ImageSource = MainPage.UserAvatars[user.UserId];
-            UsernameLabel.Content = user.Username;
-            UsernameTb.Text = user.Username;
-            EmailTb.Text = user.Email;
-            DescTb.Text = user.Description ?? "Description";
+            var user = MainPage.Client.GetMe();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                AvatarImage.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
+                UsernameLabel.Content = user.Username;
+                UsernameTb.Text = user.Username;
+                EmailTb.Text = user.Email;
+                DescTb.Text = user.Description ?? "Description";
+            });
         }
         private void CloseMouseDown(object sender, System.Windows.Input.MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
@@ -52,7 +50,7 @@ namespace Vardone.Pages
 
                 try
                 {
-                    MainPage.client.UpdatePassword(new UpdatePasswordModel
+                    MainPage.Client.UpdatePassword(new UpdatePasswordModel
                     {
                         PreviousPassword = PasswordBox1.Password,
                         NewPassword = PasswordBox2.Password
@@ -100,7 +98,7 @@ namespace Vardone.Pages
                     return;
                 }
 
-                MainPage.client.UpdateMe(new UpdateUserModel
+                MainPage.Client.UpdateMe(new UpdateUserModel
                 {
                     Username = UsernameTb.Text
                 });
@@ -126,7 +124,7 @@ namespace Vardone.Pages
                     return;
                 }
 
-                MainPage.client.UpdateMe(new UpdateUserModel
+                MainPage.Client.UpdateMe(new UpdateUserModel
                 {
                     Email = EmailTb.Text
                 });
@@ -141,7 +139,7 @@ namespace Vardone.Pages
         {
             if (DescChangeButton.Content.ToString() == "Сохранить")
             {
-                MainPage.client.UpdateMe(new UpdateUserModel
+                MainPage.Client.UpdateMe(new UpdateUserModel
                 {
                     Description = DescTb.Text.Trim()
                 });
@@ -159,7 +157,7 @@ namespace Vardone.Pages
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
-            MainPage.client.UpdateMe(new UpdateUserModel
+            MainPage.Client.UpdateMe(new UpdateUserModel
             {
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });
@@ -168,19 +166,19 @@ namespace Vardone.Pages
 
         private void ExitButtonClick(object sender, RoutedEventArgs e)
         {
-            MainPage.client.CloseCurrentSession();
+            MainPage.Client.CloseCurrentSession();
             MainPage.GetInstance().ExitFromAccount();
         }
 
         private void ExitEverywhereButtonClick(object sender, RoutedEventArgs e)
         {
-            MainPage.client.CloseAllSessions();
+            MainPage.Client.CloseAllSessions();
             MainPage.GetInstance().ExitFromAccount();
         }
 
         private void DeleteAccountButtonClick(object sender, RoutedEventArgs e)
         {
-            MainPage.client.DeleteMe();
+            MainPage.Client.DeleteMe();
             MainPage.GetInstance().ExitFromAccount();
         }
     }

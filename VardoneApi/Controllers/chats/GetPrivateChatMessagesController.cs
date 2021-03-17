@@ -14,7 +14,7 @@ namespace VardoneApi.Controllers.chats
     public class GetPrivateChatMessagesController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId, [FromQuery] int limit, [FromQuery] long startFrom)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long chatId, [FromQuery] bool read = true, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
@@ -33,14 +33,23 @@ namespace VardoneApi.Controllers.chats
                 privateChats.Include(p => p.FromUser.Info).Load();
                 privateChats.Include(p => p.ToUser.Info).Load();
                 var privateMessages = dataContext.PrivateMessages;
-                privateMessages.Include(p => p.From).Load();
-                privateMessages.Include(p => p.From.Info).Load();
+                privateMessages.Include(p => p.Author).Load();
+                privateMessages.Include(p => p.Author.Info).Load();
                 privateMessages.Include(p => p.Chat).Load();
 
                 try
                 {
                     var messages = new List<PrivateMessage>();
                     var chat = privateChats.First(p => p.Id == chatId);
+
+                    if (read)
+                    {
+                        if (chat.FromUser.Id == userId) chat.FromLastReadTimeMessages = DateTime.Now;
+                        else chat.ToLastReadTimeMessages = DateTime.Now;
+                        privateChats.Update(chat);
+                        dataContext.SaveChanges();
+                    }
+
                     var selectedMessages = privateMessages.Where(p => p.Chat == chat);
                     if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
                     if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
@@ -71,10 +80,10 @@ namespace VardoneApi.Controllers.chats
                             },
                             Author = new User
                             {
-                                UserId = message.From.Id,
-                                Username = message.From.Username,
-                                Base64Avatar = message.From.Info?.Avatar == null ? null : Convert.ToBase64String(message.From.Info.Avatar),
-                                Description = message.From.Info?.Description
+                                UserId = message.Author.Id,
+                                Username = message.Author.Username,
+                                Base64Avatar = message.Author.Info?.Avatar == null ? null : Convert.ToBase64String(message.Author.Info.Avatar),
+                                Description = message.Author.Info?.Description
                             },
                             Text = message.Text,
                             Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image),

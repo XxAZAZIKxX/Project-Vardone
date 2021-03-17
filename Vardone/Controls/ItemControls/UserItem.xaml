@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              MinWidth="250" Height="50">
     <Grid x:Name="Grid" Cursor="Hand">
-        <Ellipse x:Name="Ellipse" VerticalAlignment="Center"
+        <Ellipse VerticalAlignment="Center"
                  Width="30" Height="30" Margin="30,0,0,0"
                  HorizontalAlignment="Left">
             <Ellipse.Fill>
-                <ImageBrush Stretch="UniformToFill" x:Name="Avatar" />
+                <ImageBrush ImageSource="../../Resources/avatar.jpg" Stretch="UniformToFill" x:Name="Avatar" />
             </Ellipse.Fill>
         </Ellipse>
 
@@ -15,13 +15,29 @@
                  HorizontalAlignment="Left"
                  VerticalAlignment="Center"
                  Margin="52,22,0,0"
-                 Fill="LimeGreen" />
-        <Label x:Name="Username" Content="User" 
-               Foreground="white" 
-               Width="150"
+                 Fill="#505050"
+                 x:Name="OnlineStatus" 
+                 x:FieldModifier="private" />
+        <Label x:Name="Username" Content="User"
+               Foreground="white"
+               MaxWidth="125"
                FontSize="14"
                HorizontalAlignment="Left"
                Margin="70,0,0,0"
                VerticalAlignment="Center" />
+
+        <Border x:Name="CmBorder" x:FieldModifier="private"
+                Margin="0,0,20,0" 
+                CornerRadius="10"
+                Background="#505050"
+                VerticalAlignment="Center" HorizontalAlignment="Right">
+            <Label x:Name="CountMessages" 
+                   x:FieldModifier="private" 
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Right" MinWidth="20" MaxWidth="37"
+                   Content="7" Foreground="LightGray" FontWeight="Bold"
+                   FontFamily="Arial" HorizontalContentAlignment="Center"
+                   FontSize="8" />
+        </Border>
     </Grid>
 </UserControl>

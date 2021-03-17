@@ -19,11 +19,7 @@ namespace Vardone.Pages
         {
             User = user;
             Username.Text = user.Username;
-            Avatar.ImageSource = user.Base64Avatar switch
-            {
-                null => MainPage.DefaultAvatar,
-                _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
-            };
+            Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
             Description.Text = user.Description;
             Message.Visibility = isMe ? Visibility.Hidden : Visibility.Visible;
         }

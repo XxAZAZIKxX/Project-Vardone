@@ -24,6 +24,8 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 var dataContext = Program.DataContext;
                 var chatsTable = dataContext.PrivateChats;
+                var privateMessages = dataContext.PrivateMessages;
+                privateMessages.Include(p => p.Author).Load();
                 chatsTable.Include(p => p.FromUser).Load();
                 chatsTable.Include(p => p.ToUser).Load();
                 chatsTable.Include(p => p.FromUser.Info).Load();
@@ -33,28 +35,35 @@ namespace VardoneApi.Controllers.users.GetControllers
 
                 try
                 {
-                    foreach (var row in chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId))
+                    var @where = chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).ToList();
+                    foreach (var chat in @where)
                     {
-                        var user = row.FromUser.Id == userId ? row.FromUser : row.ToUser;
-                        var anotherUser = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
-                        chats.Add(new PrivateChat
+                        var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
+                        var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
+                        var item = new PrivateChat
                         {
-                            ChatId = row.Id,
+                            ChatId = chat.Id,
                             FromUser = new User
                             {
-                                UserId = user.Id,
-                                Username = user.Username,
-                                Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar),
-                                Description = user.Info?.Description
+                                UserId = user1.Id,
+                                Username = user1.Username,
+                                Base64Avatar = user1.Info?.Avatar == null
+                                    ? null
+                                    : Convert.ToBase64String(user1.Info.Avatar),
+                                Description = user1.Info?.Description
                             },
                             ToUser = new User
                             {
-                                UserId = anotherUser.Id,
-                                Username = anotherUser.Username,
-                                Base64Avatar = anotherUser.Info?.Avatar == null ? null : Convert.ToBase64String(anotherUser.Info.Avatar),
-                                Description = anotherUser.Info?.Description
-                            }
-                        });
+                                UserId = user2.Id,
+                                Username = user2.Username,
+                                Base64Avatar = user2.Info?.Avatar == null
+                                    ? null
+                                    : Convert.ToBase64String(user2.Info.Avatar),
+                                Description = user2.Info?.Description
+                            },
+                            UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, DateTime.Now) < 0)
+                        };
+                        chats.Add(item);
                     }
                 }
                 catch

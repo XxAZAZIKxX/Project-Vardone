@@ -97,6 +97,7 @@ namespace VardoneApi.Core
         public static bool CanGetUser(long idFirstUser, long idSecondUser)
         {
             if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
+            if (idFirstUser == idSecondUser) return true;
 
             var res = false;
 

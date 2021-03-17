@@ -63,16 +63,16 @@ namespace VardoneLibrary.Core
                 var dictionary = new Dictionary<long, long>();
                 foreach (var chat in GetPrivateChats())
                 {
-                    var privateMessages = GetPrivateMessagesFromChat(chat.ChatId, 1).OrderByDescending(p => p.MessageId).ToList();
+                    var privateMessages = GetPrivateMessagesFromChat(chat.ChatId, read: false, 1).OrderByDescending(p => p.MessageId).ToList();
                     if (privateMessages.Count == 0)
                     {
-                        dictionary.Add(chat.ChatId, -1);
+                        dictionary[chat.ChatId] = -1;
                         continue;
                     }
 
                     var message = privateMessages[0];
                     if (message is null) continue;
-                    dictionary.Add(chat.ChatId, message.MessageId);
+                    dictionary[chat.ChatId] = message.MessageId;
                 }
 
                 try
@@ -81,13 +81,13 @@ namespace VardoneLibrary.Core
                     {
                         foreach (var chat in GetPrivateChats())
                         {
-                            var privateMessages = GetPrivateMessagesFromChat(chat.ChatId, 1).OrderByDescending(p => p.MessageId).ToList();
+                            var privateMessages = GetPrivateMessagesFromChat(chat.ChatId, read: false, 1).OrderByDescending(p => p.MessageId).ToList();
                             if (privateMessages.Count == 0) continue;
                             var message = privateMessages[0];
                             if (message is null) continue;
                             if (!dictionary.ContainsKey(chat.ChatId))
                             {
-                                dictionary.Add(chat.ChatId, message.MessageId);
+                                dictionary[chat.ChatId] = message.MessageId;
                                 onNewPrivateMessage?.Invoke(message);
                             }
 
@@ -162,8 +162,15 @@ namespace VardoneLibrary.Core
                 {
                     while (_isCheckingUpdatesOnChatListThreadWork)
                     {
-                        foreach (var _ in GetPrivateChats().Where(privateChat => !list.Contains(privateChat)))
+                        var privateChats = GetPrivateChats();
+                        var list1 = list;
+                        if (privateChats.Any(privateChat => !list1.Contains(privateChat)))
                             onUpdateChatList?.Invoke();
+                        else if (list1.Any(privateChat => !privateChats.Contains(privateChat)))
+                            onUpdateChatList?.Invoke();
+
+                        list = privateChats;
+
                         Thread.Sleep(10 * 1000);
                     }
                 }
@@ -187,11 +194,12 @@ namespace VardoneLibrary.Core
                             var onlineUser = GetOnlineUser(user.UserId);
                             if (!dict.ContainsKey(user.UserId))
                             {
-                                dict.Add(user.UserId, onlineUser);
+                                dict[user.UserId] = onlineUser;
+                                onUpdateOnline?.Invoke(user);
                                 continue;
                             }
 
-                            if (dict[user.UserId] != onlineUser) onUpdateOnline.Invoke(user);
+                            if (dict[user.UserId] != onlineUser) onUpdateOnline?.Invoke(user);
                             dict[user.UserId] = onlineUser;
                         }
 
@@ -346,7 +354,8 @@ namespace VardoneLibrary.Core
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest GetPrivateChatWithUser");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized GetPrivateChatWithUser");
-                default: onUpdateChatList?.Invoke();
+                default:
+                    onUpdateChatList?.Invoke();
                     return JsonConvert.DeserializeObject<PrivateChat>(JsonConvert.DeserializeObject<string>(response.Content));
             }
         }
@@ -357,6 +366,20 @@ namespace VardoneLibrary.Core
                 {
                     {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}
                 });
+            return response.StatusCode switch
+            {
+                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateMessagesFromChat"),
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetPrivateMessagesFromChat"),
+                _ => JsonConvert.DeserializeObject<List<PrivateMessage>>(JsonConvert.DeserializeObject<string>(response.Content))
+            };
+        }
+
+        private List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
+        {
+            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string>
+            {
+                {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}, {"read", read.ToString()}
+            });
             return response.StatusCode switch
             {
                 HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateMessagesFromChat"),

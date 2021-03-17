@@ -22,11 +22,11 @@ namespace VardoneApi.Controllers.chats
 
                 var dataContext = Program.DataContext;
                 var messages = dataContext.PrivateMessages;
-                messages.Include(p => p.From).Load();
+                messages.Include(p => p.Author).Load();
 
                 try
                 {
-                    var message = messages.First(p => p.From.Id == userId && p.Id == idMessage);
+                    var message = messages.First(p => p.Author.Id == userId && p.Id == idMessage);
                     messages.Remove(message);
                     dataContext.SaveChanges();
                     return Ok();

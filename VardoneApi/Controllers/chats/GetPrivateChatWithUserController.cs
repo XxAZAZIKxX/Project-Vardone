@@ -25,21 +25,21 @@ namespace VardoneApi.Controllers.chats
 
                 var dataContext = Program.DataContext;
                 var privateChats = dataContext.PrivateChats;
+                var users = dataContext.Users;
+                var privateMessages = dataContext.PrivateMessages;
                 privateChats.Include(p => p.FromUser).Load();
                 privateChats.Include(p => p.ToUser).Load();
                 privateChats.Include(p => p.FromUser.Info).Load();
                 privateChats.Include(p => p.ToUser.Info).Load();
-                var users = dataContext.Users;
 
                 try
                 {
-                    var first = privateChats.First(p =>
-                        p.FromUser.Id == userId && p.ToUser.Id == secondId || p.FromUser.Id == secondId && p.ToUser.Id == userId);
-                    var user1 = first.FromUser.Id == userId ? first.FromUser : first.ToUser;
-                    var user2 = first.FromUser.Id != userId ? first.FromUser : first.ToUser;
-                    var chat = new PrivateChat
+                    var chat = privateChats.First(p => p.FromUser.Id == userId && p.ToUser.Id == secondId || p.FromUser.Id == secondId && p.ToUser.Id == userId);
+                    var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
+                    var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
+                    var privateChat = new PrivateChat
                     {
-                        ChatId = first.Id,
+                        ChatId = chat.Id,
                         FromUser = new User
                         {
                             UserId = user1.Id,
@@ -53,15 +53,22 @@ namespace VardoneApi.Controllers.chats
                             Username = user2.Username,
                             Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
                             Description = user2.Info?.Description
-                        }
+                        },
+                        UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, DateTime.Now) < 0)
                     };
-                    return new JsonResult(JsonConvert.SerializeObject(chat));
+                    return new JsonResult(JsonConvert.SerializeObject(privateChat));
                 }
                 catch
                 {
                     try
                     {
-                        var newChat = new PrivateChatsTable { FromUser = users.First(p => p.Id == userId), ToUser = users.First(p => p.Id == secondId) };
+                        var newChat = new PrivateChatsTable
+                        {
+                            FromUser = users.First(p => p.Id == userId),
+                            ToUser = users.First(p => p.Id == secondId),
+                            FromLastReadTimeMessages = DateTime.Now,
+                            ToLastReadTimeMessages = DateTime.Now
+                        };
                         privateChats.Add(newChat);
                         dataContext.SaveChanges();
                         var chat = new PrivateChat

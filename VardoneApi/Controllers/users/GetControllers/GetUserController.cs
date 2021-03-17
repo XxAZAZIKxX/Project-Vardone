@@ -18,7 +18,6 @@ namespace VardoneApi.Controllers.users.GetControllers
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (userId == secondId) return BadRequest("Username equal user userId");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                     return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");

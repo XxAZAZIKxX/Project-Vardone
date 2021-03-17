@@ -17,7 +17,8 @@
                  HorizontalAlignment="Left"
                  VerticalAlignment="Center"
                  Margin="52,22,0,0"
-                 Fill="LimeGreen" />
+                 Fill="LimeGreen" x:FieldModifier="private"
+                 x:Name="OnlineStatus" />
         <Label x:Name="Username" Content="User" 
                Foreground="white" 
                Width="160"

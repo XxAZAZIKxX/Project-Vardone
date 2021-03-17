@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities;
@@ -18,11 +19,13 @@ namespace Vardone.Controls.ItemControls
     /// </summary>
     public partial class FriendRequestItem
     {
-        public User user;
+        public User User { get; }
+        public RequestType Type { get; }
         public FriendRequestItem(User user, RequestType type)
         {
             InitializeComponent();
-            this.user = user;
+            User = user;
+            Type = type;
 
             switch (type)
             {
@@ -35,28 +38,32 @@ namespace Vardone.Controls.ItemControls
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            if (!MainPage.UserAvatars.ContainsKey(user.UserId))
-                MainPage.UserAvatars.Add(user.UserId, user.Base64Avatar switch
-                {
-                    null => MainPage.DefaultAvatar,
-                    _ => ImageWorker.BytesToBitmapImage(Convert.FromBase64String(user.Base64Avatar))
-                });
-            Avatar.ImageSource = MainPage.UserAvatars[user.UserId];
+
+            Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
 
             Username.Content = user.Username;
         }
 
         private void Accept_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MainPage.client.AddFriend(user.Username);
+            MainPage.Client.AddFriend(User.Username);
             FriendsProperties.GetInstance().LoadIncomingRequests();
         }
 
         private void Decline_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MainPage.client.DeleteFriend(user.UserId);
+            MainPage.Client.DeleteFriend(User.UserId);
             FriendsProperties.GetInstance().LoadIncomingRequests();
             FriendsProperties.GetInstance().LoadOutgoingRequests();
+        }
+
+        public void SetStatus(bool online)
+        {
+            OnlineStatus.Fill = online switch
+            {
+                true => new SolidColorBrush(Colors.LimeGreen),
+                false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
+            };
         }
     }
 }

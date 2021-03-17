@@ -32,7 +32,7 @@ namespace VardoneApi.Controllers.chats
                 chats.Include(p => p.FromUser).Load();
                 chats.Include(p => p.ToUser).Load();
                 var messages = dataContext.PrivateMessages;
-                messages.Include(p => p.From).Load();
+                messages.Include(p => p.Author).Load();
                 messages.Include(p => p.Chat).Load();
                 var users = dataContext.Users;
                 var user1 = users.First(p => p.Id == userId);
@@ -58,7 +58,7 @@ namespace VardoneApi.Controllers.chats
                     var newMessage = new PrivateMessagesTable
                     {
                         Chat = chat,
-                        From = user1,
+                        Author = user1,
                         Text = message.Text ?? "",
                         Image = message.Base64Image == null ? null : Convert.FromBase64String(message.Base64Image),
                         CreatedTime = DateTime.Now

@@ -29,7 +29,7 @@ namespace Vardone.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IncomingRequest.Children.Clear();
-                var requests = MainPage.client.GetIncomingFriendRequests();
+                var requests = MainPage.Client.GetIncomingFriendRequests();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Incoming)))
                     IncomingRequest.Children.Add(friendRequestItem);
             });
@@ -40,7 +40,7 @@ namespace Vardone.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 OutgoingRequest.Children.Clear();
-                var requests = MainPage.client.GetOutgoingFriendRequests();
+                var requests = MainPage.Client.GetOutgoingFriendRequests();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Outgoing)))
                     OutgoingRequest.Children.Add(friendRequestItem);
             });
@@ -50,7 +50,7 @@ namespace Vardone.Pages
 
         private void AddFriendClick(object sender, RoutedEventArgs e)
         {
-            if (@TbFriendName.Text.Trim() == MainPage.client.GetMe().Username)
+            if (@TbFriendName.Text.Trim() == MainPage.Client.GetMe().Username)
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
@@ -62,7 +62,7 @@ namespace Vardone.Pages
             }
             try
             {
-                MainPage.client.AddFriend(@TbFriendName.Text.Trim());
+                MainPage.Client.AddFriend(@TbFriendName.Text.Trim());
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Title = "Успех",
