@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
@@ -74,13 +75,15 @@ namespace Vardone.Controls.ItemControls
 
         private void DeleteFriend(object sender, RoutedEventArgs e)
         {
-            MainPage.Client.DeleteFriend();
-            MainWindow.GetInstance().notificationManager.Show(new NotificationContent
-            {
-                Title = "Успех",
-                Message = "Заявка была успешно отправлена",
-                Type = NotificationType
-            });
+            var messageBoxResult = MessageBox.Show("Вы действительно хотите удалить друга?", "Подтвердите", MessageBoxButton.OKCancel);
+            if (messageBoxResult == MessageBoxResult.OK) MainPage.Client.DeleteFriend(User.UserId);  
         }
+
+        private void SendMessage(object sender, RoutedEventArgs e)
+        {
+            MainPage.GetInstance().LoadPrivateChat(User.UserId);
+        }
+
+      
     }
 }
