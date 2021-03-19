@@ -36,7 +36,7 @@ namespace Vardone.Controls.ItemControls
                     Grid.MouseDown += OpenChat;
                     break;
                 case UserItemType.Friend:
-                    Grid.MouseDown += OpenProfile;
+                    Grid.MouseLeftButtonDown += OpenProfile;
                     CmBorder.Visibility = Visibility.Hidden;
                     break;
                 default: throw new ArgumentOutOfRangeException();
@@ -71,5 +71,16 @@ namespace Vardone.Controls.ItemControls
 
         private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
         private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User);
+
+        private void DeleteFriend(object sender, RoutedEventArgs e)
+        {
+            MainPage.Client.DeleteFriend();
+            MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+            {
+                Title = "Успех",
+                Message = "Заявка была успешно отправлена",
+                Type = NotificationType
+            });
+        }
     }
 }

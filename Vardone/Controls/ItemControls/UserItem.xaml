@@ -3,6 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              MinWidth="250" Height="50">
     <Grid x:Name="Grid" Cursor="Hand">
+        <Grid.ContextMenu >
+            <ContextMenu Background="#101010" BorderBrush="#101010">
+                <MenuItem BorderThickness="0" 
+                          Foreground="White"
+                          Background="#101010" Header="Написать">
+                    <MenuItem.Icon>
+                        <Image Stretch="Fill" Source="../../resources/message.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem BorderThickness="0"
+                          Foreground="White" Click="DeleteFriend"
+                          Background="#101010" Header="Удалить из друзей">
+
+                    <MenuItem.Icon>
+                        <Image Stretch="Fill" Source="../../resources/cross.ico" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </ContextMenu>
+        </Grid.ContextMenu>
         <Ellipse VerticalAlignment="Center"
                  Width="30" Height="30" Margin="30,0,0,0"
                  HorizontalAlignment="Left">
