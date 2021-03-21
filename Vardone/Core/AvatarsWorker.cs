@@ -10,9 +10,18 @@ namespace Vardone.Core
     {
         public static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
 
+        /// <summary>
+        /// Аватар по умолчанию
+        /// </summary>
         public static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\avatar.jpg"));
 
         private static readonly object Locker = new();
+
+        /// <summary>
+        /// Получить аватар пользователя через id
+        /// </summary>
+        /// <param name="userId" />
+        /// <returns>Аватар пользователя</returns>
         public static BitmapImage GetAvatarUser(long userId)
         {
             if (MainPage.Client is null) return null;
@@ -20,6 +29,10 @@ namespace Vardone.Core
             return UserAvatars[userId];
         }
 
+        /// <summary>
+        /// Обновить сохраненный аватар
+        /// </summary>
+        /// <param name="userId" />
         public static void UpdateAvatarUser(long userId)
         {
             if (MainPage.Client is null) return;

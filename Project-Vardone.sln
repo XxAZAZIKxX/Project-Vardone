@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VardoneApi", "VardoneApi\Va
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vardone", "Vardone\Vardone.csproj", "{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testLibrary", "test\testLibrary.csproj", "{016A3946-5E36-4CC9-9133-958600058371}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VardoneEntities", "VardoneEntities\VardoneEntities.csproj", "{769C284D-F301-4220-8ADF-8E8950B4D5DC}"
 EndProject
 Global
@@ -52,16 +50,6 @@ Global
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DA99F1D-0F71-4000-A40B-E1E1C37615C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.0|Any CPU.Build.0 = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.5|Any CPU.ActiveCfg = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.5|Any CPU.Build.0 = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.6.1|Any CPU.ActiveCfg = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release 4.6.1|Any CPU.Build.0 = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{016A3946-5E36-4CC9-9133-958600058371}.Release|Any CPU.Build.0 = Release|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{769C284D-F301-4220-8ADF-8E8950B4D5DC}.Release 4.0|Any CPU.ActiveCfg = Release|Any CPU

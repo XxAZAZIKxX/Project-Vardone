@@ -1,11 +1,15 @@
-﻿using System.Drawing;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace Vardone.Core
 {
     public abstract class ImageWorker
     {
+        /// <summary>
+        /// Перевести массив байтов в BitmapImage
+        /// </summary>
+        /// <param name="array" />
+        /// <returns>BitmapImage</returns>
         public static BitmapImage BytesToBitmapImage(byte[] array)
         {
             if (array is null) return null;
@@ -18,6 +22,11 @@ namespace Vardone.Core
             return image;
         }
 
+        /// <summary>
+        /// Перевести BitmapImage в массив байтов 
+        /// </summary>
+        /// <param name="image" />
+        /// <returns>Массив байтов</returns>
         public static byte[] BitmapImageToBytes(BitmapImage image)
         {
             var encoder = new PngBitmapEncoder();

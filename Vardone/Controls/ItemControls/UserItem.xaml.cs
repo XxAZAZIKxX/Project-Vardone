@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
@@ -34,14 +33,24 @@ namespace Vardone.Controls.ItemControls
             switch (Type)
             {
                 case UserItemType.Chat:
-                    Grid.MouseDown += OpenChat;
+                    Grid.MouseLeftButtonDown += OpenChat;
+                    SecondAction.Header = "Удалить чат";
+                    FirstAction.Visibility = Visibility.Collapsed;
+                    SecondAction.Click += DeleteChat;
                     break;
                 case UserItemType.Friend:
                     Grid.MouseLeftButtonDown += OpenProfile;
                     CmBorder.Visibility = Visibility.Hidden;
+                    SecondAction.Click += DeleteFriend;
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void DeleteChat(object sender, RoutedEventArgs e)
+        {
+            var vardoneClient = MainPage.Client;
+            vardoneClient.DeleteChat(vardoneClient.GetPrivateChatWithUser(User.UserId).ChatId);
         }
 
         public void SetCountMessages(int count)
@@ -71,12 +80,14 @@ namespace Vardone.Controls.ItemControls
         }
 
         private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
-        private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User);
+        private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User, MainPage.Client.GetOnlineUser(User.UserId));
 
         private void DeleteFriend(object sender, RoutedEventArgs e)
         {
             var messageBoxResult = MessageBox.Show("Вы действительно хотите удалить друга?", "Подтвердите", MessageBoxButton.OKCancel);
-            if (messageBoxResult == MessageBoxResult.OK) MainPage.Client.DeleteFriend(User.UserId);  
+            if (messageBoxResult != MessageBoxResult.OK) return;
+            MainPage.Client.DeleteFriend(User.UserId);
+            MainPage.GetInstance().LoadFriendList();
         }
 
         private void SendMessage(object sender, RoutedEventArgs e)
@@ -84,6 +95,6 @@ namespace Vardone.Controls.ItemControls
             MainPage.GetInstance().LoadPrivateChat(User.UserId);
         }
 
-      
+
     }
 }

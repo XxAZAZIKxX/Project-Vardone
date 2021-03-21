@@ -40,6 +40,7 @@ namespace VardoneApi.Controllers.users.GetControllers
                     {
                         var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
                         var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
+                        var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
                         var item = new PrivateChat
                         {
                             ChatId = chat.Id,
@@ -61,7 +62,7 @@ namespace VardoneApi.Controllers.users.GetControllers
                                     : Convert.ToBase64String(user2.Info.Avatar),
                                 Description = user2.Info?.Description
                             },
-                            UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, DateTime.Now) < 0)
+                            UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime)> 0)
                         };
                         chats.Add(item);
                     }

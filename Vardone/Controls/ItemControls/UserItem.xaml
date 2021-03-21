@@ -4,32 +4,34 @@
              MinWidth="250" Height="50">
 
     <UserControl.Resources>
-        <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}" 
+        <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
                          TargetType="{x:Type MenuItem}">
-                <Grid Name="Head" Background="#101010">
-                    <ContentPresenter ContentSource="Icon" Width="20" Height="20" HorizontalAlignment="Left"/>
-                    <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Grid>
-                
+            <Grid Name="Head" Background="#101010">
+                <ContentPresenter ContentSource="Icon" Width="20" Height="20" HorizontalAlignment="Left" />
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Grid>
+
             <ControlTemplate.Triggers>
                 <Trigger Property="IsHighlighted" Value="true">
-                    <Setter TargetName="Head" Property="Background" Value="#202020"/>
+                    <Setter TargetName="Head" Property="Background" Value="#202020" />
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </UserControl.Resources>
     <Grid x:Name="Grid" Cursor="Hand">
         <Grid.ContextMenu>
-            <ContextMenu  Background="#101010" BorderBrush="#101010">
-                <MenuItem  BorderThickness="0"  Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+            <ContextMenu Background="#101010" BorderBrush="#101010">
+                <MenuItem x:Name="FirstAction" x:FieldModifier="private"
+                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                           Foreground="White" Click="SendMessage"
                           Background="#101010" Header="Написать">
                     <MenuItem.Icon>
                         <Image Stretch="Fill" Source="../../resources/message.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                          Foreground="White" Click="DeleteFriend" Width="200"
+                <MenuItem x:Name="SecondAction" x:FieldModifier="private"
+                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                          Foreground="White" Width="200"
                           Background="#101010" Header="Удалить из друзей">
                     <MenuItem.Icon>
                         <Image Stretch="Fill" Source="../../resources/cross.ico" />
@@ -50,7 +52,7 @@
                  VerticalAlignment="Center"
                  Margin="52,22,0,0"
                  Fill="#505050"
-                 x:Name="OnlineStatus" 
+                 x:Name="OnlineStatus"
                  x:FieldModifier="private" />
         <Label x:Name="Username" Content="User"
                Foreground="white"
@@ -61,12 +63,12 @@
                VerticalAlignment="Center" />
 
         <Border x:Name="CmBorder" x:FieldModifier="private"
-                Margin="0,0,20,0" 
+                Margin="0,0,20,0"
                 CornerRadius="10"
                 Background="#505050"
                 VerticalAlignment="Center" HorizontalAlignment="Right">
-            <Label x:Name="CountMessages" 
-                   x:FieldModifier="private" 
+            <Label x:Name="CountMessages"
+                   x:FieldModifier="private"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Right" MinWidth="20" MaxWidth="37"
                    Content="7" Foreground="LightGray" FontWeight="Bold"

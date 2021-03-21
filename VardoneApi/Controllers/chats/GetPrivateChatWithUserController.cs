@@ -37,6 +37,7 @@ namespace VardoneApi.Controllers.chats
                     var chat = privateChats.First(p => p.FromUser.Id == userId && p.ToUser.Id == secondId || p.FromUser.Id == secondId && p.ToUser.Id == userId);
                     var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
                     var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
+                    var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
                     var privateChat = new PrivateChat
                     {
                         ChatId = chat.Id,
@@ -54,7 +55,7 @@ namespace VardoneApi.Controllers.chats
                             Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
                             Description = user2.Info?.Description
                         },
-                        UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, DateTime.Now) < 0)
+                        UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
                     };
                     return new JsonResult(JsonConvert.SerializeObject(privateChat));
                 }

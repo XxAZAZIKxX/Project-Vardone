@@ -30,7 +30,7 @@ namespace VardoneApi.Controllers.users.GetControllers
                 {
                     var user = usersOnline.First(p => p.User.Id == secondId);
                     var span = TimeSpan.FromTicks(DateTime.Now.Ticks) - TimeSpan.FromTicks(user.LastOnlineTime.Ticks);
-                    var res = span.Minutes < 5;
+                    var res = span.Minutes < 1;
                     return new JsonResult(JsonConvert.SerializeObject(res));
                 }
                 catch

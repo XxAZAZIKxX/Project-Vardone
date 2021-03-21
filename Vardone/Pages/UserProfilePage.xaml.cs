@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Vardone.Core;
 using VardoneEntities.Entities;
 
@@ -15,13 +16,19 @@ namespace Vardone.Pages
         public static UserProfilePage GetInstance() => _instance ??= new UserProfilePage();
         public User User { get; private set; }
         private UserProfilePage() => InitializeComponent();
-        public void Load(User user, bool isMe = false)
+        public void Load(User user, bool online, bool isMe = false)
         {
             User = user;
             Username.Text = user.Username;
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
             Description.Text = user.Description;
             Message.Visibility = isMe ? Visibility.Hidden : Visibility.Visible;
+
+            OnlineStatus.Fill = online switch
+            {
+                true => new SolidColorBrush(Colors.LimeGreen),
+                false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
+            };
         }
         private void BackToMainPage(object s, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 

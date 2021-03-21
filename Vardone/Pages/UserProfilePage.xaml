@@ -37,7 +37,8 @@
                            Margin="100,75,0,0"
                            Foreground="LightGray" />
 
-                <Ellipse Width="10" Height="10" Cursor="Hand"
+                <Ellipse x:Name="OnlineStatus" x:FieldModifier="private"
+                         Width="10" Height="10" Cursor="Hand"
                          HorizontalAlignment="Center" VerticalAlignment="Top"
                          Margin="50,82,0,0" Fill="LimeGreen">
 

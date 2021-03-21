@@ -2,6 +2,9 @@
 
 namespace VardoneEntities.Entities
 {
+    /// <summary>
+    /// Представляет объект приватного чата
+    /// </summary>
     public class PrivateChat
     {
         public long ChatId { get; init; }

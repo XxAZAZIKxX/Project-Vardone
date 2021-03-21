@@ -119,13 +119,11 @@ namespace Vardone.Pages
                     if (PrivateChatHeader.Children.Count > 0)
                     {
                         var userItem = (UserItem)PrivateChatHeader.Children[0];
-                        if (userItem.User.UserId == user.UserId)
+                        if (userItem.User.UserId != user.UserId) return;
+                        userItem.SetStatus(onlineUser);
+                        foreach (var privateMessage in ChatMessagesGrid.Children.Cast<ChatMessageItem>())
                         {
-                            userItem.SetStatus(onlineUser);
-                            foreach (var privateMessage in ChatMessagesGrid.Children.Cast<ChatMessageItem>())
-                            {
-                                if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
-                            }
+                            if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
                         }
                     }
                 });
@@ -226,7 +224,7 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     ChatListGrid.Children.Clear();
-                    foreach (var chat in Client.GetPrivateChats().OrderBy(p => p.UnreadMessages))
+                    foreach (var chat in Client.GetPrivateChats().OrderBy(p => p.ToUser.Username).ThenByDescending(p => p.UnreadMessages))
                     {
                         var friendGridItem = new UserItem(chat.ToUser, UserItemType.Chat);
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
@@ -271,6 +269,14 @@ namespace Vardone.Pages
                     userHeader.SetStatus(onlineUser);
                     PrivateChatHeader.Children.Add(userHeader);
 
+                    var chatId = Client.GetPrivateChatWithUser(userId).ChatId;
+
+                    foreach (var message in Client.GetPrivateMessagesFromChat(chatId, 5).OrderBy(p => p.MessageId))
+                    {
+                        var messageItem = new ChatMessageItem(message);
+                        if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
+                        ChatMessagesGrid.Children.Add(messageItem);
+                    }
                     var privateChatWithUser = Client.GetPrivateChatWithUser(userId);
                     foreach (var userItem in ChatListGrid.Children.Cast<UserItem>())
                     {
@@ -279,12 +285,6 @@ namespace Vardone.Pages
                         break;
                     }
 
-                    foreach (var message in Client.GetPrivateMessagesFromChat(privateChatWithUser.ChatId, 5).OrderBy(p => p.MessageId))
-                    {
-                        var messageItem = new ChatMessageItem(message);
-                        if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
-                        ChatMessagesGrid.Children.Add(messageItem);
-                    }
 
                     ChatScrollViewer.ScrollToEnd();
                 });
@@ -294,9 +294,10 @@ namespace Vardone.Pages
         //Opens
         private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(Client.GetMe(), true);
 
-        public void UserProfileOpen(User user, bool isMe = false)
+        public void UserProfileOpen(User user, bool online, bool isMe = false)
         {
-            UserProfilePage.GetInstance().Load(user, isMe);
+            if (isMe) online = Client.setOnline;
+            UserProfilePage.GetInstance().Load(user, online, isMe);
             MainFrame.Navigate(UserProfilePage.GetInstance());
         }
 

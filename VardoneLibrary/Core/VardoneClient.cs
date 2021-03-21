@@ -114,7 +114,7 @@ namespace VardoneLibrary.Core
                     while (_isSettingOnlineThreadWork)
                     {
                         if (setOnline) UpdateLastOnline();
-                        Thread.Sleep(4 * 60 * 1000);
+                        Thread.Sleep(59 * 1000);
                     }
                 }
                 catch (Exception e)
@@ -455,6 +455,21 @@ namespace VardoneLibrary.Core
                         onUpdateOutgoingFriendRequestList?.Invoke();
                         return;
                     }
+            }
+        }
+
+        public void DeleteChat(long chatId)
+        {
+            var response = ExecutePostWithToken("chats/deletePrivateChat", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteChat");
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteChat");
+                default:
+                {
+                    onUpdateChatList?.Invoke();
+                    return;
+                }
             }
         }
 
