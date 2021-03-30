@@ -27,10 +27,10 @@ namespace Vardone
         private static MainWindow _instance;
         public static MainWindow GetInstance() => _instance;
 
-        public static readonly string DLL_PATH = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        public static readonly string PATH = System.IO.Path.GetDirectoryName(DLL_PATH);
-        public WinForms.NotifyIcon trayIcon;
-        public NotificationManager notificationManager = new();
+        private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        public static readonly string PATH = System.IO.Path.GetDirectoryName(DllPath);
+        private WinForms.NotifyIcon _trayIcon;
+        public readonly NotificationManager notificationManager = new();
 
         public MainWindow()
         {
@@ -43,16 +43,16 @@ namespace Vardone
 
         private void InitializeTrayIcon()
         {
-            trayIcon = new WinForms.NotifyIcon
+            _trayIcon = new WinForms.NotifyIcon
             {
                 Visible = true,
                 Text = "Vardone",
                 Icon = new Icon(PATH + @"\resources\va.ico"),
                 ContextMenuStrip = new WinForms.ContextMenuStrip()
             };
-            trayIcon.MouseClick += TrayIconOnMouseClick;
-            trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
-            trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
+            _trayIcon.MouseClick += TrayIconOnMouseClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
         }
 
         private void TrayIconOnMouseClick(object sender, WinForms.MouseEventArgs e)
@@ -71,7 +71,7 @@ namespace Vardone
 
         private void TrayCloseClick(object sender, EventArgs e)
         {
-            trayIcon.Dispose();
+            _trayIcon.Dispose();
             CloseApp();
         }
 
@@ -96,7 +96,6 @@ namespace Vardone
 
         private void CloseBtnClick(object sender, RoutedEventArgs e)
         {
-            CloseApp();
             ShowInTaskbar = false;
             Hide();
             notificationManager.Show(new NotificationContent
@@ -109,7 +108,7 @@ namespace Vardone
 
         private void CloseApp()
         {
-            trayIcon.Dispose();
+            _trayIcon.Dispose();
             Environment.Exit(0);
         }
 
