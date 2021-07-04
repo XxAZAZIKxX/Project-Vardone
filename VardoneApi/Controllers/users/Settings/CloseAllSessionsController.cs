@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.SettingsControllers
+namespace VardoneApi.Controllers.users.Settings
 {
     [ApiController, Route("users/[controller]")]
     public class CloseAllSessionsController : ControllerBase

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.GetControllers
+namespace VardoneApi.Controllers.users.GetControllers.Users
 {
     [ApiController, Route("users/[controller]")]
     public class GetUserController : ControllerBase

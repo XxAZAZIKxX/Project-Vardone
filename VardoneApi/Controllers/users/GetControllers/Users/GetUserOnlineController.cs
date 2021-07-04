@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.GetControllers
+namespace VardoneApi.Controllers.users.GetControllers.Users
 {
     [ApiController, Route("users/[controller]")]
     public class GetUserOnlineController : ControllerBase

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.LoginControllers
+namespace VardoneApi.Controllers.users.Login
 {
     [ApiController, Route("users/[controller]")]
     public class CheckUserTokenController : ControllerBase

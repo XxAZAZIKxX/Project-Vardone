@@ -9,7 +9,7 @@ using VardoneApi.Entity.Models;
 using VardoneEntities.Models.ApiModels;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.LoginControllers
+namespace VardoneApi.Controllers.users.Login
 {
     [ApiController, Route("users/[controller]")]
     public class AuthUserController : ControllerBase

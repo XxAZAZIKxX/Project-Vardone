@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.users.SettingsControllers
+namespace VardoneApi.Controllers.users.Settings
 {
     [ApiController, Route("users/[controller]")]
     public class UpdatePasswordController : ControllerBase
