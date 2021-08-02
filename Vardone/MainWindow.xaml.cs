@@ -28,7 +28,7 @@ namespace Vardone
         public static MainWindow GetInstance() => _instance;
 
         private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        public static readonly string PATH = System.IO.Path.GetDirectoryName(DllPath);
+        public static readonly string Path = System.IO.Path.GetDirectoryName(DllPath);
         private WinForms.NotifyIcon _trayIcon;
         public readonly NotificationManager notificationManager = new();
 
@@ -47,7 +47,7 @@ namespace Vardone
             {
                 Visible = true,
                 Text = "Vardone",
-                Icon = new Icon(PATH + @"\resources\va.ico"),
+                Icon = new Icon(Path + @"\resources\va.ico"),
                 ContextMenuStrip = new WinForms.ContextMenuStrip()
             };
             _trayIcon.MouseClick += TrayIconOnMouseClick;

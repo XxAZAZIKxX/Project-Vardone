@@ -14,6 +14,7 @@ namespace VardoneApi.Entity
         public DbSet<PrivateChatsTable> PrivateChats { get; set; }
         public DbSet<PrivateMessagesTable> PrivateMessages { get; set; }
         public DbSet<UsersOnlineTable> UsersOnline { get; set; }
+        public DbSet<GuildsTable> Guilds { get; set; }
 
         public DataContext(string connectionString)
         {

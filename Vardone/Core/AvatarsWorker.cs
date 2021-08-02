@@ -13,7 +13,7 @@ namespace Vardone.Core
         /// <summary>
         /// Аватар по умолчанию
         /// </summary>
-        public static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\avatar.jpg"));
+        public static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.Path + @"\resources\avatar.jpg"));
 
         private static readonly object Locker = new();
 

@@ -12,13 +12,14 @@ namespace VardoneEntities.Entities
         public User ToUser { get; init; }
         public int UnreadMessages { get; init; }
 
+#nullable enable
         public override bool Equals(object? secondChat)
         {
             if (secondChat is null) return false;
             return secondChat is PrivateChat chat && Equals(chat);
         }
 
-        protected bool Equals(PrivateChat other) => ChatId == other.ChatId && FromUser.Equals(other.FromUser) && ToUser.Equals(other.ToUser) && UnreadMessages == other.UnreadMessages;
+        private bool Equals(PrivateChat other) => ChatId == other.ChatId && FromUser.Equals(other.FromUser) && ToUser.Equals(other.ToUser) && UnreadMessages == other.UnreadMessages;
 
         public override int GetHashCode() => HashCode.Combine(ChatId, FromUser, ToUser, UnreadMessages);
 

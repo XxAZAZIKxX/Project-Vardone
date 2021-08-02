@@ -27,9 +27,9 @@ namespace VardoneLibrary.Core.Base
             request.AddHeader("userId", UserId.ToString());
             request.AddHeader("token", Token);
             if (json != null) request.AddParameter("application/json", json, ParameterType.RequestBody);
-            if (queryParameters == null) return REST_CLIENT.Execute(request);
+            if (queryParameters == null) return RestClient.Execute(request);
             foreach (var (key, value) in queryParameters) request.AddQueryParameter(key, value);
-            return REST_CLIENT.Execute(request);
+            return RestClient.Execute(request);
         }
     }
 }

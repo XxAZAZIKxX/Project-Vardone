@@ -7,7 +7,7 @@ namespace Vardone.Core
 {
     public abstract class JsonTokenWorker
     {
-        private static readonly string FilePath = MainWindow.PATH + @"\token.json";
+        private static readonly string FilePath = MainWindow.Path + @"\token.json";
         public static UserTokenModel GetToken()
         {
             if (!File.Exists(FilePath)) return null;
