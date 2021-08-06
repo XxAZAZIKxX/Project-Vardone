@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VardoneApi.Entity.Models
+namespace VardoneApi.Entity.Models.Users
 {
     [Table("users_online")]
-    public class UsersOnlineTable
+    public sealed class UsersOnlineTable
     {
         [Column("id"), Key] public long Id { get; set; }
-        [Column("user_id"), ForeignKey("user_id"), Required] public virtual UsersTable User { get; set; }
+        [Column("user_id"), ForeignKey("user_id"), Required] public UsersTable User { get; set; }
         [Column("last_online"), Required] public DateTime LastOnlineTime { get; set; }
     }
 }

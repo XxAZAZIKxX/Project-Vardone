@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Core;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -12,24 +13,27 @@ namespace VardoneApi.Controllers.guilds
         [HttpPost]
         public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long guildId)
         {
-            if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
-            if (!GuildsChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
-            if (!GuildsChecks.IsUserOwner(userId, guildId)) return BadRequest("You are not owner");
-
-            try
+            return Task.Run(new Func<IActionResult>(() =>
             {
-                var dataContext = Program.DataContext;
-                var guilds = dataContext.Guilds;
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
+                if (!GuildsChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
+                if (!GuildsChecks.IsUserOwner(userId, guildId)) return BadRequest("You are not owner");
 
-                guilds.Remove(guilds.First(p => p.Id == guildId));
-                dataContext.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                return Problem(e.Message);
-            }
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var guilds = dataContext.Guilds;
 
-            return Ok("Deleted");
+                    guilds.Remove(guilds.First(p => p.Id == guildId));
+                    dataContext.SaveChanges();
+                    return Ok("Deleted");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+
+            })).GetAwaiter().GetResult();
         }
     }
 }

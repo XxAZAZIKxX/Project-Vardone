@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
+using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Models.ApiModels;
 using VardoneEntities.Models.GeneralModels.Users;
 

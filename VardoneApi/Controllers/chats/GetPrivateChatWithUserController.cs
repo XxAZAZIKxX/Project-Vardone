@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VardoneApi.Entity.Models;
+using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 

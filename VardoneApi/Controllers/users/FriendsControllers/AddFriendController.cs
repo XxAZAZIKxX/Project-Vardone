@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
+using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.users.FriendsControllers
@@ -16,7 +17,6 @@ namespace VardoneApi.Controllers.users.FriendsControllers
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
-
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondUsername)) return BadRequest("Friend does not exist");
