@@ -18,10 +18,8 @@ namespace VardoneApi.Controllers.users.Settings
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (updateUserModel == null) return BadRequest("Empty user model");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
-                if (updateUserModel.Email is not null && !Core.UserChecks.IsEmailAvailable(updateUserModel.Email))
-                    return BadRequest("Email is booked");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
+                if (updateUserModel.Email is not null && !Core.UserChecks.IsEmailAvailable(updateUserModel.Email)) return BadRequest("Email is booked");
 
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
