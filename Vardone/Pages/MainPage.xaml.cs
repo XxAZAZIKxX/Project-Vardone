@@ -11,7 +11,7 @@ using Notifications.Wpf;
 using Vardone.Controls.ItemControls;
 using Vardone.Core;
 using VardoneEntities.Entities;
-using VardoneEntities.Models.GeneralModels.PrivateChats;
+using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
 using VardoneLibrary.VardoneEvents;
 using Application = System.Windows.Application;

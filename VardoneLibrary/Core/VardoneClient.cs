@@ -5,7 +5,6 @@ using System.Net;
 using System.Threading;
 using Newtonsoft.Json;
 using VardoneEntities.Entities;
-using VardoneEntities.Models.GeneralModels.PrivateChats;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Base;
 using VardoneLibrary.Exceptions;

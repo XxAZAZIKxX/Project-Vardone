@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models;
 using VardoneApi.Entity.Models.PrivateChats;
-using VardoneEntities.Models.GeneralModels.PrivateChats;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.chats

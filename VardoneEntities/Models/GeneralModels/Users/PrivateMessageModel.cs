@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VardoneEntities.Models.GeneralModels.PrivateChats
+namespace VardoneEntities.Models.GeneralModels.Users
 {
     public class PrivateMessageModel
     {
