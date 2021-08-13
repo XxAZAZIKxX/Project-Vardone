@@ -19,9 +19,7 @@ namespace VardoneApi.Controllers.chats
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (chatId <= 0) return BadRequest("Id lower 0");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
                 if (!Core.PrivateChatsChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
                 if (!Core.PrivateChatsChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
 

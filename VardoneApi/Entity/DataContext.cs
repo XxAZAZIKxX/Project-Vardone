@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Entity.Models.Channels;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneApi.Entity.Models.Users;
@@ -18,8 +19,10 @@ namespace VardoneApi.Entity
         public DbSet<UsersOnlineTable> UsersOnline { get; set; }
         public DbSet<GuildsTable> Guilds { get; set; }
         public DbSet<ChannelsTable> Channels { get; set; }
-        public DbSet<MembersTable> Members { get; set; }
+        public DbSet<GuildMembersTable> GuildMembers { get; set; }
         public DbSet<GuildInfosTable> GuildInfos { get; set; }
+        public DbSet<BannedGuildMembersTable> BannedGuildMembers { get; set; }
+        public DbSet<ChannelMessagesTable> ChannelMessages { get; set; }
 
         public DataContext(string connectionString)
         {
@@ -34,6 +37,7 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Description).HasDefaultValue();
             modelBuilder.Entity<GuildInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
+            modelBuilder.Entity<BannedGuildMembersTable>().Property(p => p.Reason).HasDefaultValue();
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();

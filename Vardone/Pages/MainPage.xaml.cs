@@ -328,7 +328,7 @@ namespace Vardone.Pages
             if (!openFileDialog.CheckFileExists) return;
             var userId = ((UserItem)PrivateChatHeader.Children[0]).User.UserId;
             Client.SendPrivateMessage(userId,
-                new PrivateMessageModel
+                new MessageModel
                 {
                     Text = MessageTextBox.Text,
                     Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
@@ -364,7 +364,7 @@ namespace Vardone.Pages
             if (PrivateChatHeader.Children.Count == 0) return;
             if (PrivateChatHeader.Children[0] is not UserItem) return;
             var user = ((UserItem)PrivateChatHeader.Children[0]).User;
-            Client.SendPrivateMessage(user.UserId, new PrivateMessageModel { Text = MessageTextBox.Text });
+            Client.SendPrivateMessage(user.UserId, new MessageModel { Text = MessageTextBox.Text });
             MessageTextBox.Text = "";
             MessageBoxLostFocus(null, null);
             LoadPrivateChat(user.UserId);

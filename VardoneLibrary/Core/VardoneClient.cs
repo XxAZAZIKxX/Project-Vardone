@@ -410,7 +410,7 @@ namespace VardoneLibrary.Core
             };
         }
 
-        public void SendPrivateMessage(long userId, PrivateMessageModel message)
+        public void SendPrivateMessage(long userId, MessageModel message)
         {
             var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message),
                 new Dictionary<string, string> { { "secondId", userId.ToString() } });

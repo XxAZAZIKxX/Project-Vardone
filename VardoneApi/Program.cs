@@ -7,9 +7,8 @@ namespace VardoneApi
 {
     public static class Program
     {
+        private static string ConnectionString { get; set; }
         public static DataContext DataContext => new(ConnectionString);
-
-        public static string ConnectionString { get; private set; }
 
         public static void Main(string[] args)
         {
@@ -24,7 +23,7 @@ namespace VardoneApi
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {

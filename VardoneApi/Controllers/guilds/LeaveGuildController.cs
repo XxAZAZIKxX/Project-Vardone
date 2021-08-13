@@ -20,7 +20,7 @@ namespace VardoneApi.Controllers.guilds
                 if (!Core.GuildsChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
 
                 var dataContext = Program.DataContext;
-                var members = dataContext.Members;
+                var members = dataContext.GuildMembers;
                 members.Include(p => p.User).Load();
                 members.Include(p => p.Guild).Load();
 

@@ -24,9 +24,14 @@ namespace VardoneApi.Controllers.guilds
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     var guilds = dataContext.Guilds;
-                    var members = dataContext.Members;
+                    var bannedGuildMembers = dataContext.BannedGuildMembers;
+                    bannedGuildMembers.Include(p => p.Guild).Load();
+                    bannedGuildMembers.Include(p => p.User).Load();
+                    var members = dataContext.GuildMembers;
                     members.Include(p => p.User).Load();
                     members.Include(p => p.Guild).Load();
+
+                    foreach (var item in bannedGuildMembers.Where(p => p.Guild.Id == guildId)) if (item.User.Id == userId) return BadRequest("You are banned on this guild");
 
                     var guild = guilds.First(p => p.Id == guildId);
                     var user = users.First(p => p.Id == userId);
@@ -35,7 +40,7 @@ namespace VardoneApi.Controllers.guilds
                         if (table.User.Id == userId) return Ok();
                     }
 
-                    members.Add(new MembersTable { User = user, Guild = guild });
+                    members.Add(new GuildMembersTable { User = user, Guild = guild });
                     dataContext.SaveChanges();
                     return Ok("Joined");
                 }

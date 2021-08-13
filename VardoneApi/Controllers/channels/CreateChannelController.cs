@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Core;
+using VardoneApi.Entity.Models.Channels;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 

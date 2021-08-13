@@ -23,7 +23,7 @@ namespace VardoneApi.Controllers.guilds
                     var dataContext = Program.DataContext;
                     var guilds = dataContext.Guilds;
                     var users = dataContext.Users;
-                    var members = dataContext.Members;
+                    var members = dataContext.GuildMembers;
 
                     var user = users.First(p => p.Id == userId);
 
@@ -35,7 +35,7 @@ namespace VardoneApi.Controllers.guilds
                     };
                     guilds.Add(guild);
                     dataContext.SaveChanges();
-                    members.Add(new MembersTable { User = user, Guild = guild });
+                    members.Add(new GuildMembersTable { User = user, Guild = guild });
                     dataContext.SaveChanges();
                     return Ok("Created");
                 }
