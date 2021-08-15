@@ -296,7 +296,7 @@ namespace Vardone.Pages
 
         public void UserProfileOpen(User user, bool online, bool isMe = false)
         {
-            if (isMe) online = Client.setOnline;
+            if (isMe) online = Client.SetOnline;
             UserProfilePage.GetInstance().Load(user, online, isMe);
             MainFrame.Navigate(UserProfilePage.GetInstance());
         }
