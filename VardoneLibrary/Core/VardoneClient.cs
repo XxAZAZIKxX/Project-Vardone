@@ -465,27 +465,21 @@ namespace VardoneLibrary.Core
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteChat");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteChat");
                 default:
-                {
-                    onUpdateChatList?.Invoke();
-                    return;
-                }
+                    {
+                        onUpdateChatList?.Invoke();
+                        return;
+                    }
             }
         }
 
         public void DeleteMe()
         {
-            StopThreads();
             var response = ExecutePostWithToken("users/deleteMe");
+            StopClient();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteMe");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteMe");
-                default:
-                    {
-                        UserId = long.MinValue;
-                        Token = null;
-                        return;
-                    }
             }
         }
 
@@ -509,8 +503,8 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest UpdateMe");
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized UpdateMe");
+                case HttpStatusCode.BadRequest: throw new Exception("BadRequest UpdatePassword");
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized UpdatePassword");
                 default: return;
             }
         }
@@ -528,26 +522,32 @@ namespace VardoneLibrary.Core
 
         public void CloseCurrentSession()
         {
-            StopThreads();
             var response = ExecutePostWithToken("users/closeCurrentSession");
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest CloseCurrentSession");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized CloseCurrentSession");
-                default: return;
             }
+            StopClient();
         }
 
         public void CloseAllSessions()
         {
-            StopThreads();
             var response = ExecutePostWithToken("users/CloseAllSessions");
+            StopClient();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest: throw new Exception("BadRequest CloseAllSessions");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized CloseAllSessions");
-                default: return;
             }
         }
+
+        private void StopClient()
+        {
+            StopThreads();
+            UserId = long.MinValue;
+            Token = null;
+        }
+        ~VardoneClient() => StopClient();
     }
 }
