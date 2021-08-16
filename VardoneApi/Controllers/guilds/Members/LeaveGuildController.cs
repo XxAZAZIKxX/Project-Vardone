@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.guilds
+namespace VardoneApi.Controllers.guilds.Members
 {
     [ApiController, Route("guilds/[controller]")]
     public class LeaveGuildController : ControllerBase

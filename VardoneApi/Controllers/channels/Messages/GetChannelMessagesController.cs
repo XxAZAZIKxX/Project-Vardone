@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.channels
+namespace VardoneApi.Controllers.channels.Messages
 {
     [ApiController, Route("channels/[controller]")]
     public class GetChannelMessagesController : ControllerBase

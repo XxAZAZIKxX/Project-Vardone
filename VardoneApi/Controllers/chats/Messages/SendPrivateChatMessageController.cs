@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.chats
+namespace VardoneApi.Controllers.chats.Messages
 {
     [ApiController, Route("chats/[controller]")]
     public class SendPrivateChatMessageController : ControllerBase

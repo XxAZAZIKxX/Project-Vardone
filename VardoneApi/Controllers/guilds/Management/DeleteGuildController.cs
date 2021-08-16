@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using VardoneApi.Core;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.guilds
+namespace VardoneApi.Controllers.guilds.Management
 {
     [ApiController, Route("guilds/[controller]")]
     public class DeleteGuildController : ControllerBase

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.channels
+namespace VardoneApi.Controllers.channels.Messages
 {
     [ApiController, Route("channels/[controller]")]
     public class DeleteChannelMessageController : ControllerBase

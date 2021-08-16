@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.guilds
+namespace VardoneApi.Controllers.guilds.Members
 {
     [ApiController, Route("guilds/[controller]")]
     public class JoinGuildController : ControllerBase

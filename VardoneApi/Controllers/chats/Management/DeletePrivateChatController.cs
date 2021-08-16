@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.chats
+namespace VardoneApi.Controllers.chats.Management
 {
     [ApiController, Route("chats/[controller]")]
     public class DeletePrivateChatController : ControllerBase

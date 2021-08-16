@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.channels
+namespace VardoneApi.Controllers.channels.Management
 {
     [ApiController, Route("channels/[controller]")]
     public class UpdateChannelController : ControllerBase

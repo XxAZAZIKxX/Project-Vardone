@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.channels
+namespace VardoneApi.Controllers.channels.Management
 {
     [ApiController, Route("channels/[controller]")]
     public class DeleteChannelController : ControllerBase

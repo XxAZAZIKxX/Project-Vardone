@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.chats
+namespace VardoneApi.Controllers.chats.Messages
 {
     [ApiController, Route("chats/[controller]")]
     public class DeleteChatMessageController : ControllerBase

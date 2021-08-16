@@ -6,7 +6,7 @@ using VardoneApi.Core;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.guilds
+namespace VardoneApi.Controllers.guilds.Management
 {
     [ApiController, Route("guilds/[controller]")]
     public class CreateGuildController : ControllerBase

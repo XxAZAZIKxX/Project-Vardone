@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Controllers.chats
+namespace VardoneApi.Controllers.chats.Messages
 {
     [ApiController, Route("chats/[controller]")]
     public class GetPrivateChatMessagesController : ControllerBase
