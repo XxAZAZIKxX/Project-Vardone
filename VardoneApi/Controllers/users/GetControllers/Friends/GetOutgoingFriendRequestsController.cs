@@ -21,31 +21,38 @@ namespace VardoneApi.Controllers.users.GetControllers.Friends
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
 
-                var dataContext = Program.DataContext;
-                var friendsList = dataContext.FriendsList;
-                friendsList.Include(p => p.FromUser).Load();
-                friendsList.Include(p => p.ToUser).Load();
-                friendsList.Include(p => p.ToUser.Info).Load();
-                var users = new List<User>();
                 try
                 {
-                    foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
+                    var dataContext = Program.DataContext;
+                    var friendsList = dataContext.FriendsList;
+                    friendsList.Include(p => p.FromUser).Load();
+                    friendsList.Include(p => p.ToUser).Load();
+                    friendsList.Include(p => p.ToUser.Info).Load();
+                    var users = new List<User>();
+                    try
                     {
-                        users.Add(new User
+                        foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
                         {
-                            UserId = row.ToUser.Id,
-                            Username = row.ToUser.Username,
-                            Base64Avatar = row.ToUser.Info?.Avatar == null ? null : Convert.ToBase64String(row.ToUser.Info.Avatar),
-                            Description = row.ToUser.Info?.Description
-                        });
+                            users.Add(new User
+                            {
+                                UserId = row.ToUser.Id,
+                                Username = row.ToUser.Username,
+                                Base64Avatar = row.ToUser.Info?.Avatar == null ? null : Convert.ToBase64String(row.ToUser.Info.Avatar),
+                                Description = row.ToUser.Info?.Description
+                            });
+                        }
                     }
-                }
-                catch
-                {
-                    // ignored
-                }
+                    catch
+                    {
+                        // ignored
+                    }
 
-                return new JsonResult(JsonConvert.SerializeObject(users));
+                    return Ok(users);
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
             })).GetAwaiter().GetResult();
         }
     }

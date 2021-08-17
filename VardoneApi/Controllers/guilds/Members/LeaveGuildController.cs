@@ -17,7 +17,7 @@ namespace VardoneApi.Controllers.guilds.Members
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
-                if (!Core.GuildsChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
+                if (!Core.GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
 
                 var dataContext = Program.DataContext;
                 var members = dataContext.GuildMembers;

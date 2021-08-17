@@ -28,18 +28,18 @@ namespace VardoneApi.Controllers.users.GetControllers.Users
                     dataContext.Users.Include(p => p.Info).Load();
 
                     var user = users.First(p => p.Id == userId);
-                    return new JsonResult(JsonConvert.SerializeObject(new User
+                    return Ok(new User
                     {
                         UserId = user.Id,
                         Username = user.Username,
                         Email = user.Email,
                         Description = user.Info?.Description,
                         Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
-                    }));
+                    });
                 }
                 catch (Exception e)
                 {
-                    return BadRequest(e);
+                    return Problem(e.Message);
                 }
             })).GetAwaiter().GetResult();
         }

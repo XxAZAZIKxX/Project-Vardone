@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using VardoneApi.Entity.Models;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -20,8 +18,7 @@ namespace VardoneApi.Controllers.chats
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
 
                 var dataContext = Program.DataContext;
@@ -58,7 +55,7 @@ namespace VardoneApi.Controllers.chats
                         },
                         UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
                     };
-                    return new JsonResult(JsonConvert.SerializeObject(privateChat));
+                    return Ok(privateChat);
                 }
                 catch
                 {
@@ -91,11 +88,11 @@ namespace VardoneApi.Controllers.chats
                                 Description = newChat.ToUser.Info?.Description
                             }
                         };
-                        return new JsonResult(JsonConvert.SerializeObject(chat));
+                        return Ok(chat);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        return BadRequest();
+                        return Problem(e.Message);
                     }
                 }
             })).GetAwaiter().GetResult();

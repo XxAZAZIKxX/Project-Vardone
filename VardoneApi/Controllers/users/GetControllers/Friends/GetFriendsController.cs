@@ -19,32 +19,38 @@ namespace VardoneApi.Controllers.users.GetControllers.Friends
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
 
-                var dataContext = Program.DataContext;
-                var friendsList = dataContext.FriendsList;
-                friendsList.Include(p => p.FromUser).Load();
-                friendsList.Include(p => p.ToUser).Load();
-                friendsList.Include(p => p.FromUser.Info).Load();
-                friendsList.Include(p => p.ToUser.Info).Load();
-
-                var users = new List<User>();
-
-                foreach (var row in friendsList.Where(p => (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
+                try
                 {
-                    var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
+                    var dataContext = Program.DataContext;
+                    var friendsList = dataContext.FriendsList;
+                    friendsList.Include(p => p.FromUser).Load();
+                    friendsList.Include(p => p.ToUser).Load();
+                    friendsList.Include(p => p.FromUser.Info).Load();
+                    friendsList.Include(p => p.ToUser.Info).Load();
 
-                    users.Add(new User
+                    var users = new List<User>();
+
+                    foreach (var row in friendsList.Where(p => (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
                     {
-                        UserId = friend.Id,
-                        Username = friend.Username,
-                        Base64Avatar = friend.Info?.Avatar == null ? null : Convert.ToBase64String(friend.Info.Avatar),
-                        Description = friend.Info?.Description
-                    });
-                }
+                        var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
 
-                return new JsonResult(JsonConvert.SerializeObject(users));
+                        users.Add(new User
+                        {
+                            UserId = friend.Id,
+                            Username = friend.Username,
+                            Base64Avatar = friend.Info?.Avatar == null ? null : Convert.ToBase64String(friend.Info.Avatar),
+                            Description = friend.Info?.Description
+                        });
+                    }
+
+                    return Ok(users);
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
             })).GetAwaiter().GetResult();
         }
     }

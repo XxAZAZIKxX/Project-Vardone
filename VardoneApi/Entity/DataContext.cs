@@ -23,6 +23,7 @@ namespace VardoneApi.Entity
         public DbSet<GuildInfosTable> GuildInfos { get; set; }
         public DbSet<BannedGuildMembersTable> BannedGuildMembers { get; set; }
         public DbSet<ChannelMessagesTable> ChannelMessages { get; set; }
+        public DbSet<GuildInvitesTable> GuildInvites { get; set; }
 
         public DataContext(string connectionString)
         {
@@ -41,6 +42,7 @@ namespace VardoneApi.Entity
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();
+            modelBuilder.Entity<GuildInvitesTable>().HasIndex(p => p.InviteCode).IsUnique();
             //Foreign
             modelBuilder.Entity<UsersTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<GuildsTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);

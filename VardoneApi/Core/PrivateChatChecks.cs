@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VardoneApi.Core
 {
-    public abstract class PrivateChatsChecks
+    public abstract class PrivateChatChecks
     {
         public static bool IsChatExists(long idFirstUser, long idSecondUser)
         {

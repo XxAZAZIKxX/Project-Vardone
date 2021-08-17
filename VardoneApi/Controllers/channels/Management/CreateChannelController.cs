@@ -16,9 +16,8 @@ namespace VardoneApi.Controllers.channels.Management
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
-                if (!GuildsChecks.IsUserOwner(userId, guildId)) return BadRequest("Not owner");
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
+                if (!GuildChecks.IsUserOwner(userId, guildId)) return BadRequest("Not owner");
                 try
                 {
                     var dataContext = Program.DataContext;

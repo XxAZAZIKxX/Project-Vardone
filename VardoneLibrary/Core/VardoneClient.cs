@@ -14,16 +14,27 @@ namespace VardoneLibrary.Core
     {
         private VardoneClientBackground _clientBackground;
         public bool SetOnline => _clientBackground.setOnline;
-        public VardoneClient(long userId, string token) : base(userId, token) => _clientBackground = new VardoneClientBackground(this);
 
+        public VardoneClient(long userId, string token) : base(userId, token) =>
+            _clientBackground = new VardoneClientBackground(this);
+        private void StopClient()
+        {
+            _clientBackground.StopThreads();
+            _clientBackground = null;
+            UserId = long.MinValue;
+            Token = null;
+        }
+        ~VardoneClient() => StopClient();
+
+        //Get
         public User GetMe()
         {
             var response = ExecutePostWithToken("users/getMe");
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetMe"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetMe"),
-                _ => JsonConvert.DeserializeObject<User>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<User>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
@@ -33,9 +44,9 @@ namespace VardoneLibrary.Core
                 new Dictionary<string, string> { { "secondId", id.ToString() } });
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetUser"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetUser"),
-                _ => JsonConvert.DeserializeObject<User>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<User>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
@@ -44,9 +55,9 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/getFriends");
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetFriends"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetFriends"),
-                _ => JsonConvert.DeserializeObject<List<User>>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
@@ -55,10 +66,9 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/getIncomingFriendRequests");
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetIncomingFriendRequests"),
-                HttpStatusCode.Unauthorized =>
-                    throw new UnauthorizedException("Unauthorized GetIncomingFriendRequests"),
-                _ => JsonConvert.DeserializeObject<List<User>>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetIncomingFriendRequests"),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
@@ -67,10 +77,9 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/getOutgoingFriendRequests");
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetOutgoingFriendRequests"),
-                HttpStatusCode.Unauthorized =>
-                    throw new UnauthorizedException("Unauthorized GetOutgoingFriendRequests"),
-                _ => JsonConvert.DeserializeObject<List<User>>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetOutgoingFriendRequests"),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
@@ -79,136 +88,141 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/GetPrivateChats");
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateChats"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetPrivateChats"),
-                _ => JsonConvert.DeserializeObject<List<PrivateChat>>(
-                    JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
         public PrivateChat GetPrivateChatWithUser(long userId)
         {
-            var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null, new Dictionary<string, string> { { "secondId", userId.ToString() } });
+            var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
+                new Dictionary<string, string> { { "secondId", userId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest GetPrivateChatWithUser");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized GetPrivateChatWithUser");
-                default:
+                case HttpStatusCode.OK:
                     onUpdateChatList?.Invoke();
-                    return JsonConvert.DeserializeObject<PrivateChat>(JsonConvert.DeserializeObject<string>(response.Content));
+                    return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
+                default: throw new Exception(response.Content);
             }
         }
 
         public List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0)
         {
-            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string>
+            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
+                new Dictionary<string, string>
                 {
                     {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}
                 });
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateMessagesFromChat"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetPrivateMessagesFromChat"),
-                _ => JsonConvert.DeserializeObject<List<PrivateMessage>>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateMessage>>(response.Content),
+                _ => throw new Exception(response.Content)
             };
         }
 
         internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
         {
-            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string>
-            {
-                {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}, {"read", read.ToString()}
-            });
+            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
+                new Dictionary<string, string>
+                {
+                    {"chatId", chatId.ToString()},
+                    {"limit", limit.ToString()},
+                    {"startFrom", startFrom.ToString()},
+                    {"read", read.ToString()}
+                });
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetPrivateMessagesFromChat"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetPrivateMessagesFromChat"),
-                _ => JsonConvert.DeserializeObject<List<PrivateMessage>>(JsonConvert.DeserializeObject<string>(response.Content))
-            };
-        }
-
-        public bool CheckFriend(long userId)
-        {
-            var response = ExecutePostWithToken("users/GetPrivateChats");
-            return response.StatusCode switch
-            {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest CheckFriend"),
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized CheckFriend"),
-                _ => JsonConvert.DeserializeObject<bool>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content)),
+                _ => throw new Exception(response.Content)
             };
         }
 
         public bool GetOnlineUser(long userId)
         {
-            var response = ExecutePostWithToken("users/getUserOnline", null,
-                new Dictionary<string, string> { { "secondId", userId.ToString() } });
+            var response = ExecutePostWithToken("users/getUserOnline", null, new Dictionary<string, string> { { "secondId", userId.ToString() } });
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest => throw new Exception("BadRequest GetOnlineUser"),
                 HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetOnlineUser"),
-                _ => JsonConvert.DeserializeObject<bool>(JsonConvert.DeserializeObject<string>(response.Content))
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<bool>((response.Content)),
+                _ => throw new Exception(response.Content)
             };
         }
 
-        public void SendPrivateMessage(long userId, MessageModel message)
+        public List<Guild> GetGuilds()
         {
-            var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message),
-                new Dictionary<string, string> { { "secondId", userId.ToString() } });
-            switch (response.StatusCode)
+            var response = ExecutePostWithToken("users/getGuilds");
+            return response.StatusCode switch
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest SendPrivateMessage");
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized SendPrivateMessage");
-                default: return;
-            }
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetGuilds"),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<Guild>>(response.Content),
+                _ => throw new Exception(response.Content)
+            };
         }
 
-        public void AddFriend(string secondUsername)
+        public List<Channel> GetGuildChannels(long guildId)
         {
-            var response = ExecutePostWithToken("users/addFriend", null, new Dictionary<string, string> { { "secondUsername", secondUsername } });
-            switch (response.StatusCode)
+            var response = ExecutePostWithToken("guild/getGuildChannels", null, new Dictionary<string, string>
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest AddFriend");
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized AddFriend");
-                default:
-                    {
-                        onUpdateFriendList?.Invoke();
-                        onUpdateIncomingFriendRequestList?.Invoke(true);
-                        onUpdateOutgoingFriendRequestList?.Invoke();
-                        return;
-                    }
-            }
+                {"guildId", guildId.ToString()}
+            });
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetGuildChannels"),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<Channel>>(response.Content),
+                _ => throw new Exception(response.Content)
+            };
         }
 
+        public List<User> GetBannedGuildMembers(long guildId)
+        {
+            var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string>
+            {
+                {"guildId", guildId.ToString()}
+            });
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized GetBannedGuildMembers"),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
+                _ => throw new Exception(response.Content)
+            };
+        }
+
+        //Delete
         public void DeleteFriend(long idUser)
         {
             var response = ExecutePostWithToken("users/deleteFriend", null,
                 new Dictionary<string, string> { { "secondId", idUser.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteFriend");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteFriend");
-                default:
+                case HttpStatusCode.OK:
                     {
                         onUpdateFriendList?.Invoke();
                         onUpdateIncomingFriendRequestList?.Invoke(true);
                         onUpdateOutgoingFriendRequestList?.Invoke();
                         return;
                     }
+                default: throw new Exception(response.Content);
             }
         }
 
         public void DeleteChat(long chatId)
         {
-            var response = ExecutePostWithToken("chats/deletePrivateChat", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
+            var response = ExecutePostWithToken("chats/deletePrivateChat", null,
+                new Dictionary<string, string> { { "chatId", chatId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteChat");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteChat");
-                default:
+                case HttpStatusCode.OK:
                     {
                         onUpdateChatList?.Invoke();
                         return;
                     }
+                default: throw new Exception(response.Content);
             }
         }
 
@@ -218,23 +232,25 @@ namespace VardoneLibrary.Core
             StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest DeleteMe");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized DeleteMe");
+                case HttpStatusCode.OK: return;
+                default: throw new Exception(response.Content);
             }
         }
 
+        //Update
         public void UpdateMe(UpdateUserModel update)
         {
             var response = ExecutePostWithToken("users/updateUser", JsonConvert.SerializeObject(update));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest UpdateMe");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized UpdateMe");
-                default:
+                case HttpStatusCode.OK:
                     {
                         onUpdateUser?.Invoke(GetMe());
                         return;
                     }
+                default: throw new Exception(response.Content);
             }
         }
 
@@ -243,9 +259,9 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest UpdatePassword");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized UpdatePassword");
-                default: return;
+                case HttpStatusCode.OK: return;
+                default: throw new Exception(response.Content);
             }
         }
 
@@ -254,21 +270,45 @@ namespace VardoneLibrary.Core
             var response = ExecutePostWithToken("users/setOnline");
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest Exception");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized UpdateLastOnline");
-                default: return;
+                case HttpStatusCode.OK: return;
+                default: throw new Exception(response.Content);
             }
         }
 
+        //Send
+        public void SendPrivateMessage(long userId, MessageModel message)
+        {
+            var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message),
+                new Dictionary<string, string> { { "secondId", userId.ToString() } });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized SendPrivateMessage");
+                case HttpStatusCode.OK: return;
+                default: throw new Exception(response.Content);
+            }
+        }
+
+        public void SendChannelMessage(long channelId, MessageModel message)
+        {
+            var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "channelId", channelId.ToString() } });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized SendChannelMessage");
+                case HttpStatusCode.OK: return;
+                default: throw new Exception(response.Content);
+            }
+        }
+
+        //Close
         public void CloseCurrentSession()
         {
             var response = ExecutePostWithToken("users/closeCurrentSession");
+            StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest CloseCurrentSession");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized CloseCurrentSession");
             }
-            StopClient();
         }
 
         public void CloseAllSessions()
@@ -277,18 +317,37 @@ namespace VardoneLibrary.Core
             StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.BadRequest: throw new Exception("BadRequest CloseAllSessions");
                 case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized CloseAllSessions");
             }
         }
 
-        private void StopClient()
+        //Other
+        public bool CheckFriend(long userId)
         {
-            _clientBackground.StopThreads();
-            _clientBackground = null;
-            UserId = long.MinValue;
-            Token = null;
+            var response = ExecutePostWithToken("users/GetPrivateChats");
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException("Unauthorized CheckFriend"),
+                HttpStatusCode.InternalServerError => throw new Exception(response.Content),
+                _ => throw new Exception(response.Content)
+            };
         }
-        ~VardoneClient() => StopClient();
+        public void AddFriend(string secondUsername)
+        {
+            var response = ExecutePostWithToken("users/addFriend", null,
+                new Dictionary<string, string> { { "secondUsername", secondUsername } });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException("Unauthorized AddFriend");
+                case HttpStatusCode.OK:
+                    {
+                        onUpdateFriendList?.Invoke();
+                        onUpdateIncomingFriendRequestList?.Invoke(true);
+                        onUpdateOutgoingFriendRequestList?.Invoke();
+                        return;
+                    }
+                default: throw new Exception(response.Content);
+            }
+        }
     }
 }

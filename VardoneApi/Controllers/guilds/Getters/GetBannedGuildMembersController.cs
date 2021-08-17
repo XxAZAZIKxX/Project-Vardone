@@ -19,7 +19,7 @@ namespace VardoneApi.Controllers.guilds.Getters
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
-                if (!Core.GuildsChecks.IsUserOwner(userId, guildId)) return BadRequest("You are not owner");
+                if (!Core.GuildChecks.IsUserOwner(userId, guildId)) return BadRequest("You are not owner");
 
                 try
                 {

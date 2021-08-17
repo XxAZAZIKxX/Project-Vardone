@@ -19,22 +19,21 @@ namespace VardoneApi.Controllers.users.GetControllers
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
-                    return Unauthorized("Invalid token");
-
-                var dataContext = Program.DataContext;
-                var chatsTable = dataContext.PrivateChats;
-                var privateMessages = dataContext.PrivateMessages;
-                privateMessages.Include(p => p.Author).Load();
-                chatsTable.Include(p => p.FromUser).Load();
-                chatsTable.Include(p => p.ToUser).Load();
-                chatsTable.Include(p => p.FromUser.Info).Load();
-                chatsTable.Include(p => p.ToUser.Info).Load();
-
-                var chats = new List<PrivateChat>();
+                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
 
                 try
                 {
+                    var dataContext = Program.DataContext;
+                    var chatsTable = dataContext.PrivateChats;
+                    var privateMessages = dataContext.PrivateMessages;
+                    privateMessages.Include(p => p.Author).Load();
+                    chatsTable.Include(p => p.FromUser).Load();
+                    chatsTable.Include(p => p.ToUser).Load();
+                    chatsTable.Include(p => p.FromUser.Info).Load();
+                    chatsTable.Include(p => p.ToUser.Info).Load();
+
+                    var chats = new List<PrivateChat>();
+
                     var @where = chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).ToList();
                     foreach (var chat in @where)
                     {
@@ -62,17 +61,17 @@ namespace VardoneApi.Controllers.users.GetControllers
                                     : Convert.ToBase64String(user2.Info.Avatar),
                                 Description = user2.Info?.Description
                             },
-                            UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime)> 0)
+                            UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
                         };
                         chats.Add(item);
                     }
+                    return Ok(chats);
                 }
-                catch
+                catch (Exception e)
                 {
-                    // ignored
+                    return Problem(e.Message);
                 }
 
-                return new JsonResult(JsonConvert.SerializeObject(chats));
             })).GetAwaiter().GetResult();
         }
     }

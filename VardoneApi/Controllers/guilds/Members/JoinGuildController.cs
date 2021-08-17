@@ -12,18 +12,21 @@ namespace VardoneApi.Controllers.guilds.Members
     public class JoinGuildController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long guildId)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] string inviteCode)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
-                if (!Core.GuildsChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
+                if (!Core.InviteChecks.IsInviteExists(inviteCode)) return BadRequest("Invite is not exists");
 
                 try
                 {
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     var guilds = dataContext.Guilds;
+                    var guildInvites = dataContext.GuildInvites;
+                    guildInvites.Include(p => p.Guild).Load();
+                    var guildId = guildInvites.First(p => p.InviteCode == inviteCode).Guild.Id;
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
                     bannedGuildMembers.Include(p => p.User).Load();

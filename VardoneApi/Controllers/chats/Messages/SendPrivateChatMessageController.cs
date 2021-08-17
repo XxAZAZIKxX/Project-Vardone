@@ -21,7 +21,7 @@ namespace VardoneApi.Controllers.chats.Messages
                 if (userId == secondId) return BadRequest("Username equal second username");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
                 if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest();
-                if (!Core.PrivateChatsChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
+                if (!Core.PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
                 if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image)) return BadRequest("Empty message");
 
                 try
@@ -39,7 +39,7 @@ namespace VardoneApi.Controllers.chats.Messages
 
                     PrivateChatsTable chat;
 
-                    if (!Core.PrivateChatsChecks.IsChatExists(userId, secondId))
+                    if (!Core.PrivateChatChecks.IsChatExists(userId, secondId))
                     {
                         chat = new PrivateChatsTable { FromUser = user1, ToUser = user2 };
                         chats.Add(chat);

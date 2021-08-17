@@ -20,8 +20,8 @@ namespace VardoneApi.Controllers.chats.Messages
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token })) return Unauthorized("Invalid token");
-                if (!Core.PrivateChatsChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!Core.PrivateChatsChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
+                if (!Core.PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!Core.PrivateChatChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
 
                 try
                 {
@@ -91,14 +91,12 @@ namespace VardoneApi.Controllers.chats.Messages
                             });
                         }
 
-                        return new JsonResult(JsonConvert.SerializeObject(messages));
+                        return Ok(messages);
                     }
                     catch
                     {
-                        // ignored
+                        return Ok(new List<PrivateMessage>(0));
                     }
-
-                    return new JsonResult(JsonConvert.SerializeObject(new List<PrivateMessage>(0)));
                 }
                 catch (Exception e)
                 {
