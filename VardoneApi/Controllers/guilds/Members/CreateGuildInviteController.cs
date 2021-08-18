@@ -3,7 +3,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using VardoneApi.Entity.Models.Guilds;
+using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers.guilds.Members
@@ -27,22 +29,43 @@ namespace VardoneApi.Controllers.guilds.Members
                     var dataContext = Program.DataContext;
                     var guildInvites = dataContext.GuildInvites;
                     var guilds = dataContext.Guilds;
+                    guilds.Include(p => p.Info).Load();
                     var users = dataContext.Users;
+                    users.Include(p => p.Info).Load();
 
                     var inviteCode = CreateInviteCode();
                     while (Core.InviteChecks.IsInviteExists(inviteCode)) inviteCode = CreateInviteCode();
 
-                    guildInvites.Add(new GuildInvitesTable
+                    var createdByUser = users.First(p => p.Id == userId);
+                    var guild = guilds.First(p => p.Id == guildId);
+                    var guildInvite = new GuildInvitesTable
                     {
                         CreatedAt = DateTime.Now,
-                        CreatedByUser = users.First(p => p.Id == userId),
-                        Guild = guilds.First(p => p.Id == guildId),
+                        CreatedByUser = createdByUser,
+                        Guild = guild,
                         InviteCode = inviteCode
-                    });
-
+                    };
+                    guildInvites.Add(guildInvite);
                     dataContext.SaveChanges();
-                    return Ok(inviteCode);
-
+                    return Ok(new GuildInvite
+                    {
+                        InviteId = guildInvite.Id,
+                        InviteCode = guildInvite.InviteCode,
+                        CreatedAt = guildInvite.CreatedAt,
+                        CreatedBy = new User
+                        {
+                            UserId = createdByUser.Id,
+                            Username = createdByUser.Username,
+                            Description = createdByUser.Info?.Description,
+                            Base64Avatar = createdByUser.Info?.Avatar is not null ? Convert.ToBase64String(createdByUser.Info.Avatar) : null
+                        },
+                        Guild = new Guild
+                        {
+                            GuildId = guild.Id,
+                            Name = guild.Name,
+                            Base64Avatar = guild.Info?.Avatar is not null ? Convert.ToBase64String(guild.Info.Avatar) : null
+                        }
+                    });
                 }
                 catch (Exception e)
                 {

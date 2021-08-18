@@ -11,7 +11,7 @@ namespace VardoneApi.Controllers.chats.Messages
     public class DeleteChatMessageController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long idMessage)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long messageId)
         {
             return Task.Run(new Func<IActionResult>(() =>
            {
@@ -26,7 +26,7 @@ namespace VardoneApi.Controllers.chats.Messages
 
                    try
                    {
-                       var message = messages.First(p => p.Author.Id == userId && p.Id == idMessage);
+                       var message = messages.First(p => p.Author.Id == userId && p.Id == messageId);
                        messages.Remove(message);
                        dataContext.SaveChanges();
                        return Ok("Deleted");

@@ -13,6 +13,7 @@ using Vardone.Core;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
+using VardoneLibrary.Core.Client;
 using VardoneLibrary.VardoneEvents;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;

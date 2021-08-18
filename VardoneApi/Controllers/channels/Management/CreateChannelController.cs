@@ -12,7 +12,7 @@ namespace VardoneApi.Controllers.channels.Management
     public class CreateChannelController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long guildId, [FromQuery] string name)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] long guildId, [FromQuery] string name = null)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {

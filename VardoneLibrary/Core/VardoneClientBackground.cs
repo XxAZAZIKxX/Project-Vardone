@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using VardoneLibrary.Core.Client;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
 

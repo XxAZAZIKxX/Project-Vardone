@@ -9,6 +9,7 @@ using Vardone.Pages;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
 using VardoneLibrary.Core.Base;
+using VardoneLibrary.Core.Client;
 using WinForms = System.Windows.Forms;
 
 namespace Vardone

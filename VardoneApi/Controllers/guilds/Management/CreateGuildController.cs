@@ -12,7 +12,7 @@ namespace VardoneApi.Controllers.guilds.Management
     public class CreateGuildController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] string name)
+        public IActionResult Post([FromHeader] long userId, [FromHeader] string token, [FromQuery] string name = null)
         {
             return Task.Run(new Func<IActionResult>(() =>
             {
