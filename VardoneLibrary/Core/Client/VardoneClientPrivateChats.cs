@@ -12,6 +12,16 @@ namespace VardoneLibrary.Core.Client
     public partial class VardoneClient
     {
         //Get
+        public List<PrivateChat> GetPrivateChats()
+        {
+            var response = ExecutePostWithToken("users/GetPrivateChats");
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content),
+                _ => throw new Exception(response.Content)
+            };
+        }
         public PrivateChat GetPrivateChatWithUser(long userId)
         {
             var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,

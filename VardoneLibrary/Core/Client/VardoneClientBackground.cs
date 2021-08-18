@@ -49,7 +49,7 @@ namespace VardoneLibrary.Core.Client
         /// <summary>
         /// Обновлять ли статус текущего пользователя
         /// </summary>
-        public bool setOnline = true;
+        internal bool setOnline = true;
 
         public VardoneClientBackground(VardoneClient client)
         {
