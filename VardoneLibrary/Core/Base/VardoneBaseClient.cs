@@ -1,6 +1,6 @@
-﻿using System;
+﻿using RestSharp;
+using System;
 using System.Collections.Generic;
-using RestSharp;
 using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Base
@@ -17,7 +17,6 @@ namespace VardoneLibrary.Core.Base
             Token = token;
             if (!CheckToken(UserId, Token)) throw new UnauthorizedException("Invalid token");
         }
-
         protected IRestResponse ExecutePostWithToken(string resource, string json = null, Dictionary<string, string> queryParameters = null)
         {
             var request = new RestRequest(resource, Method.POST);

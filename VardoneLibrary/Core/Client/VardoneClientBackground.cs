@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using VardoneLibrary.Core.Client;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
 
-namespace VardoneLibrary.Core
+namespace VardoneLibrary.Core.Client
 {
-    public class VardoneClientBackground
+    internal class VardoneClientBackground
     {
         private VardoneClient _client;
 
