@@ -6,8 +6,6 @@ using System.Windows.Interop;
 using Notifications.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
-using VardoneEntities.Models.GeneralModels.Users;
-using VardoneLibrary.Core;
 using VardoneLibrary.Core.Base;
 using VardoneLibrary.Core.Client;
 using WinForms = System.Windows.Forms;
@@ -37,7 +35,7 @@ namespace Vardone
         {
             InitializeComponent();
             _instance = this;
-            
+
             InitializeTrayIcon();
             TryLogin();
         }
@@ -82,15 +80,14 @@ namespace Vardone
             if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
             else
             {
-                if (VardoneBaseApi.CheckToken(token.UserId, token.Token))
-                    LoadApp(new VardoneClient(token.UserId, token.Token));
+                if (VardoneBaseApi.CheckToken(token)) LoadApp(new VardoneClient(token));
                 else MainFrame.Navigate(AuthorizationPage.GetInstance());
             }
         }
 
         public void LoadApp(VardoneClient client)
         {
-            JsonTokenWorker.SetToken(new UserTokenModel { UserId = client.UserId, Token = client.Token });
+            JsonTokenWorker.SetToken(client.Token);
             MainPage.GetInstance().Load(client);
             MainFrame.Navigate(MainPage.GetInstance());
         }

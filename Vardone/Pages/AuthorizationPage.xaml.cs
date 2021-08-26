@@ -31,16 +31,16 @@ namespace Vardone.Pages
         {
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;
-            MainWindow.GetInstance().LoadApp(new VardoneClient(token.UserId, token.Token));
+            MainWindow.GetInstance().LoadApp(new VardoneClient(token));
             return true;
         }
 
         public bool TryRegister(string username, string email, string password)
         {
-            VardoneBaseApi.RegisterUser(new RegisterUserModel {Email = email, Password = password, Username = username});
+            VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, Password = password, Username = username });
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;
-            MainWindow.GetInstance().LoadApp(new VardoneClient(token.UserId, token.Token));
+            MainWindow.GetInstance().LoadApp(new VardoneClient(token));
             return true;
         }
     }

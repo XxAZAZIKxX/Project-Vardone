@@ -84,7 +84,7 @@ namespace Vardone.Pages
 
         private void OnUpdateOnline(User user)
         {
-            if (user.UserId == Client.UserId) return;
+            if (Equals(user, Client.GetMe())) return;
 
             Task.Run(() =>
             {
@@ -137,7 +137,7 @@ namespace Vardone.Pages
         {
             Task.Run(() =>
             {
-                if (message.Author.UserId == Client.UserId) return;
+                if (Equals(message.Author, Client.GetMe())) return;
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Title = "Новое сообщение от " + message.Author.Username,
@@ -164,7 +164,7 @@ namespace Vardone.Pages
             Task.Run(() =>
             {
                 AvatarsWorker.UpdateAvatarUser(user.UserId);
-                if (user.UserId == Client.UserId) LoadMe();
+                if (Equals(user, Client.GetMe())) LoadMe();
             });
         }
 
@@ -180,7 +180,7 @@ namespace Vardone.Pages
                     var user = ((UserItem)PrivateChatHeader.Children[0]).User;
 
                     var onlineUser1 = Client.GetOnlineUser(user.UserId);
-                    var onlineUser2 = Client.GetOnlineUser(Client.UserId);
+                    var onlineUser2 = Client.GetOnlineUser(Client.GetMe().UserId);
                     var privateMessagesFromChat = Client.GetPrivateMessagesFromChat(
                         Client.GetPrivateChatWithUser(user.UserId).ChatId, 5, ((ChatMessageItem)ChatMessagesGrid.Children[0]).Message.MessageId);
                     foreach (var message in privateMessagesFromChat)

@@ -14,8 +14,8 @@ namespace VardoneLibrary.Core.Client
         /// <summary>
         /// Поток проверки наличия новых сообщений
         /// </summary>
-        private Thread _checkingMessageThread;
-        private bool _isCheckMessageThreadWork = true;
+        private Thread _checkingPrivateMessageThread;
+        private bool _isCheckPrivateMessageThreadWork = true;
         /// <summary>
         /// Поток который обновляет онлайн текущего пользователя
         /// </summary>
@@ -59,8 +59,8 @@ namespace VardoneLibrary.Core.Client
 
         private void SetThreads()
         {
-            _checkingMessageThread = new Thread(CheckingMessageThread);
-            _checkingMessageThread.Start();
+            _checkingPrivateMessageThread = new Thread(CheckingPrivateMessageThread);
+            _checkingPrivateMessageThread.Start();
             //
             _settingOnlineThread = new Thread(SettingOnlineThread);
             _settingOnlineThread.Start();
@@ -80,9 +80,9 @@ namespace VardoneLibrary.Core.Client
             _checkUpdatesOutgoingRequestThread = new Thread(CheckUpdatesOutgoingRequestThread);
             _checkUpdatesOutgoingRequestThread.Start();
         }
-        public void StopThreads()
+        internal void StopThreads()
         {
-            _isCheckMessageThreadWork = _isSettingOnlineThreadWork =
+            _isCheckPrivateMessageThreadWork = _isSettingOnlineThreadWork =
                 _isCheckingUpdatesOnFriendListThreadWork = _isCheckingUpdatesOnChatListThreadWork =
                     _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
                         _isCheckUpdatesOutgoingRequestThreadWork = false;
@@ -110,8 +110,7 @@ namespace VardoneLibrary.Core.Client
                     }
 
                     var list1 = list;
-                    if (outgoingFriends.Any(user => !list1.Contains(user)))
-                        onUpdateOutgoingFriendRequestList?.Invoke();
+                    if (outgoingFriends.Any(user => !list1.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                     else if (list1.Any(user => !outgoingFriends.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                     list = outgoingFriends;
                     Thread.Sleep(10 * 1000);
@@ -135,8 +134,7 @@ namespace VardoneLibrary.Core.Client
                     var incomingFriends = _client.GetIncomingFriendRequests();
 
                     var list1 = list;
-                    if (incomingFriends.Any(user => !list1.Contains(user)))
-                        onUpdateIncomingFriendRequestList?.Invoke(false);
+                    if (incomingFriends.Any(user => !list1.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke(false);
                     else if (list1.Any(user => !incomingFriends.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke(true);
                     list = incomingFriends;
                     Thread.Sleep(10 * 1000);
@@ -144,10 +142,8 @@ namespace VardoneLibrary.Core.Client
             }
             catch (Exception e)
             {
-                if (e is UnauthorizedException)
-                    _isCheckUpdatesIncomingRequestThreadWork = false;
-                else
-                    throw;
+                if (e is UnauthorizedException) _isCheckUpdatesIncomingRequestThreadWork = false;
+                else throw;
             }
         }
         private void CheckOnlineUsersThread()
@@ -197,7 +193,7 @@ namespace VardoneLibrary.Core.Client
 
                     list = privateChats;
 
-                    Thread.Sleep(10 * 1000);
+                    Thread.Sleep(5 * 1000);
                 }
             }
             catch (Exception e)
@@ -227,7 +223,7 @@ namespace VardoneLibrary.Core.Client
                     if (friends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
                     if (list1.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
                     list = friends;
-                    Thread.Sleep(10 * 1000);
+                    Thread.Sleep(5 * 1000);
                 }
             }
             catch (Exception e)
@@ -256,12 +252,12 @@ namespace VardoneLibrary.Core.Client
                     throw;
             }
         }
-        private void CheckingMessageThread()
+        private void CheckingPrivateMessageThread()
         {
             var dictionary = new Dictionary<long, long>();
             foreach (var chat in _client.GetPrivateChats())
             {
-                var privateMessages = _client.GetPrivateMessagesFromChat(chat.ChatId, read: false, 1).OrderByDescending(p => p.MessageId).ToList();
+                var privateMessages = _client.GetPrivateMessagesFromChat(chat.ChatId, read: false, 1).ToList();
                 if (privateMessages.Count == 0)
                 {
                     dictionary[chat.ChatId] = -1;
@@ -275,7 +271,7 @@ namespace VardoneLibrary.Core.Client
 
             try
             {
-                while (_isCheckMessageThreadWork)
+                while (_isCheckPrivateMessageThreadWork)
                 {
                     foreach (var chat in _client.GetPrivateChats())
                     {
@@ -300,7 +296,7 @@ namespace VardoneLibrary.Core.Client
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckMessageThreadWork = false;
+                    _isCheckPrivateMessageThreadWork = false;
                 else
                     throw;
             }

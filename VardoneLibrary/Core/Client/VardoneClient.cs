@@ -15,13 +15,12 @@ namespace VardoneLibrary.Core.Client
         private VardoneClientBackground _clientBackground;
         public bool SetOnline => _clientBackground.setOnline;
 
-        public VardoneClient(long userId, string token) : base(userId, token) =>
+        public VardoneClient(string token) : base(token) =>
             _clientBackground = new VardoneClientBackground(this);
         private void StopClient()
         {
             _clientBackground.StopThreads();
             _clientBackground = null;
-            UserId = long.MinValue;
             Token = null;
         }
         ~VardoneClient() => StopClient();
@@ -186,6 +185,19 @@ namespace VardoneLibrary.Core.Client
                         onUpdateOutgoingFriendRequestList?.Invoke();
                         return;
                     }
+                default: throw new Exception(response.Content);
+            }
+        }
+        public void UpdateToken()
+        {
+            var response = ExecutePost(@"auth/updateToken", headers: new Dictionary<string, string>
+            {
+                {"token", Token}
+            });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.OK: Token = JsonConvert.DeserializeObject<string>(response.Content); break;
                 default: throw new Exception(response.Content);
             }
         }

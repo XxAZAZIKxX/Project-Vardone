@@ -2,7 +2,7 @@
 
 namespace VardoneLibrary.VardoneEvents
 {
-    public class VardoneDelegates
+    public static class VardoneDelegates
     {
         public delegate void NewPrivateMessageHandler(PrivateMessage message);
 

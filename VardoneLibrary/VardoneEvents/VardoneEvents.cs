@@ -1,6 +1,6 @@
 ﻿namespace VardoneLibrary.VardoneEvents
 {
-    public abstract class VardoneEvents
+    public static class VardoneEvents
     {
         /// <summary>
         /// При новом сообщении текущему пользователю

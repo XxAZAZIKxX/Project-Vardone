@@ -69,7 +69,7 @@ namespace VardoneLibrary.Core.Client
         //Other
         public void DeletePrivateMessage(long messageId)
         {
-            var response = ExecutePostWithToken("chats/deleteChatMessage", null, new Dictionary<string, string>
+            var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null, new Dictionary<string, string>
             {
                 {"messageId", messageId.ToString()}
             });
