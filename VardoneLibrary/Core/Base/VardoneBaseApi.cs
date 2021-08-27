@@ -26,7 +26,7 @@ namespace VardoneLibrary.Core.Base
         public static string GetUserToken(string email, string password)
         {
             var response = ExecutePost(@"/auth/authUser", JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, Password = password }));
-            return response.StatusCode == HttpStatusCode.BadRequest ? null : JsonConvert.DeserializeObject<string>(response.Content);
+            return response.StatusCode is not HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<string>(response.Content);
         }
         public static bool RegisterUser(RegisterUserModel register)
         {
@@ -39,7 +39,11 @@ namespace VardoneLibrary.Core.Base
             {
                 {"Authorization", $"Bearer {token}"}
             });
-            return response.StatusCode != HttpStatusCode.BadRequest && JsonConvert.DeserializeObject<bool>(response.Content);
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<bool>(response.Content);
+                default: return false;
+            }
         }
     }
 }

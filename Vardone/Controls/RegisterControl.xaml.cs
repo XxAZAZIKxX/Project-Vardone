@@ -20,15 +20,12 @@ namespace Vardone.Controls
             var bc = new BrushConverter();
             Hyplin.Foreground = (Brush)bc.ConvertFrom("#8f34eb");
         }
-
         private void Hlml(object sender, MouseEventArgs e)
         {
             var bc = new BrushConverter();
             Hyplin.Foreground = (Brush)bc.ConvertFrom("#34ebe5");
         }
-
         private void Hlmd(object sender, RoutedEventArgs e) => AuthorizationPage.GetInstance().OpenAuth();
-
         private void RegisterBtnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TbLogin.Text))
@@ -64,21 +61,7 @@ namespace Vardone.Controls
                 return;
             }
 
-            bool tryRegister;
-            try
-            {
-                tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password);
-            }
-            catch (Exception exception)
-            {
-                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
-                {
-                    Title = "Проверьте введенные данные",
-                    Message = exception.Message,
-                    Type = NotificationType.Error
-                });
-                return;
-            }
+            var tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password);
             if (tryRegister is false)
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
@@ -97,37 +80,27 @@ namespace Vardone.Controls
             PbPassword.Password = string.Empty;
             PbPassword_OnLostFocus(null, null);
         }
-
         private void TbLogin_OnGotFocus(object sender, RoutedEventArgs e) => TbLoginPlaceholder.Visibility = Visibility.Collapsed;
-
         private void TbLogin_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(TbLogin.Text)) return;
             TbLoginPlaceholder.Visibility = Visibility.Visible;
         }
-
         private void TbLogin_OnTextChanged(object sender, TextChangedEventArgs e) => TbLogin_OnGotFocus(null, null);
-
         private void TbEmail_OnGotFocus(object sender, RoutedEventArgs e) => TbEmailPlaceholder.Visibility = Visibility.Collapsed;
-
         private void TbEmail_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(TbEmail.Text)) return;
             TbEmailPlaceholder.Visibility = Visibility.Visible;
         }
-
         private void TbEmail_OnTextChanged(object sender, TextChangedEventArgs e) => TbEmail_OnGotFocus(null, null);
-
         private void PbPassword_OnGotFocus(object sender, RoutedEventArgs e) => PbPasswordPlaceholder.Visibility = Visibility.Collapsed;
-
         private void PbPassword_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(PbPassword.Password)) return;
             PbPasswordPlaceholder.Visibility = Visibility.Visible;
         }
-
         private void PbPassword_OnPasswordChanged(object sender, RoutedEventArgs e) => PbPassword_OnGotFocus(null, null);
-
         private void PbPassword_OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) RegisterBtnClick(null, null);

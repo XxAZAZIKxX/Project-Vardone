@@ -15,12 +15,21 @@ namespace VardoneLibrary.Core.Client
         public List<Guild> GetGuilds()
         {
             var response = ExecutePostWithToken("users/getGuilds");
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<Guild>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetGuilds();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<Guild>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<Channel> GetGuildChannels(long guildId)
         {
@@ -28,12 +37,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"guildId", guildId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<Channel>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetGuildChannels(guildId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<Channel>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<User> GetBannedGuildMembers(long guildId)
         {
@@ -41,12 +59,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"guildId", guildId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetBannedGuildMembers(guildId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<User> GetGuildMembers(long guildId)
         {
@@ -54,12 +81,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"guildId", guildId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetGuildMembers(guildId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<GuildInvite> GetGuildInvites(long guildId)
         {
@@ -67,12 +103,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"guildId", guildId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetGuildInvites(guildId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<ChannelMessage> GetChannelMessages(long channelId)
         {
@@ -80,12 +125,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"channelId", channelId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetChannelMessages(channelId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         //Create
         public void CreateGuild(string name = null)
@@ -96,7 +150,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        CreateGuild(name);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -110,7 +172,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        CreateChannel(guildId, name);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -121,12 +191,21 @@ namespace VardoneLibrary.Core.Client
             {
                 {"guildId", guildId.ToString()}
             });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<GuildInvite>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return CreateGuildInvite(guildId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<GuildInvite>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         //Delete
         public void DeleteGuild(long guildId)
@@ -137,7 +216,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteGuild(guildId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -150,7 +237,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteChannel(channelId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -163,7 +258,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteGuildInvite(inviteId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -176,7 +279,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteChannelMessage(messageId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -187,7 +298,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("guilds/updateGuild", JsonConvert.SerializeObject(model));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        UpdateGuild(model);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -197,7 +316,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("channels/updateChannel", JsonConvert.SerializeObject(model));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        UpdateChannel(model);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -208,7 +335,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "channelId", channelId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        SendChannelMessage(channelId, message);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -221,7 +356,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        JoinGuild(inviteCode);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -234,7 +377,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        LeaveGuild(guildId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -248,7 +399,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        KickGuildMember(userId, guildId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -263,7 +422,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        BanGuildMember(userId, guildId, reason);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }

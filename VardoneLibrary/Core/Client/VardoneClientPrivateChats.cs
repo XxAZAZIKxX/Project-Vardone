@@ -15,12 +15,21 @@ namespace VardoneLibrary.Core.Client
         public List<PrivateChat> GetPrivateChats()
         {
             var response = ExecutePostWithToken("users/GetPrivateChats");
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetPrivateChats();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public PrivateChat GetPrivateChatWithUser(long userId)
         {
@@ -28,7 +37,14 @@ namespace VardoneLibrary.Core.Client
                 new Dictionary<string, string> { { "secondId", userId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetPrivateChatWithUser(userId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK:
                     onUpdateChatList?.Invoke();
                     return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
@@ -42,12 +58,21 @@ namespace VardoneLibrary.Core.Client
                 {
                     {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}
                 });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateMessage>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetPrivateMessagesFromChat(chatId,limit,startFrom);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<PrivateMessage>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
         {
@@ -59,12 +84,21 @@ namespace VardoneLibrary.Core.Client
                     {"startFrom", startFrom.ToString()},
                     {"read", read.ToString()}
                 });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content)),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetPrivateMessagesFromChat(chatId,read,limit,startFrom);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content));
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         //Other
         public void DeletePrivateMessage(long messageId)
@@ -75,7 +109,15 @@ namespace VardoneLibrary.Core.Client
             });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeletePrivateMessage(messageId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -86,7 +128,15 @@ namespace VardoneLibrary.Core.Client
                 new Dictionary<string, string> { { "secondId", userId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        SendPrivateMessage(userId,message);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -97,7 +147,15 @@ namespace VardoneLibrary.Core.Client
                 new Dictionary<string, string> { { "chatId", chatId.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteChat(chatId);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK:
                     {
                         onUpdateChatList?.Invoke();

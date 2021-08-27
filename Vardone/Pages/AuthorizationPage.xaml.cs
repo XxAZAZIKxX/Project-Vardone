@@ -20,13 +20,11 @@ namespace Vardone.Pages
             Auth.Visibility = Visibility.Hidden;
             Register.Visibility = Visibility.Visible;
         }
-
         public void OpenAuth()
         {
             Auth.Visibility = Visibility.Visible;
             Register.Visibility = Visibility.Hidden;
         }
-
         public bool TryLogin(string email, string password)
         {
             var token = VardoneBaseApi.GetUserToken(email, password);
@@ -34,10 +32,10 @@ namespace Vardone.Pages
             MainWindow.GetInstance().LoadApp(new VardoneClient(token));
             return true;
         }
-
         public bool TryRegister(string username, string email, string password)
         {
-            VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, Password = password, Username = username });
+            var registerUser = VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, Password = password, Username = username });
+            if (registerUser is false) return false;
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;
             MainWindow.GetInstance().LoadApp(new VardoneClient(token));

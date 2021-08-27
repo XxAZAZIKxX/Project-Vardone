@@ -26,7 +26,6 @@ namespace Vardone.Controls
             Hyplin.Foreground = (Brush)bc.ConvertFrom("#34ebe5");
         }
         private void md_hl(object sender, RoutedEventArgs e) => AuthorizationPage.GetInstance().OpenRegistration();
-
         private void LoginBtnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TblEmail.Text))
@@ -68,27 +67,20 @@ namespace Vardone.Controls
             PbPassword.Password = string.Empty;
             PbPassword_OnLostFocus(null, null);
         }
-
         private void TblEmail_OnGotFocus(object sender, RoutedEventArgs e) => EmailPlaceholder.Visibility = Visibility.Collapsed;
-
         private void TblEmail_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(TblEmail.Text)) return;
             EmailPlaceholder.Visibility = Visibility.Visible;
         }
-
         private void TblEmail_OnTextChanged(object sender, TextChangedEventArgs e) => TblEmail_OnGotFocus(null, null);
-
         private void PbPassword_OnGotFocus(object sender, RoutedEventArgs e) => PasswordPlaceholder.Visibility = Visibility.Collapsed;
-
         private void PbPassword_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(PbPassword.Password)) return;
             PasswordPlaceholder.Visibility = Visibility.Visible;
         }
-
         private void PbPassword_OnPasswordChanged(object sender, RoutedEventArgs e) => PbPassword_OnGotFocus(null, null);
-
         private void PbPassword_OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) LoginBtnClick(null, null);

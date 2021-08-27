@@ -207,7 +207,6 @@ namespace VardoneApi.Controllers
                 var dataContext = Program.DataContext;
                 var tokens = dataContext.Tokens;
                 tokens.Include(p => p.User).Load();
-
                 return Ok(GetJwtToken(GetIdentity(model.UserId, model.Token)));
             }));
         }

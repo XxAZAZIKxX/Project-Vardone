@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using RestSharp;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Base;
@@ -15,8 +17,8 @@ namespace VardoneLibrary.Core.Client
         private VardoneClientBackground _clientBackground;
         public bool SetOnline => _clientBackground.setOnline;
 
-        public VardoneClient(string token) : base(token) =>
-            _clientBackground = new VardoneClientBackground(this);
+        public VardoneClient(string token) : base(token) => _clientBackground = new VardoneClientBackground(this);
+
         private void StopClient()
         {
             _clientBackground.StopThreads();
@@ -25,76 +27,140 @@ namespace VardoneLibrary.Core.Client
         }
         ~VardoneClient() => StopClient();
 
+        private static bool IsTokenExpired(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Expired" && (string)p.Value == "true");
+        private static bool IsTokenInvalid(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Invalid" && (string)p.Value == "true");
+
         //Get
         public User GetMe()
         {
             var response = ExecutePostWithToken("users/getMe");
-            return response.StatusCode switch
+
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<User>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetMe();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<User>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public User GetUser(long id)
         {
             var response = ExecutePostWithToken("users/getUser", null, new Dictionary<string, string> { { "secondId", id.ToString() } });
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<User>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetUser(id);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<User>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<User> GetFriends()
         {
             var response = ExecutePostWithToken("users/getFriends");
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetFriends();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<User> GetIncomingFriendRequests()
         {
             var response = ExecutePostWithToken("users/getIncomingFriendRequests");
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetIncomingFriendRequests();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public List<User> GetOutgoingFriendRequests()
         {
             var response = ExecutePostWithToken("users/getOutgoingFriendRequests");
-            return response.StatusCode switch
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<List<User>>(response.Content),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetOutgoingFriendRequests();
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         public bool GetOnlineUser(long userId)
         {
-            var response = ExecutePostWithToken("users/getUserOnline", null,
-                new Dictionary<string, string> { { "secondId", userId.ToString() } });
-            return response.StatusCode switch
+            var response = ExecutePostWithToken("users/getUserOnline", queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
+            switch (response.StatusCode)
             {
-                HttpStatusCode.Unauthorized => throw new UnauthorizedException(),
-                HttpStatusCode.OK => JsonConvert.DeserializeObject<bool>((response.Content)),
-                _ => throw new Exception(response.Content)
-            };
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetOnlineUser(userId);
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<bool>((response.Content));
+                default:
+                    throw new Exception(response.Content);
+            }
         }
         //Delete
         public void DeleteFriend(long idUser)
         {
-            var response = ExecutePostWithToken("users/deleteFriend", null,
-                new Dictionary<string, string> { { "secondId", idUser.ToString() } });
+            var response = ExecutePostWithToken("users/deleteFriend", queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteFriend(idUser);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK:
                     {
                         onUpdateFriendList?.Invoke();
@@ -111,7 +177,15 @@ namespace VardoneLibrary.Core.Client
             StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        DeleteMe();
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -122,7 +196,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("users/updateUser", JsonConvert.SerializeObject(update));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        UpdateMe(update);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK:
                     {
                         onUpdateUser?.Invoke(GetMe());
@@ -136,7 +218,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        UpdatePassword(updatePassword);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -146,7 +236,15 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("users/setOnline");
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        UpdateLastOnline();
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK: return;
                 default: throw new Exception(response.Content);
             }
@@ -158,7 +256,14 @@ namespace VardoneLibrary.Core.Client
             StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        CloseCurrentSession();
+                        break;
+                    }
+                    else throw new UnauthorizedException();
             }
         }
         public void CloseAllSessions()
@@ -167,7 +272,14 @@ namespace VardoneLibrary.Core.Client
             StopClient();
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        CloseAllSessions();
+                        break;
+                    }
+                    else throw new UnauthorizedException();
             }
         }
         //Other
@@ -177,7 +289,15 @@ namespace VardoneLibrary.Core.Client
                 new Dictionary<string, string> { { "secondUsername", secondUsername } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        AddFriend(secondUsername);
+                        break;
+                    }
+                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
+                    else goto default;
                 case HttpStatusCode.OK:
                     {
                         onUpdateFriendList?.Invoke();
