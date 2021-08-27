@@ -11,7 +11,6 @@ namespace VardoneApi.Entity.Models.Users
         [Column("id_user"), ForeignKey("id_user"), Required] public UsersTable User { get; set; }
         [Column("token"), Required] public string Token { get; set; }
         [Column("created_at"), Required] public DateTime CreatedAt { get; set; }
-        [Column("ip_address"), Required] public string IpAddress { get; set; }
         [Column("mac_address"), Required] public string MacAddress { get; set; }
     }
 }

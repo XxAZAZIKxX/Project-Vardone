@@ -20,6 +20,7 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]")]
     public class AuthController : ControllerBase
     {
+        private static readonly Random Random = new();
         [HttpPost, Route("authUser")]
         public async Task<IActionResult> AuthUser([FromBody] GetUserTokenApiModel loginRequestModel)
         {
@@ -45,7 +46,6 @@ namespace VardoneApi.Controllers
                 {
                     User = user,
                     CreatedAt = DateTime.Now,
-                    IpAddress = loginRequestModel.IpAddress,
                     MacAddress = loginRequestModel.MacAddress,
                     Token = GenerateToken()
                 };
@@ -53,8 +53,7 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var remove = tokens.First(t =>
-                        t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress &&
-                        t.IpAddress == loginRequestModel.IpAddress);
+                        t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress);
                     tokens.RemoveRange(remove);
                 }
                 catch
@@ -92,7 +91,25 @@ namespace VardoneApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
-        private static string GenerateToken() => CreateMd5(((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()).ToString());
+        private static string GenerateToken() => CreateMd5((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CreateRandomString());
+        private static string CreateRandomString()
+        {
+            var sb = new StringBuilder();
+            var n = Random.Next(1, 23);
+            for (var i = 0; i < n; i++)
+            {
+                switch (Random.Next(1, 3))
+                {
+                    case 1:
+                        sb.Append((char)Random.Next(65, 91));
+                        break;
+                    case 2:
+                        sb.Append((char)Random.Next(97, 123));
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
         private static string CreateMd5(string input)
         {
             // Use input string to calculate MD5 hash
