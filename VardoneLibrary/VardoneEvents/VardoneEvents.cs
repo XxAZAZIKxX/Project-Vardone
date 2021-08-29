@@ -30,5 +30,9 @@
         /// При обновлении статуса
         /// </summary>
         public static VardoneDelegates.UpdateOnlineHandler onUpdateOnline;
+        /// <summary>
+        /// При обновлении в списке серверов
+        /// </summary>
+        public static VardoneDelegates.UpdateGuildListHandler onUpdateGuildList;
     }
 }

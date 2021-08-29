@@ -12,6 +12,10 @@ namespace VardoneLibrary.Core.Client
     public partial class VardoneClient
     {
         //Get
+        /// <summary>
+        /// Получить список приватных чатов текущего пользователя
+        /// </summary>
+        /// <returns></returns>
         public List<PrivateChat> GetPrivateChats()
         {
             var response = ExecutePostWithToken("users/GetPrivateChats");
@@ -31,6 +35,11 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить приватный чат с пользователем
+        /// </summary>
+        /// <param name="userId">Id пользователя</param>
+        /// <returns></returns>
         public PrivateChat GetPrivateChatWithUser(long userId)
         {
             var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
@@ -51,6 +60,13 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить список сообщений с приватного чата
+        /// </summary>
+        /// <param name="chatId">Id чата</param>
+        /// <param name="limit">Количество сообщений</param>
+        /// <param name="startFrom">Начинать с [n] id сообщения</param>
+        /// <returns></returns>
         public List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0)
         {
             var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
@@ -64,7 +80,7 @@ namespace VardoneLibrary.Core.Client
                     if (IsTokenExpired(response))
                     {
                         UpdateToken();
-                        return GetPrivateMessagesFromChat(chatId,limit,startFrom);
+                        return GetPrivateMessagesFromChat(chatId, limit, startFrom);
                     }
                     else if (IsTokenInvalid(response)) throw new UnauthorizedException();
                     else goto default;
@@ -74,6 +90,15 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+
+        /// <summary>
+        /// Получить список сообщений с приватного чата
+        /// </summary>
+        /// <param name="chatId">Id чата</param>
+        /// <param name="read">Обновить ли счетчик прочитанных сообщений</param>
+        /// <param name="limit">Количество сообщений</param>
+        /// <param name="startFrom">Начинать с [n] id сообщения</param>
+        /// <returns></returns>
         internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
         {
             var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
@@ -90,7 +115,7 @@ namespace VardoneLibrary.Core.Client
                     if (IsTokenExpired(response))
                     {
                         UpdateToken();
-                        return GetPrivateMessagesFromChat(chatId,read,limit,startFrom);
+                        return GetPrivateMessagesFromChat(chatId, read, limit, startFrom);
                     }
                     else if (IsTokenInvalid(response)) throw new UnauthorizedException();
                     else goto default;
@@ -101,6 +126,10 @@ namespace VardoneLibrary.Core.Client
             }
         }
         //Other
+        /// <summary>
+        /// Удалить сообщение
+        /// </summary>
+        /// <param name="messageId">Id сообщения</param>
         public void DeletePrivateMessage(long messageId)
         {
             var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null, new Dictionary<string, string>
@@ -122,6 +151,11 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Отправить сообщение пользователю
+        /// </summary>
+        /// <param name="userId">Id пользователя</param>
+        /// <param name="message">Сообщение</param>
         public void SendPrivateMessage(long userId, MessageModel message)
         {
             var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message),
@@ -132,7 +166,7 @@ namespace VardoneLibrary.Core.Client
                     if (IsTokenExpired(response))
                     {
                         UpdateToken();
-                        SendPrivateMessage(userId,message);
+                        SendPrivateMessage(userId, message);
                         break;
                     }
                     else if (IsTokenInvalid(response)) throw new UnauthorizedException();
@@ -141,6 +175,10 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Удалить чат
+        /// </summary>
+        /// <param name="chatId">Id чата</param>
         public void DeleteChat(long chatId)
         {
             var response = ExecutePostWithToken("chats/deletePrivateChat", null,

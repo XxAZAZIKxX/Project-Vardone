@@ -47,6 +47,11 @@ namespace VardoneLibrary.Core.Client
         private Thread _checkUpdatesOutgoingRequestThread;
         private bool _isCheckUpdatesOutgoingRequestThreadWork = true;
         /// <summary>
+        /// Поток проверяющий на обновление списка серверов
+        /// </summary>
+        private Thread _checkUpdatesOnGuildListThread;
+        private bool _isCheckUpdatesOnGuildListThreadWork = true;
+        /// <summary>
         /// Обновлять ли статус текущего пользователя
         /// </summary>
         internal bool setOnline = true;
@@ -55,6 +60,11 @@ namespace VardoneLibrary.Core.Client
         {
             _client = client;
             SetThreads();
+        }
+        ~VardoneClientBackground()
+        {
+            StopThreads();
+            _client = null;
         }
 
         private void SetThreads()
@@ -79,19 +89,16 @@ namespace VardoneLibrary.Core.Client
             //
             _checkUpdatesOutgoingRequestThread = new Thread(CheckUpdatesOutgoingRequestThread);
             _checkUpdatesOutgoingRequestThread.Start();
+            //
+            _checkUpdatesOnGuildListThread = new Thread(CheckUpdateOnGuildListThread);
+            _checkUpdatesOnGuildListThread.Start();
         }
         internal void StopThreads()
         {
             _isCheckPrivateMessageThreadWork = _isSettingOnlineThreadWork =
                 _isCheckingUpdatesOnFriendListThreadWork = _isCheckingUpdatesOnChatListThreadWork =
                     _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
-                        _isCheckUpdatesOutgoingRequestThreadWork = false;
-        }
-
-        ~VardoneClientBackground()
-        {
-            StopThreads();
-            _client = null;
+                        _isCheckUpdatesOutgoingRequestThreadWork = _isCheckUpdatesOnGuildListThreadWork = false;
         }
 
         private void CheckUpdatesOutgoingRequestThread()
@@ -113,7 +120,7 @@ namespace VardoneLibrary.Core.Client
                     if (outgoingFriends.Any(user => !list1.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                     else if (list1.Any(user => !outgoingFriends.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                     list = outgoingFriends;
-                    Thread.Sleep(10 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
                 }
             }
             catch (Exception e)
@@ -137,7 +144,7 @@ namespace VardoneLibrary.Core.Client
                     if (incomingFriends.Any(user => !list1.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke(false);
                     else if (list1.Any(user => !incomingFriends.Contains(user))) onUpdateIncomingFriendRequestList?.Invoke(true);
                     list = incomingFriends;
-                    Thread.Sleep(10 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
                 }
             }
             catch (Exception e)
@@ -167,7 +174,7 @@ namespace VardoneLibrary.Core.Client
                         dict[user.UserId] = onlineUser;
                     }
 
-                    Thread.Sleep(10 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
                 }
             }
             catch (Exception e)
@@ -186,14 +193,12 @@ namespace VardoneLibrary.Core.Client
                 while (_isCheckingUpdatesOnChatListThreadWork)
                 {
                     var privateChats = _client.GetPrivateChats();
-                    var list1 = list;
-                    if (privateChats.Any(privateChat => !list1.Contains(privateChat)))
-                        onUpdateChatList?.Invoke();
-                    else if (list1.Any(privateChat => !privateChats.Contains(privateChat))) onUpdateChatList?.Invoke();
+                    if (privateChats.Any(privateChat => !list.Contains(privateChat))) onUpdateChatList?.Invoke();
+                    else if (list.Any(privateChat => !privateChats.Contains(privateChat))) onUpdateChatList?.Invoke();
 
                     list = privateChats;
 
-                    Thread.Sleep(5 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
             }
             catch (Exception e)
@@ -223,7 +228,7 @@ namespace VardoneLibrary.Core.Client
                     if (friends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
                     if (list1.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
                     list = friends;
-                    Thread.Sleep(5 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
             }
             catch (Exception e)
@@ -241,7 +246,7 @@ namespace VardoneLibrary.Core.Client
                 while (_isSettingOnlineThreadWork)
                 {
                     if (setOnline) _client.UpdateLastOnline();
-                    Thread.Sleep(59 * 1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(59));
                 }
             }
             catch (Exception e)
@@ -299,6 +304,27 @@ namespace VardoneLibrary.Core.Client
                     _isCheckPrivateMessageThreadWork = false;
                 else
                     throw;
+            }
+        }
+        private void CheckUpdateOnGuildListThread()
+        {
+            var list = _client.GetGuilds();
+            try
+            {
+                while (_isCheckUpdatesOnGuildListThreadWork)
+                {
+                    var guilds = _client.GetGuilds();
+                    if (list.Any(p => !guilds.Contains(p))) onUpdateGuildList?.Invoke();
+                    else if (guilds.Any(p => !list.Contains(p))) onUpdateGuildList?.Invoke();
+                    list = guilds;
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException)
+                    _isCheckUpdatesOnGuildListThreadWork = false;
+                else throw;
             }
         }
     }

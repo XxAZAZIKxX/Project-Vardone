@@ -27,10 +27,24 @@ namespace VardoneLibrary.Core.Client
         }
         ~VardoneClient() => StopClient();
 
+        /// <summary>
+        /// Просрочен ли токен
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
         private static bool IsTokenExpired(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Expired" && (string)p.Value == "true");
+        /// <summary>
+        /// Некорректный ли токен
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
         private static bool IsTokenInvalid(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Invalid" && (string)p.Value == "true");
 
         //Get
+        /// <summary>
+        /// Получить объект текущего пользователя
+        /// </summary>
+        /// <returns></returns>
         public User GetMe()
         {
             var response = ExecutePostWithToken("users/getMe");
@@ -51,6 +65,11 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить объект пользователя
+        /// </summary>
+        /// <param name="id">Id пользователя</param>
+        /// <returns></returns>
         public User GetUser(long id)
         {
             var response = ExecutePostWithToken("users/getUser", null, new Dictionary<string, string> { { "secondId", id.ToString() } });
@@ -70,6 +89,10 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить список друзей текущего пользователя
+        /// </summary>
+        /// <returns></returns>
         public List<User> GetFriends()
         {
             var response = ExecutePostWithToken("users/getFriends");
@@ -89,6 +112,10 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить входящие запросы в друзья текущего пользователя
+        /// </summary>
+        /// <returns></returns>
         public List<User> GetIncomingFriendRequests()
         {
             var response = ExecutePostWithToken("users/getIncomingFriendRequests");
@@ -108,6 +135,10 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить исходящие запросы в друзья текущего пользователя
+        /// </summary>
+        /// <returns></returns>
         public List<User> GetOutgoingFriendRequests()
         {
             var response = ExecutePostWithToken("users/getOutgoingFriendRequests");
@@ -127,6 +158,11 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Получить статус "в сети" пользователя
+        /// </summary>
+        /// <param name="userId">Id пользователя</param>
+        /// <returns></returns>
         public bool GetOnlineUser(long userId)
         {
             var response = ExecutePostWithToken("users/getUserOnline", queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
@@ -147,6 +183,10 @@ namespace VardoneLibrary.Core.Client
             }
         }
         //Delete
+        /// <summary>
+        /// Удалить пользователя с друзей
+        /// </summary>
+        /// <param name="idUser">Id пользователя</param>
         public void DeleteFriend(long idUser)
         {
             var response = ExecutePostWithToken("users/deleteFriend", queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
@@ -171,6 +211,9 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Удалить текущего пользователя
+        /// </summary>
         public void DeleteMe()
         {
             var response = ExecutePostWithToken("users/deleteMe");
@@ -191,6 +234,10 @@ namespace VardoneLibrary.Core.Client
             }
         }
         //Update
+        /// <summary>
+        /// Обновить текущего пользователя
+        /// </summary>
+        /// <param name="update"></param>
         public void UpdateMe(UpdateUserModel update)
         {
             var response = ExecutePostWithToken("users/updateUser", JsonConvert.SerializeObject(update));
@@ -213,6 +260,10 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Изменить пароль текущего пользователя
+        /// </summary>
+        /// <param name="updatePassword"></param>
         public void UpdatePassword(UpdatePasswordModel updatePassword)
         {
             var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
@@ -231,6 +282,9 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
+        /// <summary>
+        /// Обновить свой статус "в сети"
+        /// </summary>
         public void UpdateLastOnline()
         {
             var response = ExecutePostWithToken("users/setOnline");
@@ -250,6 +304,9 @@ namespace VardoneLibrary.Core.Client
             }
         }
         //Close
+        /// <summary>
+        /// Закрыть текущую сессию
+        /// </summary>
         public void CloseCurrentSession()
         {
             var response = ExecutePostWithToken("users/closeCurrentSession");
@@ -266,6 +323,9 @@ namespace VardoneLibrary.Core.Client
                     else throw new UnauthorizedException();
             }
         }
+        /// <summary>
+        /// Закрыть сессии на всех устройствах
+        /// </summary>
         public void CloseAllSessions()
         {
             var response = ExecutePostWithToken("users/CloseAllSessions");
@@ -283,6 +343,10 @@ namespace VardoneLibrary.Core.Client
             }
         }
         //Other
+        /// <summary>
+        /// Добавить друга
+        /// </summary>
+        /// <param name="secondUsername">Username пользователя</param>
         public void AddFriend(string secondUsername)
         {
             var response = ExecutePostWithToken("users/addFriend", null,
@@ -308,7 +372,10 @@ namespace VardoneLibrary.Core.Client
                 default: throw new Exception(response.Content);
             }
         }
-        public void UpdateToken()
+        /// <summary>
+        /// Обновить токен Jwt
+        /// </summary>
+        private void UpdateToken()
         {
             var response = ExecutePost(@"auth/updateToken", headers: new Dictionary<string, string>
             {
