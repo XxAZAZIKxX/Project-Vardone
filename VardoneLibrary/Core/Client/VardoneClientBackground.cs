@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using VardoneEntities.Entities;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
 
@@ -14,8 +15,8 @@ namespace VardoneLibrary.Core.Client
         /// <summary>
         /// Поток проверки наличия новых сообщений
         /// </summary>
-        private Thread _checkingPrivateMessageThread;
-        private bool _isCheckPrivateMessageThreadWork = true;
+        private Thread _checkNewPrivateMessageThread;
+        private bool _isCheckNewPrivateMessageThreadWork = true;
         /// <summary>
         /// Поток который обновляет онлайн текущего пользователя
         /// </summary>
@@ -24,13 +25,13 @@ namespace VardoneLibrary.Core.Client
         /// <summary>
         /// Поток проверяющий на обновления списка друзей
         /// </summary>
-        private Thread _checkingUpdatesOnFriendListThread;
-        private bool _isCheckingUpdatesOnFriendListThreadWork = true;
+        private Thread _checkUpdatesOnFriendListThread;
+        private bool _isCheckUpdatesOnFriendListThreadWork = true;
         /// <summary>
         /// Поток проверяющий на обновления списка чатов
         /// </summary>
-        private Thread _checkingUpdatesOnChatListThread;
-        private bool _isCheckingUpdatesOnChatListThreadWork = true;
+        private Thread _checkUpdatesOnChatListThread;
+        private bool _isCheckUpdatesOnChatListThreadWork = true;
         /// <summary>
         /// Поток проверяющий на обновление статуса друзей
         /// </summary>
@@ -51,6 +52,10 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         private Thread _checkUpdatesOnGuildListThread;
         private bool _isCheckUpdatesOnGuildListThreadWork = true;
+        private Thread _checkUpdatesOnChannelsListThread;
+        private bool _isCheckUpdateOnChannelsListThreadWork = true;
+        private Thread _checkNewChannelMessagesThread;
+        private bool _isCheckNewChannelMessagesThreadWork = true;
         /// <summary>
         /// Обновлять ли статус текущего пользователя
         /// </summary>
@@ -69,17 +74,17 @@ namespace VardoneLibrary.Core.Client
 
         private void SetThreads()
         {
-            _checkingPrivateMessageThread = new Thread(CheckingPrivateMessageThread);
-            _checkingPrivateMessageThread.Start();
+            _checkNewPrivateMessageThread = new Thread(CheckingPrivateMessageThread);
+            _checkNewPrivateMessageThread.Start();
             //
             _settingOnlineThread = new Thread(SettingOnlineThread);
             _settingOnlineThread.Start();
             //
-            _checkingUpdatesOnFriendListThread = new Thread(CheckingUpdatesOnFriendListThread);
-            _checkingUpdatesOnFriendListThread.Start();
+            _checkUpdatesOnFriendListThread = new Thread(CheckingUpdatesOnFriendListThread);
+            _checkUpdatesOnFriendListThread.Start();
             //
-            _checkingUpdatesOnChatListThread = new Thread(CheckingUpdatesOnChatListThread);
-            _checkingUpdatesOnChatListThread.Start();
+            _checkUpdatesOnChatListThread = new Thread(CheckingUpdatesOnChatListThread);
+            _checkUpdatesOnChatListThread.Start();
             //
             _checkOnlineUsersThread = new Thread(CheckOnlineUsersThread);
             _checkOnlineUsersThread.Start();
@@ -92,14 +97,21 @@ namespace VardoneLibrary.Core.Client
             //
             _checkUpdatesOnGuildListThread = new Thread(CheckUpdateOnGuildListThread);
             _checkUpdatesOnGuildListThread.Start();
+            //
+            _checkUpdatesOnChannelsListThread = new Thread(CheckUpdatesOnChannelsListThread);
+            _checkUpdatesOnChannelsListThread.Start();
+            //
+            _checkNewChannelMessagesThread = new Thread(CheckNewChannelMessagesThread);
+            _checkNewChannelMessagesThread.Start();
         }
-        internal void StopThreads()
-        {
-            _isCheckPrivateMessageThreadWork = _isSettingOnlineThreadWork =
-                _isCheckingUpdatesOnFriendListThreadWork = _isCheckingUpdatesOnChatListThreadWork =
-                    _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
-                        _isCheckUpdatesOutgoingRequestThreadWork = _isCheckUpdatesOnGuildListThreadWork = false;
-        }
+
+        internal void StopThreads() => _isCheckNewPrivateMessageThreadWork = _isSettingOnlineThreadWork =
+            _isCheckUpdatesOnFriendListThreadWork = _isCheckUpdatesOnChatListThreadWork =
+                _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
+                    _isCheckUpdatesOutgoingRequestThreadWork = _isCheckUpdatesOnGuildListThreadWork =
+                        _isCheckUpdateOnChannelsListThreadWork = _isCheckNewChannelMessagesThreadWork = false;
+
+
 
         private void CheckUpdatesOutgoingRequestThread()
         {
@@ -109,16 +121,9 @@ namespace VardoneLibrary.Core.Client
                 while (_isCheckUpdatesOutgoingRequestThreadWork)
                 {
                     var outgoingFriends = _client.GetOutgoingFriendRequests();
-                    if (list.Count != outgoingFriends.Count)
-                    {
-                        onUpdateFriendList?.Invoke();
-                        list = outgoingFriends;
-                        continue;
-                    }
 
-                    var list1 = list;
-                    if (outgoingFriends.Any(user => !list1.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
-                    else if (list1.Any(user => !outgoingFriends.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
+                    if (outgoingFriends.Any(user => !list.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
+                    else if (list.Any(user => !outgoingFriends.Contains(user))) onUpdateOutgoingFriendRequestList?.Invoke();
                     list = outgoingFriends;
                     Thread.Sleep(TimeSpan.FromSeconds(10));
                 }
@@ -190,7 +195,7 @@ namespace VardoneLibrary.Core.Client
             var list = _client.GetPrivateChats();
             try
             {
-                while (_isCheckingUpdatesOnChatListThreadWork)
+                while (_isCheckUpdatesOnChatListThreadWork)
                 {
                     var privateChats = _client.GetPrivateChats();
                     if (privateChats.Any(privateChat => !list.Contains(privateChat))) onUpdateChatList?.Invoke();
@@ -204,7 +209,7 @@ namespace VardoneLibrary.Core.Client
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckingUpdatesOnChatListThreadWork = false;
+                    _isCheckUpdatesOnChatListThreadWork = false;
                 else
                     throw;
             }
@@ -214,19 +219,12 @@ namespace VardoneLibrary.Core.Client
             var list = _client.GetFriends();
             try
             {
-                while (_isCheckingUpdatesOnFriendListThreadWork)
+                while (_isCheckUpdatesOnFriendListThreadWork)
                 {
                     var friends = _client.GetFriends();
-                    if (list.Count != friends.Count)
-                    {
-                        onUpdateFriendList?.Invoke();
-                        list = friends;
-                        continue;
-                    }
 
-                    var list1 = list;
-                    if (friends.Any(user => !list1.Contains(user))) onUpdateFriendList?.Invoke();
-                    if (list1.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
+                    if (friends.Any(user => !list.Contains(user))) onUpdateFriendList?.Invoke();
+                    if (list.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
                     list = friends;
                     Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
@@ -234,7 +232,7 @@ namespace VardoneLibrary.Core.Client
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckingUpdatesOnFriendListThreadWork = false;
+                    _isCheckUpdatesOnFriendListThreadWork = false;
                 else
                     throw;
             }
@@ -276,7 +274,7 @@ namespace VardoneLibrary.Core.Client
 
             try
             {
-                while (_isCheckPrivateMessageThreadWork)
+                while (_isCheckNewPrivateMessageThreadWork)
                 {
                     foreach (var chat in _client.GetPrivateChats())
                     {
@@ -301,7 +299,7 @@ namespace VardoneLibrary.Core.Client
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckPrivateMessageThreadWork = false;
+                    _isCheckNewPrivateMessageThreadWork = false;
                 else
                     throw;
             }
@@ -325,6 +323,36 @@ namespace VardoneLibrary.Core.Client
                 if (e is UnauthorizedException)
                     _isCheckUpdatesOnGuildListThreadWork = false;
                 else throw;
+            }
+        }
+
+
+
+        private void CheckUpdatesOnChannelsListThread()
+        {
+            var list = new List<Channel>();
+            foreach (var guild in _client.GetGuilds()) list.AddRange(_client.GetGuildChannels(guild.GuildId));
+
+            while (_isCheckUpdateOnChannelsListThreadWork)
+            {
+                var channels = new List<Channel>();
+                foreach (var guild in _client.GetGuilds()) channels.AddRange(_client.GetGuildChannels(guild.GuildId));
+
+                foreach (var p in channels.Where(p => !list.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
+                foreach (var p in list.Where(p => !channels.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
+
+                list = channels;
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+            }
+        }
+
+        private void CheckNewChannelMessagesThread()
+        {
+            var dictionary = new Dictionary<long, long>();
+            
+            while (_isCheckNewChannelMessagesThreadWork)
+            {
+
             }
         }
     }

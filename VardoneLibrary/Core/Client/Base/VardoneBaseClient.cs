@@ -1,9 +1,9 @@
-﻿using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using RestSharp;
 using VardoneLibrary.Exceptions;
 
-namespace VardoneLibrary.Core.Base
+namespace VardoneLibrary.Core.Client.Base
 {
     public abstract class VardoneBaseClient : VardoneBaseApi
     {

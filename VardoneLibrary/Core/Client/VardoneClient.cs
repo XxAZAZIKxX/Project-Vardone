@@ -6,7 +6,7 @@ using System.Net;
 using RestSharp;
 using VardoneEntities.Entities;
 using VardoneEntities.Models.GeneralModels.Users;
-using VardoneLibrary.Core.Base;
+using VardoneLibrary.Core.Client.Base;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
 

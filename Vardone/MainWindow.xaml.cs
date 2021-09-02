@@ -6,8 +6,8 @@ using System.Windows.Interop;
 using Notifications.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
-using VardoneLibrary.Core.Base;
 using VardoneLibrary.Core.Client;
+using VardoneLibrary.Core.Client.Base;
 using WinForms = System.Windows.Forms;
 
 namespace Vardone

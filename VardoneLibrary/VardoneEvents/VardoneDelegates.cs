@@ -12,5 +12,6 @@ namespace VardoneLibrary.VardoneEvents
         public delegate void UpdateIncomingFriendRequestListHandler(bool becameLess);
         public delegate void UpdateFriendListHandler();
         public delegate void UpdateGuildListHandler();
+        public delegate void UpdateChannelListHandler(Guild guild);
     }
 }

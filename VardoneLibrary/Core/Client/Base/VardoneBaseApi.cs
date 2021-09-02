@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using RestSharp;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
+using Newtonsoft.Json;
+using RestSharp;
 using VardoneEntities.Models.ClientModels;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneLibrary.Core.Base
+namespace VardoneLibrary.Core.Client.Base
 {
     public abstract class VardoneBaseApi
     {
@@ -39,11 +39,11 @@ namespace VardoneLibrary.Core.Base
             {
                 {"Authorization", $"Bearer {token}"}
             });
-            switch (response.StatusCode)
+            return response.StatusCode switch
             {
-                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<bool>(response.Content);
-                default: return false;
-            }
+                HttpStatusCode.OK => JsonConvert.DeserializeObject<bool>(response.Content),
+                _ => false
+            };
         }
     }
 }

@@ -34,5 +34,7 @@
         /// При обновлении в списке серверов
         /// </summary>
         public static VardoneDelegates.UpdateGuildListHandler onUpdateGuildList;
+
+        public static VardoneDelegates.UpdateChannelListHandler onUpdateChannelList;
     }
 }

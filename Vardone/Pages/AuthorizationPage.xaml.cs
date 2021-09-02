@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core;
-using VardoneLibrary.Core.Base;
 using VardoneLibrary.Core.Client;
+using VardoneLibrary.Core.Client.Base;
 
 namespace Vardone.Pages
 {
