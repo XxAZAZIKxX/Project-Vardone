@@ -1,7 +1,4 @@
-using System;
-using System.Threading;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using VardoneApi.Entity;

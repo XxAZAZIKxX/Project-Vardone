@@ -20,7 +20,7 @@ namespace VardoneApi.Controllers
         private static readonly Random Random = new();
         //
         [HttpPost, Route("getBannedGuildMembers")]
-        public async Task<IActionResult> GetBannedGuildMembers( [FromQuery] long guildId)
+        public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -76,7 +76,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildChannels")]
-        public async Task<IActionResult> GetGuildChannels( [FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildChannels([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -140,7 +140,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildInvites")]
-        public async Task<IActionResult> GetGuildInvites( [FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildInvites([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -207,7 +207,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildMembers")]
-        public async Task<IActionResult> GetGuildMembers( [FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildMembers([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -268,7 +268,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("createGuild")]
-        public async Task<IActionResult> CreateGuild( [FromQuery] string name = null)
+        public async Task<IActionResult> CreateGuild([FromQuery] string name = null)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -319,7 +319,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("deleteGuild")]
-        public async Task<IActionResult> DeleteGuild( [FromQuery] long guildId)
+        public async Task<IActionResult> DeleteGuild([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -361,7 +361,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("deleteGuildInvite")]
-        public async Task<IActionResult> DeleteGuildInvite( [FromQuery] long inviteId)
+        public async Task<IActionResult> DeleteGuildInvite([FromQuery] long inviteId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -406,7 +406,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("updateGuild")]
-        public async Task<IActionResult> UpdateGuild( [FromBody] UpdateGuildModel updateModel)
+        public async Task<IActionResult> UpdateGuild([FromBody] UpdateGuildModel updateModel)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -462,12 +462,11 @@ namespace VardoneApi.Controllers
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //
         [HttpPost, Route("banGuildMember")]
-        public async Task<IActionResult> BanGuildMember( [FromQuery] long secondId, [FromQuery] long guildId, [FromQuery] string reason = null)
+        public async Task<IActionResult> BanGuildMember([FromQuery] long secondId, [FromQuery] long guildId, [FromQuery] string reason = null)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -519,12 +518,57 @@ namespace VardoneApi.Controllers
                 {
                     return Problem(e.Message);
                 }
+            }));
+        }
+        //
+        [HttpPost, Route("unbanGuildMember")]
+        public async Task<IActionResult> UnbanGuildMember([FromQuery] long secondId, [FromQuery] long guildId)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                long userId;
+                string token;
+                try
+                {
+                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
+                    token = User.Claims.First(p => p.Type == "token").Value;
+                }
+                catch
+                {
+                    return BadRequest("Token parser problem");
+                }
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
 
+                if (!GuildChecks.IsUserOwner(userId, guildId)) return BadRequest("You are not owner");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("Second user is not exists");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.User).Load();
+                    var bannedGuildMembers = dataContext.BannedGuildMembers;
+                    bannedGuildMembers.Include(p => p.User).Load();
+                    bannedGuildMembers.Include(p => p.Guild).Load();
+
+                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
+                    dataContext.SaveChanges();
+                    return Ok("Unbanned");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
             }));
         }
         //
         [HttpPost, Route("createGuildInvite")]
-        public async Task<IActionResult> CreateGuildInvite( [FromQuery] long guildId)
+        public async Task<IActionResult> CreateGuildInvite([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -617,7 +661,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("joinGuild")]
-        public async Task<IActionResult> JoinGuild( [FromQuery] string inviteCode)
+        public async Task<IActionResult> JoinGuild([FromQuery] string inviteCode)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -676,7 +720,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("kickGuildMember")]
-        public async Task<IActionResult> KickGuildMember( [FromQuery] long secondId, [FromQuery] long guildId)
+        public async Task<IActionResult> KickGuildMember([FromQuery] long secondId, [FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -719,7 +763,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("leaveGuild")]
-        public async Task<IActionResult> LeaveGuild( [FromQuery] long guildId)
+        public async Task<IActionResult> LeaveGuild([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
