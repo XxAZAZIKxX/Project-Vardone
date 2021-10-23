@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Net.NetworkInformation;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace VardoneApi.Core
+namespace VardoneApi.Core.Checks
 {
     public abstract class GuildChecks
     {

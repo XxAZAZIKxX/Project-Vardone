@@ -1,4 +1,4 @@
-﻿<Page x:Class="Vardone.Pages.DeployImagePage"
+﻿<Page x:Class="Vardone.Pages.Popup.DeployImagePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,7 +21,7 @@
                Grid.Row="0" 
                Grid.Column="2" 
                Opacity="0.2"
-               Source="../Resources/download.png"/>
+               Source="../../Resources/download.png"/>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20*" />
             <ColumnDefinition Width="60*" />

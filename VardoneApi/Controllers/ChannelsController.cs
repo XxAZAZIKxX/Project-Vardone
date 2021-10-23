@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
+using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -273,7 +275,7 @@ namespace VardoneApi.Controllers
                                 {
                                     GuildId = item.Channel.Guild.Id,
                                     Name = item.Channel.Guild.Name,
-                                    Base64Avatar = item.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(item.Channel.Guild.Info.Avatar) : null
+                                    Base64Avatar = item.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(item.Channel.Guild.Info.Avatar) : null,
                                 }
                             }
                         });

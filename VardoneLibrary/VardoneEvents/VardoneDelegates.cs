@@ -1,4 +1,6 @@
 ﻿using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
+using VardoneEntities.Entities.Guild;
 
 namespace VardoneLibrary.VardoneEvents
 {

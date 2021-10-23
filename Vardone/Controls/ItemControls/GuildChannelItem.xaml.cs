@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Vardone.Pages;
+using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Controls.ItemControls
 {
     /// <summary>
     /// Interaction logic for GuildChannelItem.xaml
     /// </summary>
-    public partial class GuildChannelItem : UserControl
+    public partial class GuildChannelItem
     {
-        public GuildChannelItem()
+        public Channel channel;
+        public GuildChannelItem([NotNull] Channel channel)
         {
             InitializeComponent();
+            this.channel = channel;
+            ChannelName.Text = this.channel.Name;
         }
+
+        private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadChannel(channel);
     }
 }

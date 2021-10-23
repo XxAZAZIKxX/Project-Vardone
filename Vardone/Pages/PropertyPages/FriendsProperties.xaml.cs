@@ -4,7 +4,7 @@ using System.Windows.Input;
 using Notifications.Wpf;
 using Vardone.Controls.ItemControls;
 
-namespace Vardone.Pages
+namespace Vardone.Pages.PropertyPages
 {
     /// <summary>
     /// Interaction logic for FriendsProperties.xaml

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace VardoneApi.Core
+namespace VardoneApi.Core.Checks
 {
     public abstract class ChannelChecks
     {

@@ -1,4 +1,4 @@
-﻿<Page x:Class="Vardone.Pages.UserProfilePage"
+﻿<Page x:Class="Vardone.Pages.Popup.UserProfilePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -62,7 +62,7 @@
                        x:Name="Message"
                        MouseDown="Message_OnMouseDown"
                        Margin="0,79,74,0"
-                       Source="../Resources/message.png" 
+                       Source="../../Resources/message.png" 
                        VerticalAlignment="Top" 
                        HorizontalAlignment="Right"/>
             </Grid>

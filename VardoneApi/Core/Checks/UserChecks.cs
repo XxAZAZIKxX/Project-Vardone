@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using VardoneEntities.Models.GeneralModels.Users;
 
-namespace VardoneApi.Core
+namespace VardoneApi.Core.Checks
 {
     public abstract class UserChecks
     {

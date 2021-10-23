@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Exceptions;

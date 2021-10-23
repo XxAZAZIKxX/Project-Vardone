@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VardoneEntities.Entities
+namespace VardoneEntities.Entities.Chat
 {
     /// <summary>
     /// Представляет объект приватного чата

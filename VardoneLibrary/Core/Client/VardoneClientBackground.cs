@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using VardoneEntities.Entities;
+using VardoneEntities.Entities.Guild;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
 
@@ -281,7 +281,7 @@ namespace VardoneLibrary.Core.Client
                         var privateMessages = _client.GetPrivateMessagesFromChat(chat.ChatId, read: false, 1).OrderByDescending(p => p.MessageId).ToList();
                         if (privateMessages.Count == 0) continue;
                         var message = privateMessages[0];
-                        if (message is null) continue;
+                        if (message is null || message.Author.UserId == _client.GetMe().UserId) continue;
                         if (!dictionary.ContainsKey(chat.ChatId))
                         {
                             dictionary[chat.ChatId] = message.MessageId;

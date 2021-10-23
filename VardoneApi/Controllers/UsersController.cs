@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Core;
+using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
+using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -22,14 +26,14 @@ namespace VardoneApi.Controllers
                 var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
                 var token = User.Claims.First(p => p.Type == "token").Value;
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondUsername)) return BadRequest("Friend does not exist");
-                if (Core.UserChecks.IsFriends(userId, secondUsername)) return Ok();
+                if (!UserChecks.IsUserExists(secondUsername)) return BadRequest("Friend does not exist");
+                if (UserChecks.IsFriends(userId, secondUsername)) return Ok();
                 var dataContext = Program.DataContext;
                 var friendsList = dataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Load();
@@ -76,14 +80,14 @@ namespace VardoneApi.Controllers
                 var token = User.Claims.First(p => p.Type == "token").Value;
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (userId == secondId) return BadRequest("Username equal second userId");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second userId does not exists");
-                return Ok(!Core.UserChecks.IsFriends(userId, secondId));
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("Second userId does not exists");
+                return Ok(!UserChecks.IsFriends(userId, secondId));
             }));
         }
 
@@ -97,13 +101,13 @@ namespace VardoneApi.Controllers
                 var token = User.Claims.First(p => p.Type == "token").Value;
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (userId == secondId) return BadRequest("Username equal friend userId");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
                 var dataContext = Program.DataContext;
                 var friendsList = dataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Include(p => p.ToUser).Load();
@@ -134,7 +138,7 @@ namespace VardoneApi.Controllers
                 var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
                 var token = User.Claims.First(p => p.Type == "token").Value;
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -181,7 +185,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -233,7 +237,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -286,7 +290,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -323,14 +327,14 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
-                if (!Core.UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
+                if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -361,14 +365,14 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("User is not exists");
-                if (!Core.UserChecks.CanGetUser(userId, secondId)) return BadRequest("No access");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User is not exists");
+                if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("No access");
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -402,7 +406,7 @@ namespace VardoneApi.Controllers
             var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -424,7 +428,8 @@ namespace VardoneApi.Controllers
                             Name = item.Guild.Name,
                             Base64Avatar = item.Guild.Info?.Avatar is not null
                                 ? Convert.ToBase64String(item.Guild.Info.Avatar)
-                                : null
+                                : null,
+                            Channels = GuildCreateHelper.GetGuildChannels(item.Id)
                         });
                     }
 
@@ -446,7 +451,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -517,7 +522,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -549,7 +554,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -581,7 +586,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -611,7 +616,7 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -659,7 +664,7 @@ namespace VardoneApi.Controllers
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (updatePasswordModel is null) return BadRequest("Empty updatePasswordModel");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -696,13 +701,13 @@ namespace VardoneApi.Controllers
             {
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (updateUserModel == null) return BadRequest("Empty user model");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (updateUserModel.Email is not null && !Core.UserChecks.IsEmailAvailable(updateUserModel.Email))
+                if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email))
                     return BadRequest("Email is booked");
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;

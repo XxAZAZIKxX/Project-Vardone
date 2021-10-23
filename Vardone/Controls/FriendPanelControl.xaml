@@ -1,10 +1,9 @@
-﻿<UserControl x:Class="Vardone.Controls.ItemControls.FriendPanelControl"
+﻿<UserControl x:Class="Vardone.Controls.FriendPanelControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Vardone.Controls.ItemControls"
-             mc:Ignorable="d" Width="250" Height="450" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" Width="250"
              d:DesignHeight="450" d:DesignWidth="250">
     <Grid>
         <Grid.RowDefinitions>
@@ -12,22 +11,21 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Border Background="#202020" Cursor="Hand" BorderThickness="0" CornerRadius="0,50,0,0"
-                    Grid.Row="0"   >
-            <!--MouseDown="OpenFriendsProperties"-->
+                Grid.Row="0" MouseDown="OpenFriendsProperties">
+
             <TextBlock Text="Настройки друзей" Foreground="WhiteSmoke"
-                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                           Background="Transparent"
-                         />
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Background="Transparent" />
         </Border>
         <Border Grid.Row="1" Background="#202020">
 
             <TabControl TabStripPlacement="Top"
-                            Background="#202020"
-                            BorderThickness="0">
+                        Background="#202020"
+                        BorderThickness="0">
                 <TabItem Foreground="Gray" Header=" Друзья  ">
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <StackPanel x:Name="FriendListGrid"
-                                        VerticalAlignment="Top" />
+                                    VerticalAlignment="Top" />
 
                     </ScrollViewer>
                 </TabItem>
@@ -44,11 +42,11 @@
                                 <ControlTemplate TargetType="{x:Type TabItem}">
                                     <Grid>
                                         <Border x:Name="Border" Cursor="Hand" BorderThickness="0"
-                                                    Padding="22.9,0,21,0">
+                                                Padding="22.9,0,21,0">
                                             <ContentPresenter VerticalAlignment="Center"
-                                                                  HorizontalAlignment="Center"
-                                                                  ContentSource="Header" Margin="11,2,11.5,2"
-                                                                  RecognizesAccessKey="True" />
+                                                              HorizontalAlignment="Center"
+                                                              ContentSource="Header" Margin="11,2,11.5,2"
+                                                              RecognizesAccessKey="True" />
                                         </Border>
                                     </Grid>
                                     <ControlTemplate.Triggers>
@@ -68,7 +66,7 @@
             </TabControl>
         </Border>
         <Rectangle Fill="#423f3f" Grid.Row="0" VerticalAlignment="Top"
-                       Height="1" Width="200" />
+                   Height="1" Width="200" />
 
     </Grid>
 </UserControl>

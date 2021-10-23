@@ -46,7 +46,7 @@ namespace Vardone
             {
                 Visible = true,
                 Text = "Vardone",
-                Icon = new Icon(Path + @"\resources\va.ico"),
+                Icon = new Icon(Path + @"\resources\contentRes\va.ico"),
                 ContextMenuStrip = new WinForms.ContextMenuStrip()
             };
             _trayIcon.MouseClick += TrayIconOnMouseClick;

@@ -1,4 +1,4 @@
-﻿<Page x:Class="Vardone.Pages.GuildProperties"
+﻿<Page x:Class="Vardone.Pages.PropertyPages.GuildProperties"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -49,7 +49,7 @@
                                                  Width="70" Height="70"
                                                  HorizontalAlignment="Left">
                                             <Ellipse.Fill>
-                                                <ImageBrush  x:Name="AvatarImage" ImageSource="../Resources/avatar.jpg"
+                                                <ImageBrush  x:Name="AvatarImage" ImageSource="../../Resources/avatar.jpg"
                                                             Stretch="UniformToFill"  />
                                             </Ellipse.Fill>
                                         </Ellipse>
@@ -60,7 +60,7 @@
                                                HorizontalAlignment="Left"
                                                Margin="130,0,0,0"
                                                VerticalAlignment="Center" />
-                                        <Button Click="ExitButtonClick" Width="140" HorizontalAlignment="Right"
+                                        <Button  Width="140" HorizontalAlignment="Right"
                                                 Template="{StaticResource ButtonExit}"
                                                 Height="30" Foreground="#CD2020"
                                                 FontSize="16"
@@ -101,21 +101,21 @@
                                                 HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,25,20,0"
-                                                Click="Username_ChangeBtn"/>
+                                               />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="EmailChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,65,20,0"
-                                                Click="Email_ChangeBtn"/>
+                                                />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="DescChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,105,20,0"
-                                                Click="Description_ChangeBtn"/>
+                                               />
                                     </Grid>
                                 </Border>
                                 <Grid.RowDefinitions>
@@ -137,7 +137,6 @@
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
                                     Width="100" Height="30" 
-                                    Click="PasswordButton_SaveClick"
                                     Margin="0,20,0,20" >
 
                             </Button>
@@ -145,7 +144,6 @@
                                 x:Name="CancelBtn" Content="Отменить" Foreground="White"
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Width="100" Height="30" Click="PasswordButton_CancelClick"
                                     Margin="0,70,0,20" >
 
                             </Button>
@@ -179,14 +177,14 @@
                                FontWeight="Light" Opacity="0.7"
                                FontSize="20" Content="Дополнительные настройки" />
                         <Grid>
-                            <Button Click="ExitEverywhereButtonClick" Width="240" HorizontalAlignment="Left"
+                            <Button  Width="240" HorizontalAlignment="Left"
                                     Template="{StaticResource ButtonExit}"
                                     Height="35" Foreground="#CD2020"
                                     FontSize="16"
                                     Margin="0,20,30,0"
                                     VerticalAlignment="Center"
                                     Content="Завершить все сеансы" />
-                            <Button Click="DeleteAccountButtonClick" Width="240" HorizontalAlignment="Right"
+                            <Button Width="240" HorizontalAlignment="Right"
                                     Template="{StaticResource ButtonExit}"
                                     Height="35" Foreground="#CD2020"
                                     FontSize="16"
@@ -204,7 +202,7 @@
                Width="35" Opacity="0.5"
                Margin="25,0,0,0"
                HorizontalAlignment="Left" 
-               Source="../Resources/exit.png"/>
+               Source="../../Resources/exit.png"/>
 
 
         <Grid.RowDefinitions>

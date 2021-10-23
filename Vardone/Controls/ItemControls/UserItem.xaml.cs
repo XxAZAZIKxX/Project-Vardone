@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -13,22 +14,21 @@ namespace Vardone.Controls.ItemControls
         Chat,
         Friend
     }
+
     /// <summary>
-    /// Interaction logic for UserItem.xaml
+    ///     Interaction logic for UserItem.xaml
     /// </summary>
     public partial class UserItem
     {
         public User User { get; }
         public UserItemType Type { get; }
-        public UserItem(User user, UserItemType type)
+
+        public UserItem([NotNull] User user, UserItemType type)
         {
             InitializeComponent();
             User = user;
             Username.Content = user.Username;
-
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
-
-
             Type = type;
             switch (Type)
             {
@@ -80,21 +80,18 @@ namespace Vardone.Controls.ItemControls
         }
 
         private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
+
         private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User, MainPage.Client.GetOnlineUser(User.UserId));
 
         private void DeleteFriend(object sender, RoutedEventArgs e)
         {
-            var messageBoxResult = MessageBox.Show("Вы действительно хотите удалить друга?", "Подтвердите", MessageBoxButton.OKCancel);
+            var messageBoxResult = MessageBox.Show("Вы действительно хотите удалить друга?", "Подтвердите",
+                MessageBoxButton.OKCancel);
             if (messageBoxResult != MessageBoxResult.OK) return;
             MainPage.Client.DeleteFriend(User.UserId);
             MainPage.GetInstance().LoadFriendList();
         }
 
-        private void SendMessage(object sender, RoutedEventArgs e)
-        {
-            MainPage.GetInstance().LoadPrivateChat(User.UserId);
-        }
-
-
+        private void SendMessage(object sender, RoutedEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
     }
 }

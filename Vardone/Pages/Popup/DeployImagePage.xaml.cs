@@ -3,7 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Vardone.Core;
 
-namespace Vardone.Pages
+namespace Vardone.Pages.Popup
 {
     /// <summary>
     /// Логика взаимодействия для DeployImagePage.xaml

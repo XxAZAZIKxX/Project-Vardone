@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -31,13 +33,13 @@ namespace VardoneApi.Controllers
                     return BadRequest("Token parser problem");
                 }
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
 
                 var dataContext = Program.DataContext;
                 var privateChats = dataContext.PrivateChats;
@@ -133,14 +135,14 @@ namespace VardoneApi.Controllers
                     return BadRequest("Token parser problem");
                 }
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!Core.PrivateChatChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
 
                 try
                 {
@@ -206,7 +208,7 @@ namespace VardoneApi.Controllers
                                 },
                                 Text = message.Text,
                                 Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image),
-                                CreateTime = message.CreatedTime
+                                CreatedTime = message.CreatedTime
                             });
                         }
 
@@ -243,14 +245,14 @@ namespace VardoneApi.Controllers
                 if (message == null) return BadRequest("Empty message");
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
                 if (userId == secondId) return BadRequest("Username equal second username");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.UserChecks.IsUserExists(secondId)) return BadRequest();
-                if (!Core.PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest();
+                if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
                 if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image)) return BadRequest("Empty message");
 
                 try
@@ -268,7 +270,7 @@ namespace VardoneApi.Controllers
 
                     PrivateChatsTable chat;
 
-                    if (!Core.PrivateChatChecks.IsChatExists(userId, secondId))
+                    if (!PrivateChatChecks.IsChatExists(userId, secondId))
                     {
                         chat = new PrivateChatsTable { FromUser = user1, ToUser = user2 };
                         chats.Add(chat);
@@ -316,14 +318,14 @@ namespace VardoneApi.Controllers
                     return BadRequest("Token parser problem");
                 }
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (!Core.PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!Core.PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
 
                 try
                 {
@@ -357,7 +359,7 @@ namespace VardoneApi.Controllers
                     return BadRequest("Token parser problem");
                 }
                 if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!Core.UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");

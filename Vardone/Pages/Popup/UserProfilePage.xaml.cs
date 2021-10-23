@@ -4,7 +4,7 @@ using System.Windows.Media;
 using Vardone.Core;
 using VardoneEntities.Entities;
 
-namespace Vardone.Pages
+namespace Vardone.Pages.Popup
 {
     /// <summary>
     /// Interaction logic for UserProfilePage.xaml

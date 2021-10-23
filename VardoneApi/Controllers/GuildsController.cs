@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
+using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 

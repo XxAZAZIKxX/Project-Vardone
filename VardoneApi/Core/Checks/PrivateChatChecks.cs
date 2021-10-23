@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace VardoneApi.Core
+namespace VardoneApi.Core.Checks
 {
     public abstract class PrivateChatChecks
     {

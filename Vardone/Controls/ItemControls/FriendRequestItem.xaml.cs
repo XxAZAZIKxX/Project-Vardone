@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
 using Vardone.Pages;
+using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities;
 
 namespace Vardone.Controls.ItemControls
@@ -21,7 +23,7 @@ namespace Vardone.Controls.ItemControls
     {
         public User User { get; }
         public RequestType Type { get; }
-        public FriendRequestItem(User user, RequestType type)
+        public FriendRequestItem([NotNull] User user, RequestType type)
         {
             InitializeComponent();
             User = user;

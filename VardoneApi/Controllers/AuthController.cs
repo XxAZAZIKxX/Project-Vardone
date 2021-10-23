@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Models.ApiModels;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -135,7 +136,7 @@ namespace VardoneApi.Controllers
                         UserId = Convert.ToInt64((User.Claims.First(p => p.Type == "id")).Value),
                         Token = User.Claims.First(p => p.Type == "token").Value
                     };
-                    if (Core.UserChecks.CheckToken(request)) return Ok(true);
+                    if (UserChecks.CheckToken(request)) return Ok(true);
                     return BadRequest();
                 }
                 catch
@@ -215,7 +216,7 @@ namespace VardoneApi.Controllers
                     return BadRequest("Incorrect token");
                 }
 
-                if (!Core.UserChecks.CheckToken(model))
+                if (!UserChecks.CheckToken(model))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");

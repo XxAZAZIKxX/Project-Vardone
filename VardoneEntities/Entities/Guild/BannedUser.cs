@@ -1,4 +1,4 @@
-﻿namespace VardoneEntities.Entities
+﻿namespace VardoneEntities.Entities.Guild
 {
     public class BannedUser
     {

@@ -3,12 +3,12 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using Vardone.Core;
 using Notifications.Wpf;
+using Vardone.Core;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
 
-namespace Vardone.Pages
+namespace Vardone.Pages.PropertyPages
 {
     /// <summary>
     /// Логика взаимодействия для PropertiesPage.xaml

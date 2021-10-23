@@ -15,6 +15,7 @@
     <None Remove="Resources\avatar.jpg" />
     <None Remove="Resources\Backgrounds\wallpaper.jpg" />
     <None Remove="Resources\clip.png" />
+    <None Remove="Resources\ContentRes\avatar.jpg" />
     <None Remove="Resources\cross.ico" />
     <None Remove="Resources\download.png" />
     <None Remove="Resources\exit.png" />
@@ -28,30 +29,36 @@
     <Resource Include="Resources\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Content Include="Resources\Backgrounds\wallpaper.jpg">
+    <Resource Include="Resources\Backgrounds\wallpaper.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\clip.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Content Include="Resources\ContentRes\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\clip.png">
+    <Resource Include="Resources\va.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\cross.ico">
+    </Resource>
+    <Resource Include="Resources\cross.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\download.png">
+    </Resource>
+    <Resource Include="Resources\download.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\exit.png">
+    </Resource>
+    <Resource Include="Resources\exit.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\gear.png">
+    </Resource>
+    <Resource Include="Resources\gear.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\message.png">
+    </Resource>
+    <Resource Include="Resources\message.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\tick.ico">
+    </Resource>
+    <Resource Include="Resources\tick.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -60,7 +67,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\va.ico">
+    <Content Include="Resources\ContentRes\va.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VardoneEntities.Entities
+namespace VardoneEntities.Entities.Guild
 {
     public class ChannelMessage
     {

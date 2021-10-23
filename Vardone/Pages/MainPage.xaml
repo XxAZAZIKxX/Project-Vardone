@@ -5,8 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
-      xmlns:local1="clr-namespace:Vardone.Controls.ItemControls"
-      
+      xmlns:controls="clr-namespace:Vardone.Controls"
+      xmlns:itemControls="clr-namespace:Vardone.Controls.ItemControls"
+
       Title="MainPage">
 
     <Grid>
@@ -16,7 +17,9 @@
                 <GradientStop Color="White" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
-        <Border Background="#141313" BorderThickness="0" BorderBrush="#141313" Grid.Column="0" Grid.Row="0">
+        <Border Background="#141313" BorderThickness="0" 
+                BorderBrush="#141313" Grid.Column="0" Grid.Row="0"
+                MouseLeftButtonDown="PrivateChatButtonClicked">
             <Image Cursor="Hand" Source="/Resources/va.ico" />
         </Border>
         <Grid Grid.Row="1" Grid.Column="0" Background="#141313">
@@ -27,18 +30,18 @@
             <!--<ScrollViewer Width="5" HorizontalAlignment="Right" Visibility="Collapsed">-->
 
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="1">
-            <!--<local1:FriendPanelControl x:Name="FriendPanelControl" Visibility="Hidden" />-->
-            <local1:ServerPanelControl x:Name="ServerPanelControl" Visibility="Visible" />
+        <Grid Grid.Row="1" Grid.Column="1" x:Name="ChatsGrid">
+            <!--<controls:FriendPanelControl x:Name="FriendPanel" Visibility="Hidden" />-->
+            <!--<controls:GuildPanelControl x:Name="GuildPanel" Visibility="Visible" />-->
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0">
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
-                    <StackPanel x:Name="GuildListGrid"
+                    <StackPanel x:Name="GuildList"
                                         VerticalAlignment="Top" >
-                        <local1:GuildItem x:Name="GuildItem" Visibility="Visible" />
+                        <!--<itemControls:GuildItem x:Name="GuildItem" Visibility="Visible" />-->
                     </StackPanel>
-                    <Grid x:Name="AddServer">
+                    <Grid x:Name="AddServerButton">
                         <Ellipse Stroke="MediumPurple" Width="35" Margin="0,5,0,0" 
                              Height="35"  HorizontalAlignment="Center"/>
                         <Ellipse Stroke="LightGray" Width="30" Margin="0,5,0,0" Height="30"  HorizontalAlignment="Center">

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Exceptions;
 using static VardoneLibrary.VardoneEvents.VardoneEvents;
