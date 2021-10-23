@@ -48,8 +48,8 @@ namespace Vardone.Pages
         public void ExitFromAccount()
         {
             Client = null;
-            ChatListGrid.Children.Clear();
-            FriendListGrid.Children.Clear();
+           // ChatListGrid.Children.Clear();
+           // FriendListGrid.Children.Clear();
             PrivateChatHeader.Children.Clear();
             ChatMessagesGrid.Children.Clear();
             MyAvatar.ImageSource = null;
@@ -91,7 +91,7 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var onlineUser = Client.GetOnlineUser(user.UserId);
-                    foreach (var userItem in FriendListGrid.Children.Cast<UserItem>())
+                    /*foreach (var userItem in FriendListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != user.UserId) continue;
                         userItem.SetStatus(onlineUser);
@@ -103,7 +103,7 @@ namespace Vardone.Pages
                         if (userItem.User.UserId != user.UserId) continue;
                         userItem.SetStatus(onlineUser);
                         break;
-                    }
+                    }*/
 
                     foreach (var friendRequestItem in FriendsProperties.GetInstance().IncomingRequest.Children.Cast<FriendRequestItem>())
                     {
@@ -149,12 +149,12 @@ namespace Vardone.Pages
                     if (PrivateChatHeader.Children.Count == 0) return;
                     var userId = ((UserItem)PrivateChatHeader.Children[0]).User.UserId;
                     if (userId == message.Author.UserId) LoadPrivateChat(userId);
-                    foreach (var userItem in ChatListGrid.Children.Cast<UserItem>())
+                    /*foreach (var userItem in ChatListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != message.Author.UserId) continue;
                         userItem.SetCountMessages(Client.GetPrivateChatWithUser(message.Author.UserId).UnreadMessages);
                         break;
-                    }
+                    }*/
                 });
             });
         }
@@ -224,14 +224,14 @@ namespace Vardone.Pages
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    ChatListGrid.Children.Clear();
+                   /* ChatListGrid.Children.Clear();
                     foreach (var chat in Client.GetPrivateChats().OrderBy(p => p.ToUser.Username).ThenByDescending(p => p.UnreadMessages))
                     {
                         var friendGridItem = new UserItem(chat.ToUser, UserItemType.Chat);
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
                         friendGridItem.SetCountMessages(chat.UnreadMessages);
                         ChatListGrid.Children.Add(friendGridItem);
-                    }
+                    }*/
                 });
             });
         }
@@ -242,12 +242,12 @@ namespace Vardone.Pages
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    FriendListGrid.Children.Clear();
+                    /*FriendListGrid.Children.Clear();
                     foreach (var friendGridItem in Client.GetFriends().OrderBy(p => p.Username).Select(friend => new UserItem(friend, UserItemType.Friend)))
                     {
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
                         FriendListGrid.Children.Add(friendGridItem);
-                    }
+                    }*/
                 });
             });
         }
@@ -279,12 +279,12 @@ namespace Vardone.Pages
                         ChatMessagesGrid.Children.Add(messageItem);
                     }
                     var privateChatWithUser = Client.GetPrivateChatWithUser(userId);
-                    foreach (var userItem in ChatListGrid.Children.Cast<UserItem>())
+                    /*foreach (var userItem in ChatListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != userId) continue;
                         userItem.SetCountMessages(privateChatWithUser.UnreadMessages);
                         break;
-                    }
+                    }*/
 
 
                     ChatScrollViewer.ScrollToEnd();

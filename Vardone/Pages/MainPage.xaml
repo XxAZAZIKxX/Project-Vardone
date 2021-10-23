@@ -5,6 +5,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
+      xmlns:local1="clr-namespace:Vardone.Controls.ItemControls"
+      
       Title="MainPage">
 
     <Grid>
@@ -23,73 +25,32 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Top" Opacity="0.3" />
             <!--<ScrollViewer Width="5" HorizontalAlignment="Right" Visibility="Collapsed">-->
-     
-        </Grid>
-
-
-        <Grid Grid.Column="1" Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Border Background="#202020" Cursor="Hand" BorderThickness="0" CornerRadius="0,50,0,0"
-                    Grid.Row="0"   MouseDown="OpenFriendsProperties">
-                <TextBlock Text="Настройки друзей" Foreground="WhiteSmoke"
-                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                           Background="Transparent"
-                         />
-            </Border>
-            <Border Grid.Row="1" Background="#202020">
-
-                <TabControl TabStripPlacement="Top"
-                            Background="#202020"
-                            BorderThickness="0">
-                    <TabItem Foreground="Gray" Header=" Друзья  ">
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <StackPanel x:Name="FriendListGrid"
-                                        VerticalAlignment="Top" />
-                        </ScrollViewer>
-                    </TabItem>
-                    <TabItem Foreground="Gray" Header="Сообщения">
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <StackPanel x:Name="ChatListGrid" />
-
-                        </ScrollViewer>
-                    </TabItem>
-                    <TabControl.Resources>
-                        <Style TargetType="{x:Type TabItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type TabItem}">
-                                        <Grid>
-                                            <Border x:Name="Border" Cursor="Hand" BorderThickness="0"
-                                                    Padding="22.9,0,21,0">
-                                                <ContentPresenter VerticalAlignment="Center"
-                                                                  HorizontalAlignment="Center"
-                                                                  ContentSource="Header" Margin="11,2,11.5,2"
-                                                                  RecognizesAccessKey="True" />
-                                            </Border>
-                                        </Grid>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Border" Property="Background" Value="#202020" />
-                                            </Trigger>
-
-                                            <Trigger Property="IsSelected" Value="False">
-                                                <Setter TargetName="Border" Property="Background" Value="#151515" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </TabControl.Resources>
-                </TabControl>
-            </Border>
-            <Rectangle Fill="#423f3f" Grid.Row="0" VerticalAlignment="Top"
-                       Height="1" Width="200" />
 
         </Grid>
+        <Grid Grid.Row="1" Grid.Column="1">
+            <!--<local1:FriendPanelControl x:Name="FriendPanelControl" Visibility="Hidden" />-->
+            <local1:ServerPanelControl x:Name="ServerPanelControl" Visibility="Visible" />
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="0">
+            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <StackPanel x:Name="GuildListGrid"
+                                        VerticalAlignment="Top" >
+                        <local1:GuildItem x:Name="GuildItem" Visibility="Visible" />
+                    </StackPanel>
+                    <Grid x:Name="AddServer">
+                        <Ellipse Stroke="MediumPurple" Width="35" Margin="0,5,0,0" 
+                             Height="35"  HorizontalAlignment="Center"/>
+                        <Ellipse Stroke="LightGray" Width="30" Margin="0,5,0,0" Height="30"  HorizontalAlignment="Center">
+                        </Ellipse>
+                        <Path Data ="M20 11V23" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round" />
+                        <Path Data ="M14 17L26 17" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round"/>
+                    </Grid>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+       
         <Border Background="#141313" CornerRadius="0,0,50,0" Grid.Column="1" Grid.Row="0">
             <Grid>
                 <Ellipse MouseDown="MyProfileOpen" Cursor="Hand" Margin="30,5,0,5"

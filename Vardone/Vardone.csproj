@@ -25,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\avatar.jpg">
+    <Resource Include="Resources\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </Resource>
     <Content Include="Resources\Backgrounds\wallpaper.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
