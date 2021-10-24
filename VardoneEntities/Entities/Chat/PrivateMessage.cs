@@ -4,12 +4,12 @@ namespace VardoneEntities.Entities.Chat
 {
     public class PrivateMessage
     {
-        public long MessageId { get; init; }
-        public PrivateChat Chat { get; init; }
-        public User Author { get; init; }
-        public DateTime CreatedTime { get; init; }
-        public string Text { get; init; }
-        public string Base64Image { get; init; }
+        public long MessageId { get; set; } = -1;
+        public PrivateChat Chat { get; set; }
+        public User Author { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public string Text { get; set; }
+        public string Base64Image { get; set; }
 
 #nullable enable
         public override bool Equals(object? secondMessage)

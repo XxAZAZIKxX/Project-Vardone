@@ -18,6 +18,6 @@ namespace Vardone.Controls.ItemControls
             ChannelName.Text = this.channel.Name;
         }
 
-        private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadChannel(channel);
+        private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(channel);
     }
 }

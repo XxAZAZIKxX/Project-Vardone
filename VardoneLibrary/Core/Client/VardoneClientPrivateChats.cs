@@ -97,7 +97,7 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         /// <param name="chatId">Id чата</param>
         /// <param name="read">Обновить ли счетчик прочитанных сообщений</param>
-        /// <param name="limit">Количество сообщений</param>
+        /// <param name="limit">Количество сообщений для получения. По умолчанию 0 (получаются все)</param>
         /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
         internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)

@@ -27,8 +27,6 @@ namespace VardoneApi.Core.Checks
         {
             var dataContext = Program.DataContext;
             var chats = dataContext.PrivateChats;
-            chats.Include(p => p.FromUser).Load();
-            chats.Include(p => p.ToUser).Load();
             try
             {
                 var _ = chats.First(p => p.Id == chatId);

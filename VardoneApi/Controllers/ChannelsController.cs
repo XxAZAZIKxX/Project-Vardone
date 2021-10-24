@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities;
@@ -210,7 +209,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessages")]
-        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId)
+        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -250,37 +249,40 @@ namespace VardoneApi.Controllers
 
                     if (guildMembers.Count(p => p.Guild == channel.Guild && p.User.Id == userId) == 0) return BadRequest("You are not a member guild");
 
-                    var channelMessagesList = new List<ChannelMessage>();
+                    var selectedMessages = channelMessages.Where(p => p.Channel.Id == channelId);
+                    if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
+                    if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p=>p.Id).Take(limit);
 
-                    foreach (var item in channelMessages.Where(p => p.Channel.Id == channelId))
+                    var returnMessages = new List<ChannelMessage>();
+                    foreach (var m in selectedMessages)
                     {
-                        channelMessagesList.Add(new ChannelMessage
+                        returnMessages.Add(new ChannelMessage
                         {
-                            MessageId = item.Id,
-                            Text = item.Text,
-                            CreatedTime = item.CreatedTime,
-                            Base64Image = item.Image is not null ? Convert.ToBase64String(item.Image) : null,
+                            MessageId = m.Id,
+                            Text = m.Text,
+                            CreatedTime = m.CreatedTime,
+                            Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null,
                             Author = new User
                             {
-                                UserId = item.Author.Id,
-                                Username = item.Author.Username,
-                                Base64Avatar = item.Author.Info?.Avatar is not null ? Convert.ToBase64String(item.Author.Info.Avatar) : null,
-                                Description = item.Author.Info?.Description
+                                UserId = m.Author.Id,
+                                Username = m.Author.Username,
+                                Base64Avatar = m.Author.Info?.Avatar is not null ? Convert.ToBase64String(m.Author.Info.Avatar) : null,
+                                Description = m.Author.Info?.Description
                             },
                             Channel = new Channel
                             {
-                                ChannelId = item.Channel.Id,
-                                Name = item.Channel.Name,
+                                ChannelId = m.Channel.Id,
+                                Name = m.Channel.Name,
                                 Guild = new Guild
                                 {
-                                    GuildId = item.Channel.Guild.Id,
-                                    Name = item.Channel.Guild.Name,
-                                    Base64Avatar = item.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(item.Channel.Guild.Info.Avatar) : null,
+                                    GuildId = m.Channel.Guild.Id,
+                                    Name = m.Channel.Guild.Name,
+                                    Base64Avatar = m.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(m.Channel.Guild.Info.Avatar) : null,
                                 }
                             }
                         });
                     }
-                    return Ok(channelMessagesList);
+                    return Ok(returnMessages);
                 }
                 catch (Exception e)
                 {

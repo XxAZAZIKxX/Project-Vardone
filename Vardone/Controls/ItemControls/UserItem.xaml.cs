@@ -6,6 +6,7 @@ using System.Windows.Media;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
 
 namespace Vardone.Controls.ItemControls
 {
@@ -79,7 +80,7 @@ namespace Vardone.Controls.ItemControls
             };
         }
 
-        private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
+        private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(new PrivateChat { ToUser = User });
 
         private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User, MainPage.Client.GetOnlineUser(User.UserId));
 
@@ -92,6 +93,6 @@ namespace Vardone.Controls.ItemControls
             MainPage.GetInstance().LoadFriendList();
         }
 
-        private void SendMessage(object sender, RoutedEventArgs e) => MainPage.GetInstance().LoadPrivateChat(User.UserId);
+        private void SendMessage(object sender, RoutedEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(new PrivateChat { ToUser = User });
     }
 }

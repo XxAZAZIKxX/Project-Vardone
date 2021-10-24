@@ -7,10 +7,10 @@ namespace VardoneEntities.Entities.Chat
     /// </summary>
     public class PrivateChat
     {
-        public long ChatId { get; init; }
-        public User FromUser { get; init; }
-        public User ToUser { get; init; }
-        public int UnreadMessages { get; init; }
+        public long ChatId { get; set; } = -1;
+        public User FromUser { get; set; }
+        public User ToUser { get; set; }
+        public int UnreadMessages { get; set; }
 
 #nullable enable
         public override bool Equals(object? secondChat)

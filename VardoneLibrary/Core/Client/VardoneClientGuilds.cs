@@ -144,16 +144,21 @@ namespace VardoneLibrary.Core.Client
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список сообщений в канале
         /// </summary>
         /// <param name="channelId">Id канала</param>
+        /// <param name="limit">Количество сообщений для получения. По умолчанию 0 (получаются все)</param>
+        /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
-        public List<ChannelMessage> GetChannelMessages(long channelId)
+        public List<ChannelMessage> GetChannelMessages(long channelId, int limit = 0, long startFrom = 0)
         {
             var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string>
             {
-                {"channelId", channelId.ToString()}
+                {"channelId", channelId.ToString()},
+                {"limit", limit.ToString()},
+                {"startFrom", startFrom.ToString()}
             });
             switch (response.StatusCode)
             {

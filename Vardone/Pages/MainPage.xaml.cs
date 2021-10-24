@@ -35,18 +35,23 @@ namespace Vardone.Pages
         public static MainPage GetInstance() => _instance ??= new MainPage();
         public static VardoneClient Client { get; private set; }
 
-        private readonly FriendPanelControl _friendListPanel;
-        private readonly GuildPanelControl _guildPanel;
+        public readonly FriendPanelControl friendListPanel;
+        public readonly GuildPanelControl guildPanel;
+        public readonly ChatControl chatControl;
 
         private MainPage()
         {
             InitializeComponent();
 
-            _friendListPanel = FriendPanelControl.GetInstance();
-            ChatsGrid.Children.Add(_friendListPanel);
-            _guildPanel = GuildPanelControl.GetInstance();
-            ChatsGrid.Children.Add(_guildPanel);
-            _guildPanel.Visibility = Visibility.Collapsed;
+            friendListPanel = FriendPanelControl.GetInstance();
+            guildPanel = GuildPanelControl.GetInstance();
+            chatControl = ChatControl.GetInstance();
+
+
+            ChatListGrid.Children.Add(friendListPanel);
+            ChatListGrid.Children.Add(guildPanel);
+            ChatGrid.Children.Add(chatControl);
+            guildPanel.Visibility = Visibility.Collapsed;
 
             VardoneEvents.onUpdateUser += OnUpdateUser;
             VardoneEvents.onNewPrivateMessage += OnNewPrivateMessage;
@@ -59,10 +64,10 @@ namespace Vardone.Pages
         public void ExitFromAccount()
         {
             Client = null;
-            _friendListPanel.ChatListGrid.Children.Clear();
-            _friendListPanel.FriendListGrid.Children.Clear();
-            PrivateChatHeader.Children.Clear();
-            ChatMessagesGrid.Children.Clear();
+            friendListPanel.ChatListGrid.Children.Clear();
+            friendListPanel.FriendListGrid.Children.Clear();
+            guildPanel.ChangeGuild(null);
+            chatControl.CloseChat();
             MyAvatar.ImageSource = null;
             MyUsername.Text = null;
             JsonTokenWorker.SetToken(null);
@@ -99,14 +104,14 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var onlineUser = Client.GetOnlineUser(user.UserId);
-                    foreach (var userItem in _friendListPanel.FriendListGrid.Children.Cast<UserItem>())
+                    foreach (var userItem in friendListPanel.FriendListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != user.UserId) continue;
                         userItem.SetStatus(onlineUser);
                         break;
                     }
 
-                    foreach (var userItem in _friendListPanel.ChatListGrid.Children.Cast<UserItem>())
+                    foreach (var userItem in friendListPanel.ChatListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != user.UserId) continue;
                         userItem.SetStatus(onlineUser);
@@ -126,16 +131,16 @@ namespace Vardone.Pages
                         friendRequestItem.SetStatus(onlineUser);
                     }
 
-                    if (PrivateChatHeader.Children.Count > 0)
-                    {
-                        var userItem = (UserItem)PrivateChatHeader.Children[0];
-                        if (userItem.User.UserId != user.UserId) return;
-                        userItem.SetStatus(onlineUser);
-                        foreach (var privateMessage in ChatMessagesGrid.Children.Cast<ChatMessageItem>())
-                        {
-                            if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
-                        }
-                    }
+                    //if (PrivateChatHeader.Children.Count > 0)
+                    //{
+                    //    var userItem = (UserItem)PrivateChatHeader.Children[0];
+                    //    if (userItem.User.UserId != user.UserId) return;
+                    //    userItem.SetStatus(onlineUser);
+                    //    foreach (var privateMessage in ChatMessagesGrid.Children.Cast<ChatMessageItem>())
+                    //    {
+                    //        if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
+                    //    }
+                    //}
                 });
             });
         }
@@ -151,18 +156,18 @@ namespace Vardone.Pages
                     Message = message.Text,
                     Type = NotificationType.Information
                 });
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    if (PrivateChatHeader.Children.Count == 0) return;
-                    var userId = ((UserItem)PrivateChatHeader.Children[0]).User.UserId;
-                    if (userId == message.Author.UserId) LoadPrivateChat(userId);
-                    foreach (var userItem in _friendListPanel.ChatListGrid.Children.Cast<UserItem>())
-                    {
-                        if (userItem.User.UserId != message.Author.UserId) continue;
-                        userItem.SetCountMessages(Client.GetPrivateChatWithUser(message.Author.UserId).UnreadMessages);
-                        break;
-                    }
-                });
+                //Application.Current.Dispatcher.Invoke(() =>
+                //{
+                //    if (PrivateChatHeader.Children.Count == 0) return;
+                //    var userId = ((UserItem)PrivateChatHeader.Children[0]).User.UserId;
+                //    if (userId == message.Author.UserId) LoadPrivateChat(userId);
+                //    foreach (var userItem in _friendListPanel.ChatListGrid.Children.Cast<UserItem>())
+                //    {
+                //        if (userItem.User.UserId != message.Author.UserId) continue;
+                //        userItem.SetCountMessages(Client.GetPrivateChatWithUser(message.Author.UserId).UnreadMessages);
+                //        break;
+                //    }
+                //});
             });
         }
         private void OnUpdateUser(User user)
@@ -173,33 +178,7 @@ namespace Vardone.Pages
                 if (Equals(user, Client.GetMe())) LoadMe();
             });
         }
-        private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            //Task.Run(() =>
-            //{
-            //    Application.Current.Dispatcher.Invoke(() =>
-            //    {
-            //        if (ChatScrollViewer.VerticalOffset != 0) return;
-            //        if (PrivateChatHeader.Children.Count == 0) return;
-            //        if (ChatMessagesGrid.Children.Count == 0) return;
-            //        var user = ((UserItem)PrivateChatHeader.Children[0]).User;
-            //        var onlineUser1 = Client.GetOnlineUser(user.UserId);
-            //        var onlineUser2 = Client.GetOnlineUser(Client.GetMe().UserId);
-            //        var privateMessagesFromChat = Client.GetPrivateMessagesFromChat(
-            //            Client.GetPrivateChatWithUser(user.UserId).ChatId, 5,
-            //            ((ChatMessageItem)ChatMessagesGrid.Children[0]).PrivateMessage.MessageId);
-            //        foreach (var message in privateMessagesFromChat)
-            //        {
-            //            var messageItem = new ChatMessageItem(message);
-            //            messageItem.SetStatus(message.Author.UserId == user.UserId ? onlineUser1 : onlineUser2);
-            //            ChatMessagesGrid.Children.Insert(0, messageItem);
-            //        }
 
-            //        if (privateMessagesFromChat.Count > 0)
-            //            ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
-            //    });
-            //});
-        }
 
         //Loads
         public void Load(VardoneClient vardoneClient)
@@ -236,13 +215,13 @@ namespace Vardone.Pages
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _friendListPanel.ChatListGrid.Children.Clear();
+                    friendListPanel.ChatListGrid.Children.Clear();
                     foreach (var chat in Client.GetPrivateChats().OrderBy(p => p.ToUser.Username).ThenByDescending(p => p.UnreadMessages))
                     {
                         var friendGridItem = new UserItem(chat.ToUser, UserItemType.Chat);
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
                         friendGridItem.SetCountMessages(chat.UnreadMessages);
-                        _friendListPanel.ChatListGrid.Children.Add(friendGridItem);
+                        friendListPanel.ChatListGrid.Children.Add(friendGridItem);
                     }
                 });
             });
@@ -253,77 +232,17 @@ namespace Vardone.Pages
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _friendListPanel.FriendListGrid.Children.Clear();
+                    friendListPanel.FriendListGrid.Children.Clear();
                     foreach (var friendGridItem in Client.GetFriends().OrderBy(p => p.Username).Select(friend => new UserItem(friend, UserItemType.Friend)))
                     {
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
-                        _friendListPanel.FriendListGrid.Children.Add(friendGridItem);
+                        friendListPanel.FriendListGrid.Children.Add(friendGridItem);
                     }
-                });
-            });
-        }
-        public void LoadPrivateChat(long userId)
-        {
-            Task.Run(() =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    CloseChat();
-                    var user = Client.GetUser(userId);
-                    var userHeader = new UserItem(user, UserItemType.Friend)
-                    {
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Left
-                    };
-                    var onlineUser = Client.GetOnlineUser(user.UserId);
-                    userHeader.SetStatus(onlineUser);
-                    PrivateChatHeader.Children.Add(userHeader);
-                    var chatId = Client.GetPrivateChatWithUser(userId).ChatId;
-                    foreach (var message in Client.GetPrivateMessagesFromChat(chatId/*, 5*/).OrderBy(p => p.MessageId))
-                    {
-                        var messageItem = new ChatMessageItem(message);
-                        if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
-                        ChatMessagesGrid.Children.Add(messageItem);
-                    }
-
-                    var privateChatWithUser = Client.GetPrivateChatWithUser(userId);
-                    foreach (var userItem in _friendListPanel.ChatListGrid.Children.Cast<UserItem>())
-                    {
-                        if (userItem.User.UserId != userId) continue;
-                        userItem.SetCountMessages(privateChatWithUser.UnreadMessages);
-                        break;
-                    }
-                    ChatScrollViewer.ScrollToEnd();
-                });
-            });
-        }
-
-        public void LoadChannel(Channel channel)
-        {
-            Task.Run(() =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    CloseChat();
-                    var messages = Client.GetChannelMessages(channel.ChannelId).OrderBy(p=>p.MessageId);
-                    foreach (var message in messages)
-                    {
-                        ChatMessagesGrid.Children.Add(new ChatMessageItem(message));
-                    }
-                    ChatScrollViewer.ScrollToEnd();
                 });
             });
         }
 
         //Opens
-        private void CloseChat()
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                PrivateChatHeader.Children.Clear();
-                ChatMessagesGrid.Children.Clear();
-            });
-        }
         private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(Client.GetMe(), true);
         public void UserProfileOpen(User user, bool online, bool isMe = false)
         {
@@ -336,70 +255,25 @@ namespace Vardone.Pages
             DeployImagePage.GetInstance().LoadImage(image);
             MainFrame.Navigate(DeployImagePage.GetInstance());
         }
-        private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) =>
-            GetInstance().PropertiesProfileOpen();
-        public void PropertiesProfileOpen()
+        private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) => PropertiesProfileOpen();
+        private void PropertiesProfileOpen()
         {
             PropertiesPage.GetInstance().Load();
             MainFrame.Navigate(PropertiesPage.GetInstance());
         }
-
         public void OpenGuild(Guild guild)
         {
-
-            _friendListPanel.Visibility = Visibility.Collapsed;
-            _guildPanel.Visibility = Visibility.Visible;
-            _guildPanel.ChangeGuild(guild);
-            CloseChat();
+            friendListPanel.Visibility = Visibility.Collapsed;
+            guildPanel.Visibility = Visibility.Visible;
+            guildPanel.ChangeGuild(guild);
+            chatControl.CloseChat();
+            chatControl.LoadChat(guild.Channels?.First());
         }
-        private void ClipMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (PrivateChatHeader.Children.Count == 0) return;
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
-                Multiselect = false
-            };
-            var dialogResult = openFileDialog.ShowDialog();
-            if (dialogResult != DialogResult.OK) return;
-            if (!openFileDialog.CheckFileExists) return;
-            var userId = ((UserItem)PrivateChatHeader.Children[0]).User.UserId;
-            Client.SendPrivateMessage(userId,
-                new MessageModel
-                {
-                    Text = MessageTextBox.Text,
-                    Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
-                });
-            MessageTextBox.Clear();
-            LoadPrivateChat(userId);
-        }
-
         private void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
-            _friendListPanel.Visibility = Visibility.Visible;
-            _guildPanel.Visibility = Visibility.Collapsed;
-        }
-
-        //Placeholders
-        private void MessageBoxGotFocus(object sender, RoutedEventArgs e) =>
-            MessageTextBoxPlaceholder.Visibility = Visibility.Collapsed;
-        private void MessageBoxLostFocus(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
-            MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
-        }
-        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) => MessageBoxGotFocus(null, null);
-        private void MessageBoxKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter) return;
-            if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
-            if (PrivateChatHeader.Children.Count == 0) return;
-            if (PrivateChatHeader.Children[0] is not UserItem) return;
-            var user = ((UserItem)PrivateChatHeader.Children[0]).User;
-            Client.SendPrivateMessage(user.UserId, new MessageModel { Text = MessageTextBox.Text });
-            MessageTextBox.Text = "";
-            MessageBoxLostFocus(null, null);
-            LoadPrivateChat(user.UserId);
+            friendListPanel.Visibility = Visibility.Visible;
+            guildPanel.Visibility = Visibility.Collapsed;
+            chatControl.CloseChat();
         }
     }
 }

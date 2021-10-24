@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.Chat;
 
 namespace Vardone.Pages.Popup
 {
@@ -33,7 +34,7 @@ namespace Vardone.Pages.Popup
 
         private void Message_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MainPage.GetInstance().LoadPrivateChat(User.UserId);
+            MainPage.GetInstance().chatControl.LoadChat(new PrivateChat{ToUser = User});
             MainPage.GetInstance().MainFrame.Navigate(null);
         }
     }

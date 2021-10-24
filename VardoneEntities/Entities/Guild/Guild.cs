@@ -5,11 +5,11 @@ namespace VardoneEntities.Entities.Guild
 {
     public class Guild
     {
-        public long GuildId { get; init; }
-        public string Name { get; init; }
-        public string Base64Avatar { get; init; }
-        public List<Channel> Channels { get; init; }
-
+        public long GuildId { get; set; } = -1;
+        public string Name { get; set; }
+        public string Base64Avatar { get; set; }
+        public List<Channel> Channels { get; set; }
+        
         public override bool Equals(object obj) => obj is Guild guild && Equals(guild);
         private bool Equals(Guild other) => GuildId == other.GuildId && Name == other.Name && Base64Avatar == other.Base64Avatar;
         public override int GetHashCode() => HashCode.Combine(GuildId, Name, Base64Avatar);
