@@ -27,6 +27,8 @@ namespace Vardone.Controls.ItemControls
             PrivateMessage = message;
             Author = message.Author;
 
+            SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
+
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(Author.UserId);
 
             CreatedTime.Content = message.CreatedTime.ToShortDateString() + " " + message.CreatedTime.ToShortTimeString();
@@ -42,6 +44,8 @@ namespace Vardone.Controls.ItemControls
 
             ChannelMessage = channelMessage;
             Author = channelMessage.Author;
+
+            SetStatus(MainPage.Client.GetOnlineUser(channelMessage.Author.UserId));
 
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(Author.UserId);
 

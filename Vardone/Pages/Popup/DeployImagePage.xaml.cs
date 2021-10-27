@@ -12,9 +12,9 @@ namespace Vardone.Pages.Popup
     {
         private static DeployImagePage _instance;
         public static DeployImagePage GetInstance() => _instance ??= new DeployImagePage();
-        public BitmapImage image;
+        private BitmapImage _image;
         private DeployImagePage() => InitializeComponent();
-        public void LoadImage(BitmapImage loadImage) => Image.Source = image = loadImage;
+        public void LoadImage(BitmapImage loadImage) => Image.Source = _image = loadImage;
 
         private void CloseImage(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
@@ -28,7 +28,7 @@ namespace Vardone.Pages.Popup
             if (dialogResult != DialogResult.OK) return;
             if (!saveFileDialog.CheckPathExists) return;
             var stream = saveFileDialog.OpenFile();
-            stream.Write(ImageWorker.BitmapImageToBytes(image));
+            stream.Write(ImageWorker.BitmapImageToBytes(_image));
             stream.Close();
         }
     }

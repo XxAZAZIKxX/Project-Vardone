@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Core.Checks
@@ -94,33 +95,57 @@ namespace VardoneApi.Core.Checks
             }
         }
 
-        public static bool CanGetUser(long idFirstUser, long idSecondUser)
+        public static bool IsFriendRequestExists(long idFirstUser, long idSecondUser)
         {
             if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
-            if (idFirstUser == idSecondUser) return true;
-
-            var res = false;
-
             var dataContext = Program.DataContext;
             var friendsList = dataContext.FriendsList;
             friendsList.Include(p => p.FromUser).Load();
             friendsList.Include(p => p.ToUser).Load();
             var users = dataContext.Users;
 
-            var user1 = users.First(p => p.Id == idFirstUser);
-            var user2 = users.First(p => p.Id == idSecondUser);
-
             try
             {
+                var user1 = users.First(p => p.Id == idFirstUser);
+                var user2 = users.First(p => p.Id == idSecondUser);
                 var _ = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
-                res = true;
+                return true;
             }
             catch
             {
                 // ignored
             }
+            return false;
+        }
 
-            return res;
+        public static bool DoUsersHaveSharedGuilds(long idFirstUser, long idSecondUser)
+        {
+            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
+            var dataContext = Program.DataContext;
+
+            var users = dataContext.Users;
+
+            var guildsMembers = dataContext.GuildMembers;
+            guildsMembers.Include(p => p.Guild).Load();
+            guildsMembers.Include(p => p.User).Load();
+
+            var user1 = users.First(p => p.Id == idFirstUser);
+            var user2 = users.First(p => p.Id == idSecondUser);
+
+            var user1Guilds = guildsMembers.Where(p => p.User == user1);
+            var user2Guilds = guildsMembers.Where(p => p.User == user2);
+
+            foreach (var guild in user1Guilds)
+            {
+                if (user2Guilds.Contains(guild)) return true;
+            }
+            return false;
+        }
+
+        public static bool CanGetUser(long idFirstUser, long idSecondUser)
+        {
+            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
+            return idFirstUser == idSecondUser || IsFriendRequestExists(idFirstUser, idSecondUser) || DoUsersHaveSharedGuilds(idFirstUser, idSecondUser);
         }
 
         public static bool IsEmailAvailable(string email)

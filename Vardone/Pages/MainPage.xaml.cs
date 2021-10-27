@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Notifications.Wpf;
@@ -16,12 +12,9 @@ using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
-using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Client;
 using VardoneLibrary.VardoneEvents;
 using Application = System.Windows.Application;
-using HorizontalAlignment = System.Windows.HorizontalAlignment;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace Vardone.Pages
@@ -188,6 +181,7 @@ namespace Vardone.Pages
             LoadChatList();
             LoadGuilds();
             LoadMe();
+            LoadAvatars();
         }
 
         public void LoadGuilds()
@@ -239,6 +233,17 @@ namespace Vardone.Pages
                         friendListPanel.FriendListGrid.Children.Add(friendGridItem);
                     }
                 });
+            });
+        }
+
+        public async void LoadAvatars()
+        {
+            await new Task(() =>
+            {
+                foreach (var user in Client.GetFriends()) AvatarsWorker.UpdateAvatarUser(user.UserId);
+                foreach (var user in Client.GetIncomingFriendRequests()) AvatarsWorker.UpdateAvatarUser(user.UserId);
+                foreach (var user in Client.GetOutgoingFriendRequests()) AvatarsWorker.UpdateAvatarUser(user.UserId);
+                foreach (var guildMember in Client.GetGuilds().SelectMany(guild => Client.GetGuildMembers(guild.GuildId))) AvatarsWorker.UpdateAvatarUser(guildMember.UserId);
             });
         }
 

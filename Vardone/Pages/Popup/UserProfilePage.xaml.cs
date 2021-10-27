@@ -14,7 +14,7 @@ namespace Vardone.Pages.Popup
     {
         private static UserProfilePage _instance;
         public static UserProfilePage GetInstance() => _instance ??= new UserProfilePage();
-        public User User { get; private set; }
+        private User User { get; set; }
         private UserProfilePage() => InitializeComponent();
         public void Load(User user, bool online, bool isMe = false)
         {

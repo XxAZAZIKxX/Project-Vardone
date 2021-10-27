@@ -53,7 +53,7 @@ namespace Vardone.Controls
                     var onlineUser = MainPage.Client.GetOnlineUser(user.UserId);
                     userHeader.SetStatus(onlineUser);
                     PrivateChatHeader.Children.Add(userHeader);
-                    foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 5).OrderBy(p => p.MessageId))
+                    foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 15).OrderBy(p => p.MessageId))
                     {
                         var messageItem = new ChatMessageItem(message);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
@@ -86,7 +86,7 @@ namespace Vardone.Controls
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 5).OrderBy(p => p.MessageId);
+                    var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
                     foreach (var message in messages) ChatMessagesList.Children.Add(new ChatMessageItem(message));
                     ChatScrollViewer.ScrollToEnd();
                 });
@@ -116,7 +116,7 @@ namespace Vardone.Controls
 
                     if (chat is not null)
                     {
-                        var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 5, ((ChatMessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
+                        var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((ChatMessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
                         numberAdded = list.Count;
                         foreach (var message in list)
                         {
@@ -127,7 +127,7 @@ namespace Vardone.Controls
                     }
                     else
                     {
-                        var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 5, ((ChatMessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
+                        var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((ChatMessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
                         numberAdded = list.Count;
                         foreach (var message in list)
                         {

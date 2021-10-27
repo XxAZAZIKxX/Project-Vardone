@@ -8,12 +8,12 @@ namespace Vardone.Core
 {
     public abstract class AvatarsWorker
     {
-        public static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
+        private static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
 
         /// <summary>
         /// Аватар по умолчанию
         /// </summary>
-        public static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.Path + @"\resources\contentRes\avatar.jpg"));
+        private static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.Path + @"\resources\contentRes\avatar.jpg"));
 
         private static readonly object Locker = new();
 
