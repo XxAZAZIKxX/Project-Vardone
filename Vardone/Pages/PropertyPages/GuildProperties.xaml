@@ -29,8 +29,7 @@
         <Grid Grid.RowSpan="4" Background="#202020"
               Grid.ColumnSpan="4"  />
         <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" />
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
-            <Grid>
+            <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
                 <StackPanel>
                     <!--Userpage-->
                     <StackPanel>
@@ -66,56 +65,31 @@
                                                 FontSize="16"
                                                 Margin="0,5,30,0"
                                                 VerticalAlignment="Center"
-                                                Content="Выйти" />
+                                                Content="Удалить" />
                                     </Grid>
                                 </Border>
                                 <Border Grid.Row="1" CornerRadius="20" Margin="20"
                                         Background="#303030">
-                                    <Grid VerticalAlignment="Top">
+                                    <Grid VerticalAlignment="Top" Height="50">
                                         <TextBox x:Name="UsernameTb"
                                             CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
-                                                 Background="Transparent" FontSize="18" Margin="20,20,0,0" Height="30"
-                                                 VerticalAlignment="Top"
-                                                 Text="Username" IsEnabled="False"
+                                                 Background="Transparent" FontSize="18" 
+                                                 Margin="20,0,0,0" 
+                                                 Height="30"
+                                                 VerticalAlignment="Center"
+                                                 Text="Guid name" IsEnabled="False"
                                                  Foreground="LightGray" />
-                                        <TextBox x:Name="EmailTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
-                                                 BorderBrush="Transparent"
-                                                 Background="Transparent" FontSize="18" Text="Email"
-                                                 Foreground="LightGray"
-                                                 Margin="20,60,0,0" Height="30"
-                                                 VerticalAlignment="Top" IsEnabled="False" />
-
-                                        <TextBox x:Name="DescTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
-                                                 BorderBrush="Transparent"
-                                                 Background="Transparent" FontSize="18" Text="Description"
-                                                 Foreground="LightGray"
-                                                 Margin="20,100,0,20" Height="30"
-                                                 VerticalAlignment="Top" IsEnabled="False" />
 
                                         <Button Content="Изменить"
                                                 Foreground="White"
                                                 Name="UsernameChangeButton"
                                                 Template="{StaticResource ButtonChange}"
-                                                VerticalAlignment="Top"
-                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Right" Margin="0,0,20,0"
                                                 Width="100" Height="25"
-                                                Margin="0,25,20,0"
                                                />
-                                        <Button Content="Изменить" Foreground="White"
-                                                Name="EmailChangeButton"
-                                                Template="{StaticResource ButtonChange}"
-                                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                Width="100" Height="25"
-                                                Margin="0,65,20,0"
-                                                />
-                                        <Button Content="Изменить" Foreground="White"
-                                                Name="DescChangeButton"
-                                                Template="{StaticResource ButtonChange}"
-                                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                Width="100" Height="25"
-                                                Margin="0,105,20,0"
-                                               />
+
                                     </Grid>
                                 </Border>
                                 <Grid.RowDefinitions>
@@ -125,78 +99,9 @@
                             </Grid>
                         </Border>
                     </StackPanel>
-                    <!--Password-->
-                    <StackPanel>
-                        <Label Foreground="WhiteSmoke"
-                               FontWeight="Light"  Height="50"
-                               VerticalContentAlignment="Bottom"
-                               Opacity="0.7"
-                               FontSize="20" Content="Изменение пароля" />
-                        <Grid>
-                            <Button x:Name="ChangeButton" Content="Изменить" Foreground="White"
-                                    Template="{StaticResource ButtonChange}"
-                                    VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Width="100" Height="30" 
-                                    Margin="0,20,0,20" >
-
-                            </Button>
-                            <Button Visibility="Collapsed"
-                                x:Name="CancelBtn" Content="Отменить" Foreground="White"
-                                    Template="{StaticResource ButtonChange}"
-                                    VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Margin="0,70,0,20" >
-
-                            </Button>
-                            <PasswordBox Visibility="Collapsed"
-                                         CaretBrush="White" 
-                                         HorizontalAlignment="Right" 
-                                         Width="360"
-                                         BorderBrush="Transparent"
-                                         Background="#151515"
-                                         x:Name="PasswordBox1"
-                                         FontSize="18"
-                                         Foreground="LightGray"
-                                         Margin="0,20,0,0" Height="30"
-                                         VerticalAlignment="Top"
-                                           />
-
-                            <PasswordBox Visibility="Collapsed"
-                                         x:Name="PasswordBox2"
-                                         BorderBrush="Transparent"
-                                         Background="#151515"
-                                         CaretBrush="White" HorizontalAlignment="Right" Width="360"
-                                         FontSize="18"
-                                         Foreground="LightGray"
-                                         Margin="20,70,0,20" Height="30"
-                                         VerticalAlignment="Top"  />
-                        </Grid>
-                    </StackPanel>
-                    <!--Addition-->
-                    <StackPanel>
-                        <Label Foreground="WhiteSmoke"
-                               FontWeight="Light" Opacity="0.7"
-                               FontSize="20" Content="Дополнительные настройки" />
-                        <Grid>
-                            <Button  Width="240" HorizontalAlignment="Left"
-                                    Template="{StaticResource ButtonExit}"
-                                    Height="35" Foreground="#CD2020"
-                                    FontSize="16"
-                                    Margin="0,20,30,0"
-                                    VerticalAlignment="Center"
-                                    Content="Завершить все сеансы" />
-                            <Button Width="240" HorizontalAlignment="Right"
-                                    Template="{StaticResource ButtonExit}"
-                                    Height="35" Foreground="#CD2020"
-                                    FontSize="16"
-                                    Margin="0,20,0,0"
-                                    VerticalAlignment="Center"
-                                    Content="Удалить учётную запись" />
-                        </Grid>
-                    </StackPanel>
                 </StackPanel>
             </Grid>
-        </ScrollViewer>
-        <Image MouseDown="CloseMouseDown"
+            <Image MouseDown="CloseMouseDown"
             VerticalAlignment="Top" 
                Grid.Row="1" Grid.Column="2"
                Width="35" Opacity="0.5"
@@ -208,7 +113,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="10*" />
             <RowDefinition Height="30*" />
-            <RowDefinition Height="50*" />
             <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>

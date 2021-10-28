@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Notifications.Wpf;
 using Vardone.Controls;
 using Vardone.Controls.ItemControls;
@@ -276,9 +277,20 @@ namespace Vardone.Pages
         }
         private void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
+          //  GuildItem. .Visibility = Visibility.Hidden;
             friendListPanel.Visibility = Visibility.Visible;
             guildPanel.Visibility = Visibility.Collapsed;
             chatControl.CloseChat();
+        }
+
+        private void AddGuildButtonMouseEnter(object sender, MouseEventArgs e)
+        {
+            AddButtonHover.Visibility = Visibility.Visible;
+        }
+
+        private void AddGuildButtonMouseLeave(object sender, MouseEventArgs e)
+        {
+            AddButtonHover.Visibility = Visibility.Hidden;
         }
     }
 }

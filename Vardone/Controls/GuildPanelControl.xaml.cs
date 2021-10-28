@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Input;
 using Vardone.Controls.ItemControls;
 using Vardone.Core;
+using Vardone.Pages;
+using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Controls
@@ -46,7 +48,7 @@ namespace Vardone.Controls
 
         private void PropertiesButtonClick(object sender, MouseButtonEventArgs e)
         {
-            throw new System.NotImplementedException();
+            MainPage.GetInstance().MainFrame.Navigate(GuildProperties.GetInstance());
         }
     }
 }

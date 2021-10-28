@@ -20,7 +20,7 @@ namespace Vardone.Pages.PropertyPages
 
         private void CloseMouseDown(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            MainPage.GetInstance().MainFrame.Navigate(null);
         }
     }
 }

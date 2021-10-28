@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using Vardone.Controls.ItemControls;
 using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
@@ -86,9 +87,21 @@ namespace Vardone.Controls
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    var ChannelHeader = new ChannelItem()
+                    {
+                        Content = channel.Name.ToUpper(),
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(40, 0, 0, 0),
+                        FontWeight = FontWeights.Thin,
+                        Foreground = Brushes.White,
+                        FontSize = 16
+                    };
+                    PrivateChatHeader.Children.Add(ChannelHeader);
                     var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
                     foreach (var message in messages) ChatMessagesList.Children.Add(new ChatMessageItem(message));
                     ChatScrollViewer.ScrollToEnd();
+                    
                 });
             });
         }

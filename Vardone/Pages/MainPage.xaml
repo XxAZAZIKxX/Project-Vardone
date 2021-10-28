@@ -41,13 +41,16 @@
                                         VerticalAlignment="Top" >
                         <!--<itemControls:GuildItem x:Name="GuildItem" Visibility="Visible" />-->
                     </StackPanel>
-                    <Grid x:Name="AddServerButton">
-                        <Ellipse Stroke="MediumPurple" Width="35" Margin="0,5,0,0" 
-                             Height="35"  HorizontalAlignment="Center"/>
-                        <Ellipse Stroke="LightGray" Width="30" Margin="0,5,0,0" Height="30"  HorizontalAlignment="Center">
+                    <Grid MouseEnter="AddGuildButtonMouseEnter" 
+                          MouseLeave="AddGuildButtonMouseLeave" >
+                        <Ellipse Stroke="MediumPurple" Width="35" Margin="0,0,0,0" 
+                             Height="35"  Name="AddButtonHover" Visibility="Hidden"
+                                 HorizontalAlignment="Center" Fill="Transparent"/>
+                        <Ellipse Stroke="LightGray" Width="30" Margin="0,0,0,0" Height="30"  HorizontalAlignment="Center">
                         </Ellipse>
-                        <Path Data ="M20 11V23" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round" />
-                        <Path Data ="M14 17L26 17" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round"/>
+                        <Path Data ="M2 7V-3" HorizontalAlignment="Center"
+                              VerticalAlignment="Center" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round" />
+                        <Path Data ="M12 -2L2 -2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round"/>
                     </Grid>
 
                 </StackPanel>
@@ -81,7 +84,7 @@
         <Frame Name="MainFrame" Grid.ColumnSpan="3" Grid.Column="0"
                Grid.Row="0" Grid.RowSpan="2" NavigationUIVisibility="Hidden" />
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="40" />
+            <ColumnDefinition Width="42*" />
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="539*" />
         </Grid.ColumnDefinitions>

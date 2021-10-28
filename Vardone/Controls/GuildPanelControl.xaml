@@ -21,7 +21,7 @@
                 <Image Cursor="Hand" Source="/resources/gear.png"
                        HorizontalAlignment="Right" Width="20"
                        Height="20" VerticalAlignment="Bottom"
-                       MouseLeftButtonDown="PropertiesButtonClick"
+                       MouseLeftButtonDown="PropertiesButtonClick" 
                        Margin="0,0,10,5" />
             </Grid>
             <StackPanel x:Name="ChannelsList">
