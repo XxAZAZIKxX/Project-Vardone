@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media.Imaging;
+using Microsoft.EntityFrameworkCore.Internal;
 using Vardone.Pages;
 
 namespace Vardone.Core
@@ -9,12 +10,11 @@ namespace Vardone.Core
     public abstract class AvatarsWorker
     {
         private static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
-
+        private static Dictionary<long, BitmapImage> GuildAvatars { get; } = new();
         /// <summary>
         /// Аватар по умолчанию
         /// </summary>
         private static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.Path + @"\resources\contentRes\avatar.jpg"));
-
         private static readonly object Locker = new();
 
         /// <summary>
@@ -28,7 +28,6 @@ namespace Vardone.Core
             UpdateAvatarUser(userId);
             return UserAvatars[userId];
         }
-
         /// <summary>
         /// Обновить сохраненный аватар
         /// </summary>
@@ -40,6 +39,23 @@ namespace Vardone.Core
             lock (Locker)
             {
                 UserAvatars[userId] = base64 is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
+            }
+        }
+
+        public static BitmapImage GetGuildAvatar(long guildId)
+        {
+            if (MainPage.Client is null) return null;
+            UpdateGuildAvatar(guildId);
+            return GuildAvatars[guildId];
+        }
+
+        public static void UpdateGuildAvatar(long guildId)
+        {
+            if (MainPage.Client is null) return;
+            var base64 = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == guildId, null!)?.Base64Avatar;
+            lock (Locker)
+            {
+                GuildAvatars[guildId] = base64 is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Windows.Input;
@@ -34,7 +33,7 @@ namespace Vardone.Controls.ItemControls
         {
             InitializeComponent();
             _guild = guild;
-            if (guild.Base64Avatar is not null) Avatar.ImageSource = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(this._guild.Base64Avatar));
+            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(_guild.GuildId);
             Items.Add(this);
         }
 

@@ -3,20 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="40" d:DesignWidth="40">
-    <Grid  MouseEnter="GuildButtonMouseEnter" 
-                          MouseLeave="GuildButtonMouseLeave">
-        <Ellipse Stroke="MediumPurple" Name="GuildHover" 
+    <Viewbox Stretch="Uniform">
+        <Grid MouseEnter="GuildButtonMouseEnter" MouseLeave="GuildButtonMouseLeave">
+            <Ellipse Stroke="MediumPurple" Name="GuildHover"
                  Width="35" Visibility="Hidden"
                  Height="35" HorizontalAlignment="Center" />
-        <Ellipse Cursor="Hand" VerticalAlignment="Center"
+            <Ellipse Cursor="Hand" VerticalAlignment="Center"
                  MouseLeftButtonDown="AvatarClicked"
                  Width="30" Height="30" Margin="0,0,0,0"
                  HorizontalAlignment="Center">
-            <Ellipse.Fill>
-                <ImageBrush ImageSource="../../Resources/avatar.jpg" Stretch="UniformToFill" x:Name="Avatar" />
-            </Ellipse.Fill>
-        </Ellipse>
-    </Grid>
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="../../Resources/avatar.jpg" Stretch="UniformToFill" x:Name="Avatar" />
+                </Ellipse.Fill>
+            </Ellipse>
+        </Grid>
+    </Viewbox>
 </UserControl>

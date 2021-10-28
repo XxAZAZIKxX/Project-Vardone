@@ -25,7 +25,7 @@ namespace Vardone.Controls
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GuildName.Text = _guild.Name;
-                if (_guild.Base64Avatar is not null) GuildAvatar.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(_guild.Base64Avatar));
+                GuildAvatar.Source = AvatarsWorker.GetGuildAvatar(_guild.GuildId);
                 ChannelsList.Children.Clear();
                 foreach (var guildChannel in _guild.Channels) ChannelsList.Children.Add(new GuildChannelItem(guildChannel));
             });
