@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" Height="40" Width="40"
+             mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="40">
     <Grid  MouseEnter="GuildButtonMouseEnter" 
                           MouseLeave="GuildButtonMouseLeave">
         <Ellipse Stroke="MediumPurple" Name="GuildHover" 
-                 x:FieldModifier="public"
                  Width="35" Visibility="Hidden"
                  Height="35" HorizontalAlignment="Center" />
         <Ellipse Cursor="Hand" VerticalAlignment="Center"

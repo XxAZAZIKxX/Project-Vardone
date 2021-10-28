@@ -237,6 +237,7 @@ namespace Vardone.Pages
             });
         }
 
+
         public async void LoadAvatars()
         {
             await new Task(() =>
@@ -277,7 +278,7 @@ namespace Vardone.Pages
         }
         private void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
-          //  GuildItem. .Visibility = Visibility.Hidden;
+            GuildItem.ClearAllHovers();
             friendListPanel.Visibility = Visibility.Visible;
             guildPanel.Visibility = Visibility.Collapsed;
             chatControl.CloseChat();
