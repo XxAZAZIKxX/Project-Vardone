@@ -90,7 +90,7 @@
         <Frame Name="MainFrame" Grid.ColumnSpan="3" Grid.Column="0"
                Grid.Row="0" Grid.RowSpan="2" NavigationUIVisibility="Hidden" />
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="45" Width="5*" MaxWidth="60"/>
+            <ColumnDefinition MinWidth="40" Width="5*" MaxWidth="60"/>
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="95*" />
         </Grid.ColumnDefinitions>
