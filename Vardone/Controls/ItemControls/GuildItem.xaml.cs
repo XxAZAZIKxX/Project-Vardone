@@ -5,9 +5,11 @@ using System.Windows;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities.Guild;
+using System.Windows.Shapes;
 
 namespace Vardone.Controls.ItemControls
 {
+   
     /// <summary>
     /// Interaction logic for GuildItem.xaml
     /// </summary>

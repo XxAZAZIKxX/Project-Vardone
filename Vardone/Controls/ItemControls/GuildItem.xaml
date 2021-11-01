@@ -8,7 +8,6 @@
     <Grid  MouseEnter="GuildButtonMouseEnter" 
                           MouseLeave="GuildButtonMouseLeave">
         <Ellipse Stroke="MediumPurple" Name="GuildHover" 
-                 x:FieldModifier="public"
                  Width="35" Visibility="Hidden"
                  Height="35" HorizontalAlignment="Center" />
         <Ellipse Cursor="Hand" VerticalAlignment="Center"

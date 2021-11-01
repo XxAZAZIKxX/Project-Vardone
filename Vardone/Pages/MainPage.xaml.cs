@@ -292,5 +292,7 @@ namespace Vardone.Pages
         {
             AddButtonHover.Visibility = Visibility.Hidden;
         }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(AddGuildPage.GetInstance());
     }
 }

@@ -42,7 +42,7 @@
                         <!--<itemControls:GuildItem x:Name="GuildItem" Visibility="Visible" />-->
                     </StackPanel>
                     <Grid MouseEnter="AddGuildButtonMouseEnter" 
-                          MouseLeave="AddGuildButtonMouseLeave" >
+                          MouseLeave="AddGuildButtonMouseLeave" MouseDown="Grid_MouseDown">
                         <Ellipse Stroke="MediumPurple" Width="35" Margin="0,0,0,0" 
                              Height="35"  Name="AddButtonHover" Visibility="Hidden"
                                  HorizontalAlignment="Center" Fill="Transparent"/>

@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Vardone.Controls;
 
 namespace Vardone.Pages.Popup
 {
@@ -12,5 +13,7 @@ namespace Vardone.Pages.Popup
         private AddGuildPage() => InitializeComponent();
 
         private void BackToMainPage(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
+
+        private void GuildConnectControlOpenButton(object sender, MouseButtonEventArgs e) => GuilldConnectControl.GetInstance();
     }
 }
