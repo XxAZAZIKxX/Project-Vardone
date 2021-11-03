@@ -43,7 +43,6 @@
                                         BorderThickness="0,0,0,1">
                                     <Grid Height="100">
                                         <Ellipse MouseDown="Change_Avatar" Cursor="Hand" Margin="30,0,0,0"
-                                                 x:Name="Avatar"
                                                  VerticalAlignment="Center"
                                                  Width="70" Height="70"
                                                  HorizontalAlignment="Left">
@@ -52,7 +51,7 @@
                                                             Stretch="UniformToFill"  />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <Label x:Name="Guildname" Content="Guild name"
+                                        <Label x:Name="GuildName" Content="Guild name"
                                                Foreground="white"
                                                Width="160"
                                                FontSize="20"
@@ -63,6 +62,7 @@
                                                 Template="{StaticResource ButtonExit}"
                                                 Height="30" Foreground="#CD2020"
                                                 FontSize="16"
+                                                Click="GuildDeleteButtonClicked"
                                                 Margin="0,5,30,0"
                                                 VerticalAlignment="Center"
                                                 Content="Удалить" />
@@ -71,19 +71,19 @@
                                 <Border Grid.Row="1" CornerRadius="20" Margin="20"
                                         Background="#303030">
                                     <Grid VerticalAlignment="Top" Height="50">
-                                        <TextBox x:Name="UsernameTb"
+                                        <TextBox x:Name="GuildNameTb"
                                             CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" 
                                                  Margin="20,0,0,0" 
-                                                 Height="30"
-                                                 VerticalAlignment="Center"
-                                                 Text="Guid name" IsEnabled="False"
+                                                 Height="30" VerticalAlignment="Center"
+                                                 Text="Guild name" IsEnabled="False"
                                                  Foreground="LightGray" />
 
                                         <Button Content="Изменить"
                                                 Foreground="White"
-                                                Name="UsernameChangeButton"
+                                                Name="GuildNameChangeButton"
+                                                Click="GuildNameChangeButtonOnClick"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Center"
                                                 HorizontalAlignment="Right" Margin="0,0,20,0"

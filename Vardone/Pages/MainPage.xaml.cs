@@ -55,7 +55,15 @@ namespace Vardone.Pages
             VardoneEvents.onUpdateIncomingFriendRequestList += OnUpdateIncomingFriendRequestList;
             VardoneEvents.onUpdateOutgoingFriendRequestList += OnUpdateOutgoingFriendRequestList;
             VardoneEvents.onUpdateFriendList += OnUpdateFriendList;
+            VardoneEvents.onUpdateGuildList += LoadGuilds;
+            VardoneEvents.onUpdateChannelList += OnUpdateChannelList;
         }
+
+        private void OnUpdateChannelList(Guild guild)
+        {
+            if(guildPanel.currentGuild.GuildId == guild.GuildId)guildPanel.UpdateChannelsList();
+        }
+
         public void ExitFromAccount()
         {
             Client = null;
@@ -185,13 +193,13 @@ namespace Vardone.Pages
             LoadMe();
             LoadAvatars();
         }
-
         public void LoadGuilds()
         {
-            foreach (var guild in Client.GetGuilds())
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Application.Current.Dispatcher.Invoke(() => GuildList.Children.Add(new GuildItem(guild)));
-            }
+                GuildList.Children.Clear();
+                foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildItem(guild));
+            });
         }
         public void LoadMe()
         {
@@ -237,8 +245,6 @@ namespace Vardone.Pages
                 });
             });
         }
-
-
         public async void LoadAvatars()
         {
             await new Task(() =>
@@ -280,7 +286,7 @@ namespace Vardone.Pages
             chatControl.CloseChat();
             chatControl.LoadChat(guild.Channels?.FirstOr(null!));
         }
-        private void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
+        public void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
             GuildItem.ClearAllHovers();
             friendListPanel.Visibility = Visibility.Visible;

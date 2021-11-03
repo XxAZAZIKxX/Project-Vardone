@@ -47,62 +47,66 @@
                     <GradientStop Color="DeepSkyBlue" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
-            <Grid>
-               
-                <TextBlock Text="ДОБАВИТЬ СЕРВЕР" FontSize="18"
+            <Grid Background="Transparent">
+                <Grid x:Name="AddGuildGrid">
+                    <TextBlock Text="ДОБАВИТЬ СЕРВЕР" FontSize="18"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Top"
                            Margin="0,40,0,0" Foreground="White"
                            FontWeight="Thin" />
-                <Rectangle Fill="#0fa9f0 " VerticalAlignment="Top"
+                    <Rectangle Fill="#0fa9f0 " VerticalAlignment="Top"
                            Height="1" Width="200"
                            Margin="0,70,0,0" />
-                <Rectangle Fill="#0fa9f0 " VerticalAlignment="Top"
+                    <Rectangle Fill="#0fa9f0 " VerticalAlignment="Top"
                            Height="1" Width="200"
                            Margin="0,260,0,0" />
-                <TextBlock Text="Присоединитесь к существующему серверу" FontSize="12"
+                    <TextBlock Text="Присоединитесь к существующему серверу" FontSize="12"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Top"
                            Margin="0,80,0,0" Foreground="White"
                            FontWeight="Thin" />
-                <TextBlock Text=" или создайте свой" FontSize="12"
+                    <TextBlock Text=" или создайте свой" FontSize="12"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Top"
                            Margin="0,100,0,0" Foreground="White"
                            FontWeight="Thin" />
 
-                <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
+                    <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,0,0,-36" />
-                <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
+                    <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,0,0,8" />
 
-                <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
+                    <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,0,0,-124" />
-                <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
+                    <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,0,0,93" />
-                <Button Height="40" Width="200" 
-                        Template="{StaticResource ButtonGo}"
-                       MouseDown="GuildConnectControlOpenButton"
-                        Cursor="Hand" Margin="0,0,0,-80">
-                    <Button.Content>
-                        <TextBlock Foreground="White" FontWeight="Thin"
-                                   FontSize="16">
-                            Присоединиться
-                        </TextBlock>
-                    </Button.Content>
-                  
-                </Button>
-
-                <Button Height="40" Width="200"  Template="{StaticResource ButtonGo}"
-                        Cursor="Hand"  Margin="0,0,0,50">
-                    <Button.Content>
-                        <TextBlock Foreground="White" FontWeight="Thin"
+                    <Button Height="40" Width="200"  Template="{StaticResource ButtonGo}"
+                        Cursor="Hand" 
+                        Click="CreateGuildButtonClicked"
+                        Margin="0,0,0,50">
+                        <Button.Content>
+                            <TextBlock Foreground="White" FontWeight="Thin"
                                    FontSize="16">
                             Создать сервер
-                        </TextBlock>
-                    </Button.Content>
-             
-                </Button>
+                            </TextBlock>
+                        </Button.Content>
+                    </Button>
+                    <Button Height="40" Width="200" 
+                        Template="{StaticResource ButtonGo}"
+                       Click="JoinGuildButtonClicked"
+                        Cursor="Hand" Margin="0,0,0,-80">
+                        <Button.Content>
+                            <TextBlock Foreground="White" FontWeight="Thin"
+                                   FontSize="16">
+                            Присоединиться
+                            </TextBlock>
+                        </Button.Content>
+
+
+
+                    </Button>
+                </Grid>
+                <Grid x:Name="JoinGuildGrid" Visibility="Collapsed" />
             </Grid>
         </Border>
 
