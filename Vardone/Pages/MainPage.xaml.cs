@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore.Internal;
 using Notifications.Wpf;
 using Vardone.Controls;
 using Vardone.Controls.ItemControls;
@@ -237,14 +238,18 @@ namespace Vardone.Pages
             });
         }
 
+
         public async void LoadAvatars()
         {
             await new Task(() =>
             {
+                //Users
                 foreach (var user in Client.GetFriends()) AvatarsWorker.UpdateAvatarUser(user.UserId);
                 foreach (var user in Client.GetIncomingFriendRequests()) AvatarsWorker.UpdateAvatarUser(user.UserId);
                 foreach (var user in Client.GetOutgoingFriendRequests()) AvatarsWorker.UpdateAvatarUser(user.UserId);
                 foreach (var guildMember in Client.GetGuilds().SelectMany(guild => Client.GetGuildMembers(guild.GuildId))) AvatarsWorker.UpdateAvatarUser(guildMember.UserId);
+                //Guilds
+                foreach (var guild in Client.GetGuilds()) AvatarsWorker.UpdateGuildAvatar(guild.GuildId);
             });
         }
 
@@ -273,26 +278,18 @@ namespace Vardone.Pages
             guildPanel.Visibility = Visibility.Visible;
             guildPanel.ChangeGuild(guild);
             chatControl.CloseChat();
-            chatControl.LoadChat(guild.Channels?.First());
+            chatControl.LoadChat(guild.Channels?.FirstOr(null!));
         }
         private void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
-          //  GuildItem. .Visibility = Visibility.Hidden;
+            GuildItem.ClearAllHovers();
             friendListPanel.Visibility = Visibility.Visible;
             guildPanel.Visibility = Visibility.Collapsed;
             chatControl.CloseChat();
         }
 
-        private void AddGuildButtonMouseEnter(object sender, MouseEventArgs e)
-        {
-            AddButtonHover.Visibility = Visibility.Visible;
-        }
-
-        private void AddGuildButtonMouseLeave(object sender, MouseEventArgs e)
-        {
-            AddButtonHover.Visibility = Visibility.Hidden;
-        }
-
-        private void Grid_MouseDown(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(AddGuildPage.GetInstance());
+        private void AddGuildButtonMouseEnter(object sender, MouseEventArgs e) => AddButtonHover.Visibility = Visibility.Visible;
+        private void AddGuildButtonMouseLeave(object sender, MouseEventArgs e) => AddButtonHover.Visibility = Visibility.Hidden;
+        private void AddGuildButtonClick(object sender, MouseButtonEventArgs e) => MainFrame.Navigate(AddGuildPage.GetInstance());
     }
 }

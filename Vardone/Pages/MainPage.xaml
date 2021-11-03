@@ -17,7 +17,7 @@
                 <GradientStop Color="White" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
-        <Border Background="#141313" BorderThickness="0" 
+        <Border Background="#141313" BorderThickness="0"
                 BorderBrush="#141313" Grid.Column="0" Grid.Row="0"
                 MouseLeftButtonDown="PrivateChatButtonClicked">
             <Image Cursor="Hand" Source="/Resources/va.ico" />
@@ -38,25 +38,31 @@
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <StackPanel x:Name="GuildList"
-                                        VerticalAlignment="Top" >
+                                VerticalAlignment="Top">
                         <!--<itemControls:GuildItem x:Name="GuildItem" Visibility="Visible" />-->
                     </StackPanel>
-                    <Grid MouseEnter="AddGuildButtonMouseEnter" 
-                          MouseLeave="AddGuildButtonMouseLeave" MouseDown="Grid_MouseDown">
-                        <Ellipse Stroke="MediumPurple" Width="35" Margin="0,0,0,0" 
-                             Height="35"  Name="AddButtonHover" Visibility="Hidden"
-                                 HorizontalAlignment="Center" Fill="Transparent"/>
-                        <Ellipse Stroke="LightGray" Width="30" Margin="0,0,0,0" Height="30"  HorizontalAlignment="Center">
-                        </Ellipse>
-                        <Path Data ="M2 7V-3" HorizontalAlignment="Center"
-                              VerticalAlignment="Center" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round" />
-                        <Path Data ="M12 -2L2 -2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round"/>
-                    </Grid>
-
+                    <Viewbox Stretch="Uniform">
+                        <Grid MouseEnter="AddGuildButtonMouseEnter" 
+                              MouseLeave="AddGuildButtonMouseLeave" 
+                              MouseLeftButtonDown="AddGuildButtonClick">
+                            <Ellipse Stroke="MediumPurple" Width="35" Margin="0,0,0,0"
+                                     Height="35" Name="AddButtonHover" Visibility="Hidden"
+                                     HorizontalAlignment="Center" Fill="Transparent" />
+                            <Ellipse Stroke="LightGray" Width="30" Margin="0,0,0,0" Height="30"
+                                     HorizontalAlignment="Center">
+                            </Ellipse>
+                            <Path Data="M2 7V-3" HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4"
+                                  StrokeStartLineCap="round" StrokeLineJoin="round" StrokeEndLineCap="round" />
+                            <Path Data="M12 -2L2 -2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Margin="0,5,0,0" Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="round"
+                                  StrokeLineJoin="round" StrokeEndLineCap="round" />
+                        </Grid>
+                    </Viewbox>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-       
+
         <Border Background="#141313" CornerRadius="0,0,50,0" Grid.Column="1" Grid.Row="0">
             <Grid>
                 <Ellipse MouseDown="MyProfileOpen" Cursor="Hand" Margin="30,5,0,5"
@@ -79,14 +85,14 @@
             </Grid>
         </Border>
         <Grid x:Name="ChatGrid" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2">
-            
+
         </Grid>
         <Frame Name="MainFrame" Grid.ColumnSpan="3" Grid.Column="0"
                Grid.Row="0" Grid.RowSpan="2" NavigationUIVisibility="Hidden" />
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="42*" />
+            <ColumnDefinition MinWidth="40" Width="5*" MaxWidth="60"/>
             <ColumnDefinition Width="250" />
-            <ColumnDefinition Width="539*" />
+            <ColumnDefinition Width="95*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
