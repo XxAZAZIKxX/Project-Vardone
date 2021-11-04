@@ -17,10 +17,10 @@ namespace Vardone.Controls.ItemControls
     public partial class GuildItem
     {
         private static readonly List<GuildItem> Items = new();
-        private readonly Guild _guild;
+        public readonly Guild guild;
         private bool _isActive;
 
-        private bool IsActive
+        public bool IsActive
         {
             get => _isActive;
             set
@@ -34,8 +34,8 @@ namespace Vardone.Controls.ItemControls
         public GuildItem([NotNull] Guild guild)
         {
             InitializeComponent();
-            _guild = guild;
-            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(_guild.GuildId);
+            this.guild = guild;
+            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(this.guild.GuildId);
             Items.Add(this);
         }
 
@@ -46,7 +46,7 @@ namespace Vardone.Controls.ItemControls
         private void AvatarClicked(object sender, MouseButtonEventArgs e)
         {
             GuildHover.Visibility = Visibility.Visible;
-            MainPage.GetInstance().OpenGuild(_guild);
+            MainPage.GetInstance().OpenGuild(guild);
             IsActive = true;
         }
 

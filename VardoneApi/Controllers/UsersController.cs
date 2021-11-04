@@ -418,6 +418,8 @@ namespace VardoneApi.Controllers
                     var guildMembers = dataContext.GuildMembers;
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.Guild.Info).Load();
+                    guildMembers.Include(p => p.Guild.Owner).Load();
+                    guildMembers.Include(p => p.Guild.Owner.Info).Load();
                     guildMembers.Include(p => p.User).Load();
                     var guilds = new List<Guild>();
                     foreach (var item in guildMembers.Where(p => p.User.Id == userId))
@@ -429,6 +431,13 @@ namespace VardoneApi.Controllers
                             Base64Avatar = item.Guild.Info?.Avatar is not null
                                 ? Convert.ToBase64String(item.Guild.Info.Avatar)
                                 : null,
+                            Owner = new User
+                            {
+                                UserId = item.Guild.Owner.Id,
+                                Username = item.Guild.Owner.Username,
+                                Description = item.Guild.Owner.Info?.Description,
+                                Base64Avatar = item.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(item.Guild.Owner.Info.Avatar) : null
+                            },
                             Channels = GuildCreateHelper.GetGuildChannels(item.Id)
                         });
                     }

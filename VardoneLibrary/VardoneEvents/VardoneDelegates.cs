@@ -7,6 +7,7 @@ namespace VardoneLibrary.VardoneEvents
     public static class VardoneDelegates
     {
         public delegate void NewPrivateMessageHandler(PrivateMessage message);
+        public delegate void NewChannelMessageHandler(ChannelMessage message);
         public delegate void UpdateUserHandler(User user);
         public delegate void UpdateOnlineHandler(User user);
         public delegate void UpdateChatListHandler();

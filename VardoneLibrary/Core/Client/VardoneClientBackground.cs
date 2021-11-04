@@ -52,8 +52,14 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         private Thread _checkUpdatesOnGuildListThread;
         private bool _isCheckUpdatesOnGuildListThreadWork = true;
+        /// <summary>
+        /// Поток проверяющий на обновления списка каналов на сервере
+        /// </summary>
         private Thread _checkUpdatesOnChannelsListThread;
         private bool _isCheckUpdateOnChannelsListThreadWork = true;
+        /// <summary>
+        /// Поток проверяющий на новые сообщения в канале на сервере
+        /// </summary>
         private Thread _checkNewChannelMessagesThread;
         private bool _isCheckNewChannelMessagesThreadWork = true;
         /// <summary>
@@ -104,7 +110,6 @@ namespace VardoneLibrary.Core.Client
             _checkNewChannelMessagesThread = new Thread(CheckNewChannelMessagesThread);
             _checkNewChannelMessagesThread.Start();
         }
-
         internal void StopThreads() => _isCheckNewPrivateMessageThreadWork = _isSettingOnlineThreadWork =
             _isCheckUpdatesOnFriendListThreadWork = _isCheckUpdatesOnChatListThreadWork =
                 _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
@@ -112,7 +117,7 @@ namespace VardoneLibrary.Core.Client
                         _isCheckUpdateOnChannelsListThreadWork = _isCheckNewChannelMessagesThreadWork = false;
 
 
-
+        //Friends
         private void CheckUpdatesOutgoingRequestThread()
         {
             var list = _client.GetOutgoingFriendRequests();
@@ -158,36 +163,74 @@ namespace VardoneLibrary.Core.Client
                 else throw;
             }
         }
-        private void CheckOnlineUsersThread()
+        private void CheckingUpdatesOnFriendListThread()
         {
-            var dict = _client.GetFriends().ToDictionary(friend => friend.UserId, friend => _client.GetOnlineUser(friend.UserId));
+            var list = _client.GetFriends();
             try
             {
-                while (_isCheckOnlineUsersThreadWork)
+                while (_isCheckUpdatesOnFriendListThreadWork)
                 {
-                    foreach (var user in _client.GetFriends())
-                    {
-                        var onlineUser = _client.GetOnlineUser(user.UserId);
-                        if (!dict.ContainsKey(user.UserId))
-                        {
-                            dict[user.UserId] = onlineUser;
-                            onUpdateOnline?.Invoke(user);
-                            continue;
-                        }
+                    var friends = _client.GetFriends();
 
-                        if (dict[user.UserId] != onlineUser) onUpdateOnline?.Invoke(user);
-                        dict[user.UserId] = onlineUser;
-                    }
-
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    if (friends.Any(user => !list.Contains(user))) onUpdateFriendList?.Invoke();
+                    if (list.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
+                    list = friends;
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
             }
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckOnlineUsersThreadWork = false;
+                    _isCheckUpdatesOnFriendListThreadWork = false;
                 else
                     throw;
+            }
+        }
+        //Lists
+        private void CheckUpdateOnGuildListThread()
+        {
+            var list = _client.GetGuilds();
+            try
+            {
+                while (_isCheckUpdatesOnGuildListThreadWork)
+                {
+                    var guilds = _client.GetGuilds();
+                    if (list.Any(p => !guilds.Contains(p))) onUpdateGuildList?.Invoke();
+                    else if (guilds.Any(p => !list.Contains(p))) onUpdateGuildList?.Invoke();
+                    list = guilds;
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException)
+                    _isCheckUpdatesOnGuildListThreadWork = false;
+                else throw;
+            }
+        }
+        private void CheckUpdatesOnChannelsListThread()
+        {
+            var list = new List<Channel>();
+            foreach (var guild in _client.GetGuilds()) list.AddRange(_client.GetGuildChannels(guild.GuildId));
+            try
+            {
+                while (_isCheckUpdateOnChannelsListThreadWork)
+                {
+                    var channels = new List<Channel>();
+                    foreach (var guild in _client.GetGuilds()) channels.AddRange(_client.GetGuildChannels(guild.GuildId));
+
+                    foreach (var p in channels.Where(p => !list.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
+                    foreach (var p in list.Where(p => !channels.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
+
+                    list = channels;
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException)
+                    _isCheckUpdateOnChannelsListThreadWork = false;
+                else throw;
             }
         }
         private void CheckingUpdatesOnChatListThread()
@@ -214,47 +257,7 @@ namespace VardoneLibrary.Core.Client
                     throw;
             }
         }
-        private void CheckingUpdatesOnFriendListThread()
-        {
-            var list = _client.GetFriends();
-            try
-            {
-                while (_isCheckUpdatesOnFriendListThreadWork)
-                {
-                    var friends = _client.GetFriends();
-
-                    if (friends.Any(user => !list.Contains(user))) onUpdateFriendList?.Invoke();
-                    if (list.Any(user => !friends.Contains(user))) onUpdateFriendList?.Invoke();
-                    list = friends;
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is UnauthorizedException)
-                    _isCheckUpdatesOnFriendListThreadWork = false;
-                else
-                    throw;
-            }
-        }
-        private void SettingOnlineThread()
-        {
-            try
-            {
-                while (_isSettingOnlineThreadWork)
-                {
-                    if (setOnline) _client.UpdateLastOnline();
-                    Thread.Sleep(TimeSpan.FromSeconds(59));
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is UnauthorizedException)
-                    _isSettingOnlineThreadWork = false;
-                else
-                    throw;
-            }
-        }
+        //Messages
         private void CheckingPrivateMessageThread()
         {
             var dictionary = new Dictionary<long, long>();
@@ -304,56 +307,96 @@ namespace VardoneLibrary.Core.Client
                     throw;
             }
         }
-        private void CheckUpdateOnGuildListThread()
+        private void CheckNewChannelMessagesThread()
         {
-            var list = _client.GetGuilds();
+            var dictionary = new Dictionary<long, long>();
+            foreach (var guild in _client.GetGuilds())
+            {
+                if (guild.Channels is null) continue;
+                foreach (var guildChannel in guild.Channels)
+                {
+                    var channelMessage = _client.GetChannelMessages(guildChannel.ChannelId, 1).FirstOrDefault();
+                    dictionary[guildChannel.ChannelId] = channelMessage.MessageId;
+                }
+            }
             try
             {
-                while (_isCheckUpdatesOnGuildListThreadWork)
+                while (_isCheckNewChannelMessagesThreadWork)
                 {
-                    var guilds = _client.GetGuilds();
-                    if (list.Any(p => !guilds.Contains(p))) onUpdateGuildList?.Invoke();
-                    else if (guilds.Any(p => !list.Contains(p))) onUpdateGuildList?.Invoke();
-                    list = guilds;
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    foreach (var guild in _client.GetGuilds())
+                    {
+                        if (guild.Channels is null) continue;
+                        foreach (var guildChannel in guild.Channels)
+                        {
+                            var channelMessage = _client.GetChannelMessages(guildChannel.ChannelId, 1).FirstOrDefault();
+                            if (!dictionary.ContainsKey(guildChannel.ChannelId) || dictionary[guildChannel.ChannelId] != channelMessage.MessageId)
+                            {
+                                onNewChannelMessage?.Invoke(channelMessage);
+                                dictionary[guildChannel.ChannelId] = channelMessage.MessageId;
+                            }
+                        }
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
                 }
             }
             catch (Exception e)
             {
                 if (e is UnauthorizedException)
-                    _isCheckUpdatesOnGuildListThreadWork = false;
+                    _isCheckNewChannelMessagesThreadWork = false;
                 else throw;
             }
         }
-
-
-
-        private void CheckUpdatesOnChannelsListThread()
+        //Other
+        private void CheckOnlineUsersThread()
         {
-            var list = new List<Channel>();
-            foreach (var guild in _client.GetGuilds()) list.AddRange(_client.GetGuildChannels(guild.GuildId));
-
-            while (_isCheckUpdateOnChannelsListThreadWork)
+            var dict = _client.GetFriends().ToDictionary(friend => friend.UserId, friend => _client.GetOnlineUser(friend.UserId));
+            try
             {
-                var channels = new List<Channel>();
-                foreach (var guild in _client.GetGuilds()) channels.AddRange(_client.GetGuildChannels(guild.GuildId));
+                while (_isCheckOnlineUsersThreadWork)
+                {
+                    foreach (var user in _client.GetFriends())
+                    {
+                        var onlineUser = _client.GetOnlineUser(user.UserId);
+                        if (!dict.ContainsKey(user.UserId))
+                        {
+                            dict[user.UserId] = onlineUser;
+                            onUpdateOnline?.Invoke(user);
+                            continue;
+                        }
 
-                foreach (var p in channels.Where(p => !list.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
-                foreach (var p in list.Where(p => !channels.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
+                        if (dict[user.UserId] != onlineUser) onUpdateOnline?.Invoke(user);
+                        dict[user.UserId] = onlineUser;
+                    }
 
-                list = channels;
-                Thread.Sleep(TimeSpan.FromSeconds(5));
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException)
+                    _isCheckOnlineUsersThreadWork = false;
+                else
+                    throw;
+            }
+        }
+        private void SettingOnlineThread()
+        {
+            try
+            {
+                while (_isSettingOnlineThreadWork)
+                {
+                    if (setOnline) _client.UpdateLastOnline();
+                    Thread.Sleep(TimeSpan.FromSeconds(59));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException)
+                    _isSettingOnlineThreadWork = false;
+                else
+                    throw;
             }
         }
 
-        private void CheckNewChannelMessagesThread()
-        {
-            var dictionary = new Dictionary<long, long>();
-            
-            while (_isCheckNewChannelMessagesThreadWork)
-            {
-
-            }
-        }
     }
 }

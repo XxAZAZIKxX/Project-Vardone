@@ -25,6 +25,7 @@ namespace VardoneLibrary.Core.Client
             _clientBackground = null;
             Token = null;
         }
+
         ~VardoneClient() => StopClient();
 
         /// <summary>
@@ -33,12 +34,6 @@ namespace VardoneLibrary.Core.Client
         /// <param name="response"></param>
         /// <returns></returns>
         private static bool IsTokenExpired(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Expired" && (string)p.Value == "true");
-        /// <summary>
-        /// Некорректный ли токен
-        /// </summary>
-        /// <param name="response"></param>
-        /// <returns></returns>
-        private static bool IsTokenInvalid(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Invalid" && (string)p.Value == "true");
 
         //Get
         /// <summary>
@@ -57,14 +52,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetMe();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<User>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить объект пользователя
         /// </summary>
@@ -72,7 +68,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public User GetUser(long id)
         {
-            var response = ExecutePostWithToken("users/getUser", null, new Dictionary<string, string> { { "secondId", id.ToString() } });
+            var response = ExecutePostWithToken("users/getUser", null,
+                new Dictionary<string, string> { { "secondId", id.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -81,14 +78,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetUser(id);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<User>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список друзей текущего пользователя
         /// </summary>
@@ -104,14 +102,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetFriends();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<User>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить входящие запросы в друзья текущего пользователя
         /// </summary>
@@ -127,14 +126,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetIncomingFriendRequests();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<User>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить исходящие запросы в друзья текущего пользователя
         /// </summary>
@@ -150,14 +150,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetOutgoingFriendRequests();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<User>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить статус "в сети" пользователя
         /// </summary>
@@ -165,7 +166,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public bool GetOnlineUser(long userId)
         {
-            var response = ExecutePostWithToken("users/getUserOnline", queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
+            var response = ExecutePostWithToken("users/getUserOnline",
+                queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -174,14 +176,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetOnlineUser(userId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<bool>((response.Content));
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         //Delete
         /// <summary>
         /// Удалить пользователя с друзей
@@ -189,7 +192,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="idUser">Id пользователя</param>
         public void DeleteFriend(long idUser)
         {
-            var response = ExecutePostWithToken("users/deleteFriend", queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
+            var response = ExecutePostWithToken("users/deleteFriend",
+                queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -199,18 +203,20 @@ namespace VardoneLibrary.Core.Client
                         DeleteFriend(idUser);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                    {
-                        onUpdateFriendList?.Invoke();
-                        onUpdateIncomingFriendRequestList?.Invoke(true);
-                        onUpdateOutgoingFriendRequestList?.Invoke();
-                        return;
-                    }
-                default: throw new Exception(response.Content);
+                {
+                    onUpdateFriendList?.Invoke();
+                    onUpdateIncomingFriendRequestList?.Invoke(true);
+                    onUpdateOutgoingFriendRequestList?.Invoke();
+                    return;
+                }
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Удалить текущего пользователя
         /// </summary>
@@ -227,12 +233,15 @@ namespace VardoneLibrary.Core.Client
                         DeleteMe();
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         //Update
         /// <summary>
         /// Обновить текущего пользователя
@@ -250,16 +259,18 @@ namespace VardoneLibrary.Core.Client
                         UpdateMe(update);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                    {
-                        onUpdateUser?.Invoke(GetMe());
-                        return;
-                    }
-                default: throw new Exception(response.Content);
+                {
+                    onUpdateUser?.Invoke(GetMe());
+                    return;
+                }
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Изменить пароль текущего пользователя
         /// </summary>
@@ -276,12 +287,15 @@ namespace VardoneLibrary.Core.Client
                         UpdatePassword(updatePassword);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Обновить свой статус "в сети"
         /// </summary>
@@ -297,12 +311,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateLastOnline();
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         //Close
         /// <summary>
         /// Закрыть текущую сессию
@@ -320,9 +337,11 @@ namespace VardoneLibrary.Core.Client
                         CloseCurrentSession();
                         break;
                     }
-                    else throw new UnauthorizedException();
+                    else
+                        throw new UnauthorizedException();
             }
         }
+
         /// <summary>
         /// Закрыть сессии на всех устройствах
         /// </summary>
@@ -339,9 +358,11 @@ namespace VardoneLibrary.Core.Client
                         CloseAllSessions();
                         break;
                     }
-                    else throw new UnauthorizedException();
+                    else
+                        throw new UnauthorizedException();
             }
         }
+
         //Other
         /// <summary>
         /// Добавить друга
@@ -360,32 +381,36 @@ namespace VardoneLibrary.Core.Client
                         AddFriend(secondUsername);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                    {
-                        onUpdateFriendList?.Invoke();
-                        onUpdateIncomingFriendRequestList?.Invoke(true);
-                        onUpdateOutgoingFriendRequestList?.Invoke();
-                        return;
-                    }
-                default: throw new Exception(response.Content);
+                {
+                    onUpdateFriendList?.Invoke();
+                    onUpdateIncomingFriendRequestList?.Invoke(true);
+                    onUpdateOutgoingFriendRequestList?.Invoke();
+                    return;
+                }
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Обновить токен Jwt
         /// </summary>
         private void UpdateToken()
         {
-            var response = ExecutePost(@"auth/updateToken", headers: new Dictionary<string, string>
-            {
-                {"token", Token}
-            });
+            var response = ExecutePost(@"auth/updateToken",
+                headers: new Dictionary<string, string> { { "token", Token } });
             switch (response.StatusCode)
             {
-                case HttpStatusCode.Unauthorized: throw new UnauthorizedException();
-                case HttpStatusCode.OK: Token = JsonConvert.DeserializeObject<string>(response.Content); break;
-                default: throw new Exception(response.Content);
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    Token = JsonConvert.DeserializeObject<string>(response.Content);
+                    break;
+                default:
+                    throw new Exception(response.Content);
             }
         }
     }

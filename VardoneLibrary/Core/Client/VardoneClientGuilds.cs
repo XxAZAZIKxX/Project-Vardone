@@ -28,14 +28,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetGuilds();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<Guild>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список каналов на сервере
         /// </summary>
@@ -43,10 +44,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public List<Channel> GetGuildChannels(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/getGuildChannels", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/getGuildChannels", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -55,14 +54,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetGuildChannels(guildId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<Channel>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список забаненных пользователей на сервере
         /// </summary>
@@ -70,10 +70,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public List<User> GetBannedGuildMembers(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -82,14 +80,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetBannedGuildMembers(guildId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<User>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список участников сервера
         /// </summary>
@@ -97,10 +96,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public List<User> GetGuildMembers(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/GetGuildMembers", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/GetGuildMembers", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -109,14 +106,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetGuildMembers(guildId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<User>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список приглашений на сервер
         /// </summary>
@@ -124,10 +122,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public List<GuildInvite> GetGuildInvites(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/getGuildInvites", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/getGuildInvites", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -136,8 +132,8 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetGuildInvites(guildId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content);
                 default:
@@ -154,12 +150,13 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public List<ChannelMessage> GetChannelMessages(long channelId, int limit = 0, long startFrom = 0)
         {
-            var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string>
-            {
-                {"channelId", channelId.ToString()},
-                {"limit", limit.ToString()},
-                {"startFrom", startFrom.ToString()}
-            });
+            var response = ExecutePostWithToken("channels/getChannelMessages", null,
+                new Dictionary<string, string>
+                {
+                    { "channelId", channelId.ToString() },
+                    { "limit", limit.ToString() },
+                    { "startFrom", startFrom.ToString() }
+                });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -168,14 +165,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetChannelMessages(channelId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         //Create
         /// <summary>
         /// Создать сервер
@@ -183,10 +181,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="name">Имя сервера</param>
         public void CreateGuild(string name = null)
         {
-            var response = ExecutePostWithToken("guilds/createGuild", null, new Dictionary<string, string>
-            {
-                {"name", name}
-            });
+            var response = ExecutePostWithToken("guilds/createGuild", null,
+                new Dictionary<string, string> { { "name", name } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -196,12 +192,15 @@ namespace VardoneLibrary.Core.Client
                         CreateGuild(name);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Создать канал на сервере
         /// </summary>
@@ -209,11 +208,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="name">Название канала</param>
         public void CreateChannel(long guildId, string name = null)
         {
-            var response = ExecutePostWithToken("channels/createChannel", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()},
-                {"name", name}
-            });
+            var response = ExecutePostWithToken("channels/createChannel", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() }, { "name", name } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -223,12 +219,15 @@ namespace VardoneLibrary.Core.Client
                         CreateChannel(guildId, name);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Создать приглашение на сервер
         /// </summary>
@@ -236,10 +235,8 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public GuildInvite CreateGuildInvite(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/createGuildInvite", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/createGuildInvite", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -248,14 +245,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return CreateGuildInvite(guildId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<GuildInvite>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         //Delete
         /// <summary>
         /// Удалить сервер
@@ -263,10 +261,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="guildId">Id сервера</param>
         public void DeleteGuild(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/deleteGuild", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/deleteGuild", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -276,22 +272,23 @@ namespace VardoneLibrary.Core.Client
                         DeleteGuild(guildId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Удалить канал на сервере
         /// </summary>
         /// <param name="channelId">Id канала</param>
         public void DeleteChannel(long channelId)
         {
-            var response = ExecutePostWithToken("channels/deleteChannel", null, new Dictionary<string, string>
-            {
-                {"channelId", channelId.ToString()}
-            });
+            var response = ExecutePostWithToken("channels/deleteChannel", null,
+                new Dictionary<string, string> { { "channelId", channelId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -301,22 +298,23 @@ namespace VardoneLibrary.Core.Client
                         DeleteChannel(channelId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Удалить приглашение на сервер
         /// </summary>
         /// <param name="inviteId">Id приглашения</param>
         public void DeleteGuildInvite(long inviteId)
         {
-            var response = ExecutePostWithToken("guilds/deleteGuildInvite", null, new Dictionary<string, string>
-            {
-                {"inviteId", inviteId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/deleteGuildInvite", null,
+                new Dictionary<string, string> { { "inviteId", inviteId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -326,22 +324,23 @@ namespace VardoneLibrary.Core.Client
                         DeleteGuildInvite(inviteId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Удалить сообщение в канале
         /// </summary>
         /// <param name="messageId">Id сообщения</param>
         public void DeleteChannelMessage(long messageId)
         {
-            var response = ExecutePostWithToken("channels/deleteChannelMessage", null, new Dictionary<string, string>
-            {
-                {"messageId", messageId.ToString()}
-            });
+            var response = ExecutePostWithToken("channels/deleteChannelMessage", null,
+                new Dictionary<string, string> { { "messageId", messageId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -351,12 +350,15 @@ namespace VardoneLibrary.Core.Client
                         DeleteChannelMessage(messageId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         //Update
         /// <summary>
         /// Обновить сервер
@@ -374,12 +376,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateGuild(model);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Обновить канал
         /// </summary>
@@ -396,12 +401,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateChannel(model);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         //Other
         /// <summary>
         /// Отправить сообщение в канал
@@ -410,7 +418,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="message">Сообщение</param>
         public void SendChannelMessage(long channelId, MessageModel message)
         {
-            var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "channelId", channelId.ToString() } });
+            var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message),
+                new Dictionary<string, string> { { "channelId", channelId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -420,22 +429,23 @@ namespace VardoneLibrary.Core.Client
                         SendChannelMessage(channelId, message);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Присоединиться к серверу
         /// </summary>
         /// <param name="inviteCode">Код приглашения</param>
         public void JoinGuild(string inviteCode)
         {
-            var response = ExecutePostWithToken("guilds/joinGuild", null, new Dictionary<string, string>
-            {
-                {"inviteCode", inviteCode}
-            });
+            var response = ExecutePostWithToken("guilds/joinGuild", null,
+                new Dictionary<string, string> { { "inviteCode", inviteCode } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -445,22 +455,23 @@ namespace VardoneLibrary.Core.Client
                         JoinGuild(inviteCode);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Покинуть сервер
         /// </summary>
         /// <param name="guildId">Id сервера</param>
         public void LeaveGuild(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/leaveGuild", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/leaveGuild", null,
+                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -470,12 +481,15 @@ namespace VardoneLibrary.Core.Client
                         LeaveGuild(guildId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Выгнать участника сервера
         /// </summary>
@@ -483,11 +497,11 @@ namespace VardoneLibrary.Core.Client
         /// <param name="guildId">Id сервера</param>
         public void KickGuildMember(long userId, long guildId)
         {
-            var response = ExecutePostWithToken("guilds/kickGuildMember", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()},
-                {"secondId", userId.ToString()}
-            });
+            var response = ExecutePostWithToken("guilds/kickGuildMember", null,
+                new Dictionary<string, string>
+                {
+                    { "guildId", guildId.ToString() }, { "secondId", userId.ToString() }
+                });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -497,12 +511,15 @@ namespace VardoneLibrary.Core.Client
                         KickGuildMember(userId, guildId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Забанить участника сервера
         /// </summary>
@@ -511,12 +528,11 @@ namespace VardoneLibrary.Core.Client
         /// <param name="reason">Причина</param>
         public void BanGuildMember(long userId, long guildId, string reason = null)
         {
-            var response = ExecutePostWithToken("guilds/banGuildMember", null, new Dictionary<string, string>
-            {
-                {"guildId", guildId.ToString()},
-                {"secondId", userId.ToString()},
-                {"reason", reason}
-            });
+            var response = ExecutePostWithToken("guilds/banGuildMember", null,
+                new Dictionary<string, string>
+                {
+                    { "guildId", guildId.ToString() }, { "secondId", userId.ToString() }, { "reason", reason }
+                });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -526,10 +542,12 @@ namespace VardoneLibrary.Core.Client
                         BanGuildMember(userId, guildId, reason);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
     }

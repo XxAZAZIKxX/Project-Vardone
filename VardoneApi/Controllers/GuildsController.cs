@@ -109,6 +109,8 @@ namespace VardoneApi.Controllers
                     channels.Include(p => p.Guild.Info).Load();
                     var guildMembers = dataContext.GuildMembers;
                     guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.Guild.Owner).Load();
+                    guildMembers.Include(p => p.Guild.Owner.Info).Load();
                     guildMembers.Include(p => p.User).Load();
 
                     if (guildMembers.Count(p => p.User.Id == userId && p.Guild.Id == guildId) == 0) return BadRequest("You are not a guild member");
@@ -127,7 +129,14 @@ namespace VardoneApi.Controllers
                                 Name = itemChannelsTable.Guild.Name,
                                 Base64Avatar = itemChannelsTable.Guild.Info?.Avatar is not null
                                     ? Convert.ToBase64String(itemChannelsTable.Guild.Info.Avatar)
-                                    : null
+                                    : null,
+                                Owner = new User
+                                {
+                                    UserId = itemChannelsTable.Guild.Owner.Id,
+                                    Username = itemChannelsTable.Guild.Owner.Username,
+                                    Description = itemChannelsTable.Guild.Owner.Info?.Description,
+                                    Base64Avatar = itemChannelsTable.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(itemChannelsTable.Guild.Owner.Info.Avatar) : null
+                                }
                             }
                         });
                     }

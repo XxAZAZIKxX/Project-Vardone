@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Exceptions;
@@ -28,14 +27,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetPrivateChats();
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content);
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить приватный чат с пользователем
         /// </summary>
@@ -53,14 +53,16 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetPrivateChatWithUser(userId);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     onUpdateChatList?.Invoke();
                     return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
-                default: throw new Exception(response.Content);
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Получить список сообщений с приватного чата
         /// </summary>
@@ -73,7 +75,9 @@ namespace VardoneLibrary.Core.Client
             var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
                 new Dictionary<string, string>
                 {
-                    {"chatId", chatId.ToString()}, {"limit", limit.ToString()}, {"startFrom", startFrom.ToString()}
+                    { "chatId", chatId.ToString() },
+                    { "limit", limit.ToString() },
+                    { "startFrom", startFrom.ToString() }
                 });
             switch (response.StatusCode)
             {
@@ -83,8 +87,8 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetPrivateMessagesFromChat(chatId, limit, startFrom);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<PrivateMessage>>(response.Content);
                 default:
@@ -100,15 +104,16 @@ namespace VardoneLibrary.Core.Client
         /// <param name="limit">Количество сообщений для получения. По умолчанию 0 (получаются все)</param>
         /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
-        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
+        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0,
+            long startFrom = 0)
         {
             var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
                 new Dictionary<string, string>
                 {
-                    {"chatId", chatId.ToString()},
-                    {"limit", limit.ToString()},
-                    {"startFrom", startFrom.ToString()},
-                    {"read", read.ToString()}
+                    { "chatId", chatId.ToString() },
+                    { "limit", limit.ToString() },
+                    { "startFrom", startFrom.ToString() },
+                    { "read", read.ToString() }
                 });
             switch (response.StatusCode)
             {
@@ -118,14 +123,15 @@ namespace VardoneLibrary.Core.Client
                         UpdateToken();
                         return GetPrivateMessagesFromChat(chatId, read, limit, startFrom);
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     return JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content));
                 default:
                     throw new Exception(response.Content);
             }
         }
+
         //Other
         /// <summary>
         /// Удалить сообщение
@@ -133,10 +139,8 @@ namespace VardoneLibrary.Core.Client
         /// <param name="messageId">Id сообщения</param>
         public void DeletePrivateMessage(long messageId)
         {
-            var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null, new Dictionary<string, string>
-            {
-                {"messageId", messageId.ToString()}
-            });
+            var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null,
+                new Dictionary<string, string> { { "messageId", messageId.ToString() } });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -146,12 +150,15 @@ namespace VardoneLibrary.Core.Client
                         DeletePrivateMessage(messageId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Отправить сообщение пользователю
         /// </summary>
@@ -170,12 +177,15 @@ namespace VardoneLibrary.Core.Client
                         SendPrivateMessage(userId, message);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return;
+                default:
+                    throw new Exception(response.Content);
             }
         }
+
         /// <summary>
         /// Удалить чат
         /// </summary>
@@ -193,14 +203,15 @@ namespace VardoneLibrary.Core.Client
                         DeleteChat(chatId);
                         break;
                     }
-                    else if (IsTokenInvalid(response)) throw new UnauthorizedException();
-                    else goto default;
+                    else
+                        throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                    {
-                        onUpdateChatList?.Invoke();
-                        return;
-                    }
-                default: throw new Exception(response.Content);
+                {
+                    onUpdateChatList?.Invoke();
+                    return;
+                }
+                default:
+                    throw new Exception(response.Content);
             }
         }
     }

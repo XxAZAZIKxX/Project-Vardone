@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using Vardone.Controls;
 
@@ -36,6 +37,7 @@ namespace Vardone.Pages.Popup
             MainPage.Client.CreateGuild();
             MainPage.GetInstance().LoadGuilds();
             BackToMainPage(null, null);
+            MainPage.GetInstance().OpenGuild(MainPage.Client.GetGuilds().LastOrDefault());
         }
 
         public void Reset()

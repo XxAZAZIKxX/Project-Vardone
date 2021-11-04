@@ -29,6 +29,10 @@ namespace Vardone.Controls
                 GuildAvatar.Source = AvatarsWorker.GetGuildAvatar(currentGuild.GuildId);
                 ChannelsList.Children.Clear();
                 if (currentGuild.Channels is not null) foreach (var guildChannel in currentGuild.Channels) ChannelsList.Children.Add(new GuildChannelItem(guildChannel));
+                
+                SettingsButton.Visibility = currentGuild.Owner.UserId == MainPage.Client.GetMe().UserId
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
             });
         }
 

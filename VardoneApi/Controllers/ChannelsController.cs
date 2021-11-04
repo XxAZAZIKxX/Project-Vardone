@@ -242,6 +242,8 @@ namespace VardoneApi.Controllers
                     channelMessages.Include(p => p.Author.Info).Load();
                     channelMessages.Include(p => p.Channel).Load();
                     channelMessages.Include(p => p.Channel.Guild).Load();
+                    channelMessages.Include(p => p.Channel.Guild.Owner).Load();
+                    channelMessages.Include(p => p.Channel.Guild.Owner.Info).Load();
                     var channels = dataContext.Channels;
                     channels.Include(p => p.Guild).Load();
 
@@ -278,6 +280,13 @@ namespace VardoneApi.Controllers
                                     GuildId = m.Channel.Guild.Id,
                                     Name = m.Channel.Guild.Name,
                                     Base64Avatar = m.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(m.Channel.Guild.Info.Avatar) : null,
+                                    Owner = new User
+                                    {
+                                        UserId = m.Channel.Guild.Owner.Id,
+                                        Username = m.Channel.Guild.Owner.Username,
+                                        Description = m.Channel.Guild.Owner.Info?.Description,
+                                        Base64Avatar = m.Channel.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(m.Channel.Guild.Owner.Info.Avatar) : null
+                                    }
                                 }
                             }
                         });

@@ -13,7 +13,7 @@ namespace Vardone.Core
         public static void SetToken(string token)
         {
             if (!File.Exists(FilePath)) File.Create(FilePath).Close();
-            File.WriteAllBytes(FilePath, Encoding.Default.GetBytes(token));
+            File.WriteAllBytes(FilePath, Encoding.Default.GetBytes(token??""));
         }
     }
 }
