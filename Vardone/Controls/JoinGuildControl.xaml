@@ -66,7 +66,9 @@
                 <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,0,0,120" />
                 <TextBox Height="40" Width="200" Cursor="Hand"
-                         x:Name="CodeTextBox"
+                         x:Name="CodeTextBox" Foreground="White"
+                         FontWeight="Thin" VerticalContentAlignment="Center"
+                         FontSize="16" CaretBrush="White"
                          Margin="0,0,0,80" ToolTip="Код приглашения">
                     <TextBox.Background>
 

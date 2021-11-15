@@ -5,11 +5,42 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="35" d:DesignWidth="250">
-    <Grid Cursor="Hand" Background="#303030" 
+    <UserControl.Resources>
+        <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
+                         TargetType="{x:Type MenuItem}">
+            <Grid Name="Head" Margin="-1,0,0,0" Background="#404040">
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Head" Property="Background" Value="#353535" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Resources>
+    <Grid Cursor="Hand"  
           Margin="0,3,0,3" MouseLeftButtonDown="OpenChannel">
-        <TextBlock Text="channel name" Foreground="White"
+        <Grid>
+            <TextBlock Text="channel name" Foreground="White"
                    FontWeight="Medium" VerticalAlignment="Center"
                    HorizontalAlignment="Left" Width="200" 
                    Margin="10,0,0,0" x:Name="ChannelName" />
+            <Grid.ContextMenu>
+                <ContextMenu Background="#404040" 
+                             BorderThickness="0">
+                    <MenuItem 
+                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                          Foreground="White" Width="200"
+                          Background="#404040" Header="Редактировать канал">
+                    </MenuItem>
+                    <MenuItem 
+                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                          Foreground="White" Width="200"
+                          Background="#404040" Header="Удалить канал">
+                    </MenuItem> 
+                </ContextMenu>
+            </Grid.ContextMenu>
+        </Grid>
     </Grid>
 </UserControl>

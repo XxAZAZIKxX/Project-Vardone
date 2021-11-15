@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Vardone" Height="450" Width="800"
-        ResizeMode="CanResize" Visibility="Visible"
+        ResizeMode="CanResize" Visibility="Visible" 
         WindowStyle="None" AllowsTransparency="True"
         MinHeight="400" MinWidth="770" WindowStartupLocation="CenterScreen">
     <Window.Background>
@@ -32,6 +32,7 @@
             <Grid Name="button">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
+            
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter TargetName="button" Property="Background">

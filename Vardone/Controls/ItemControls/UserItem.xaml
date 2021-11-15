@@ -21,7 +21,7 @@
     <Grid x:Name="Grid" Cursor="Hand">
         <Grid.ContextMenu>
             <ContextMenu Background="#101010" BorderBrush="#101010">
-                <MenuItem x:Name="FirstAction" x:FieldModifier="private"
+                <MenuItem Margin="-1,0,0,0" x:Name="FirstAction" x:FieldModifier="private"
                           BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                           Foreground="White" Click="SendMessage"
                           Background="#101010" Header="Написать">
@@ -29,7 +29,8 @@
                         <Image Stretch="Fill" Source="../../resources/message.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="SecondAction" x:FieldModifier="private"
+                <MenuItem x:Name="SecondAction" Margin="-1,0,0,0"
+                          x:FieldModifier="private"
                           BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                           Foreground="White" Width="200"
                           Background="#101010" Header="Удалить из друзей">

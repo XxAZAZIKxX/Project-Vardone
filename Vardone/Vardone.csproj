@@ -21,6 +21,7 @@
     <None Remove="Resources\exit.png" />
     <None Remove="Resources\gear.png" />
     <None Remove="Resources\message.png" />
+    <None Remove="Resources\qwe.png" />
     <None Remove="Resources\tick.ico" />
     <None Remove="Resources\va.ico" />
   </ItemGroup>
@@ -38,6 +39,9 @@
     <Content Include="Resources\ContentRes\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\qwe.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\va.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

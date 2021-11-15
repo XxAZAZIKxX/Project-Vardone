@@ -50,7 +50,8 @@ namespace Vardone
                 ContextMenuStrip = new WinForms.ContextMenuStrip()
             };
             _trayIcon.MouseClick += TrayIconOnMouseClick;
-            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
+
+; _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
             _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
         }
 

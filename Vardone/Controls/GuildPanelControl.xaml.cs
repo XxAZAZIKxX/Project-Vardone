@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Vardone.Controls.ItemControls;
 using Vardone.Core;
 using Vardone.Pages;
+using Vardone.Pages.Popup;
 using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities.Guild;
 
@@ -67,5 +68,19 @@ namespace Vardone.Controls
             GuildProperties.GetInstance().LoadGuild(currentGuild);
             MainPage.GetInstance().MainFrame.Navigate(GuildProperties.GetInstance());
         }
+
+        private void ContextMenuGrid(object sender, MouseButtonEventArgs e)
+        {
+            //cm.IsEnabled = false;
+            //cm.IsOpen = false;
+        }
+
+        private void NewChannel(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OpenGuildMemberControl(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(AddMember.GetInstance());
+
     }
 }
