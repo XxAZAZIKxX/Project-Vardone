@@ -12,6 +12,7 @@ namespace Vardone.Pages.Popup
     {
         private static AddGuildPage _instance;
         public static AddGuildPage GetInstance() => _instance ??= new AddGuildPage();
+        public static void ClearInstance() => _instance = null;
 
         private AddGuildPage()
         {

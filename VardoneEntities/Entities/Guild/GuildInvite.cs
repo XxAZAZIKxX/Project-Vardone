@@ -8,6 +8,7 @@ namespace VardoneEntities.Entities.Guild
         public Guild Guild { get; set; }
         public User CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int NumberOfUses { get; set; }
         public string InviteCode { get; set; }
     }
 }

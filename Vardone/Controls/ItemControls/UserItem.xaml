@@ -20,8 +20,8 @@
     </UserControl.Resources>
     <Grid x:Name="Grid" Cursor="Hand">
         <Grid.ContextMenu>
-            <ContextMenu Background="#101010" BorderBrush="#101010">
-                <MenuItem Margin="-1,0,0,0" x:Name="FirstAction" x:FieldModifier="private"
+            <ContextMenu Background="#101010" BorderBrush="#101010" x:Name="ContextMenu">
+                <MenuItem Margin="-1,0,0,0" x:Name="FirstAction"
                           BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                           Foreground="White" Click="SendMessage"
                           Background="#101010" Header="Написать">
@@ -30,8 +30,8 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="SecondAction" Margin="-1,0,0,0"
-                          x:FieldModifier="private"
-                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                          BorderThickness="0"
+                          Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                           Foreground="White" Width="200"
                           Background="#101010" Header="Удалить из друзей">
                     <MenuItem.Icon>
@@ -63,7 +63,7 @@
                Margin="70,0,0,0"
                VerticalAlignment="Center" />
 
-        <Border x:Name="CmBorder" x:FieldModifier="private"
+        <Border x:Name="CountMessagesCircle" x:FieldModifier="private"
                 Margin="0,0,20,0"
                 CornerRadius="10"
                 Background="#505050"

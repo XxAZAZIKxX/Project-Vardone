@@ -19,26 +19,26 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </UserControl.Resources>
-    <Grid Cursor="Hand"  
+    <Grid Cursor="Hand"
           Margin="0,3,0,3" MouseLeftButtonDown="OpenChannel">
         <Grid>
             <TextBlock Text="channel name" Foreground="White"
-                   FontWeight="Medium" VerticalAlignment="Center"
-                   HorizontalAlignment="Left" Width="200" 
-                   Margin="10,0,0,0" x:Name="ChannelName" />
+                       FontWeight="Medium" VerticalAlignment="Center"
+                       HorizontalAlignment="Left" Width="200"
+                       Margin="10,0,0,0" x:Name="ChannelName" />
             <Grid.ContextMenu>
-                <ContextMenu Background="#404040" 
+                <ContextMenu Background="#404040" x:Name="ContextMenu"
                              BorderThickness="0">
-                    <MenuItem 
-                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                          Foreground="White" Width="200"
-                          Background="#404040" Header="Редактировать канал">
-                    </MenuItem>
-                    <MenuItem 
-                          BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                          Foreground="White" Width="200"
-                          Background="#404040" Header="Удалить канал">
-                    </MenuItem> 
+                    <MenuItem
+                        BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                        Foreground="White" Width="200"
+                        Click="MenuItemEditChannelButtonClicked"
+                        Background="#404040" Header="Редактировать канал" />
+                    <MenuItem
+                        BorderThickness="0" Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                        Foreground="White" Width="200"
+                        Click="MenuItemDeleteChannelButtonClicked"
+                        Background="#404040" Header="Удалить канал" />
                 </ContextMenu>
             </Grid.ContextMenu>
         </Grid>

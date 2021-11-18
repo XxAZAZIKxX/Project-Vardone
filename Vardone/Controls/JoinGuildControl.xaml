@@ -68,6 +68,7 @@
                 <TextBox Height="40" Width="200" Cursor="Hand"
                          x:Name="CodeTextBox" Foreground="White"
                          FontWeight="Thin" VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
                          FontSize="16" CaretBrush="White"
                          Margin="0,0,0,80" ToolTip="Код приглашения">
                     <TextBox.Background>

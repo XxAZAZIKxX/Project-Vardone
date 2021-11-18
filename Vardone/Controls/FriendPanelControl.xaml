@@ -28,7 +28,6 @@
                                 <StackPanel 
                                     x:Name="FriendListGrid"
                                     VerticalAlignment="Top" />
-
                             </ScrollViewer>
                     
                 </TabItem>

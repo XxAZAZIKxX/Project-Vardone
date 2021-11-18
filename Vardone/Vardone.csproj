@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\add_user.png" />
     <None Remove="Resources\avatar.jpg" />
     <None Remove="Resources\Backgrounds\wallpaper.jpg" />
     <None Remove="Resources\clip.png" />
@@ -21,7 +22,6 @@
     <None Remove="Resources\exit.png" />
     <None Remove="Resources\gear.png" />
     <None Remove="Resources\message.png" />
-    <None Remove="Resources\qwe.png" />
     <None Remove="Resources\tick.ico" />
     <None Remove="Resources\va.ico" />
   </ItemGroup>
@@ -39,7 +39,7 @@
     <Content Include="Resources\ContentRes\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Resources\qwe.png">
+    <Resource Include="Resources\add_user.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\va.ico">

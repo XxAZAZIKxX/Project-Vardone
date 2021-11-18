@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Vardone.Pages;
 using Vardone.Pages.PropertyPages;
@@ -12,6 +14,8 @@ namespace Vardone.Controls
     {
         private static FriendPanelControl _instance;
         public static FriendPanelControl GetInstance() => _instance ??= new FriendPanelControl();
+        public static void ClearInstance() => _instance = null;
+        
         public StackPanel FriendList;
         public StackPanel ChatList;
 
@@ -22,10 +26,6 @@ namespace Vardone.Controls
             ChatList = ChatListGrid;
         }
 
-        private void OpenFriendsProperties(object sender, MouseButtonEventArgs mouseButtonEventArgs)
-        {
-            FriendsProperties.GetInstance().Load();
-            MainPage.GetInstance().MainFrame.Navigate(FriendsProperties.GetInstance());
-        }
+        private void OpenFriendsProperties(object sender, MouseButtonEventArgs mouseButtonEventArgs) => MainPage.GetInstance().MainFrame.Navigate(FriendsPropertiesPage.GetInstance().Load());
     }
 }

@@ -39,6 +39,7 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<GuildInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
             modelBuilder.Entity<BannedGuildMembersTable>().Property(p => p.Reason).HasDefaultValue();
+            modelBuilder.Entity<GuildInvitesTable>().Property(p => p.NumberOfUses).HasDefaultValue(0);
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();

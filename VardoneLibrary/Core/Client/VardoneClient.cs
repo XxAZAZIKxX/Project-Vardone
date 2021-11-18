@@ -21,7 +21,7 @@ namespace VardoneLibrary.Core.Client
 
         private void StopClient()
         {
-            _clientBackground.StopThreads();
+            _clientBackground?.StopThreads();
             _clientBackground = null;
             Token = null;
         }

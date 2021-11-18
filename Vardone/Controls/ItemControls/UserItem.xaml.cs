@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Notifications.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities;
@@ -13,7 +14,9 @@ namespace Vardone.Controls.ItemControls
     public enum UserItemType
     {
         Chat,
-        Friend
+        Friend,
+        Profile,
+        View
     }
 
     /// <summary>
@@ -31,6 +34,7 @@ namespace Vardone.Controls.ItemControls
             Username.Content = user.Username;
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
             Type = type;
+            SetStatus(MainPage.Client.GetOnlineUser(user.UserId));
             switch (Type)
             {
                 case UserItemType.Chat:
@@ -41,8 +45,18 @@ namespace Vardone.Controls.ItemControls
                     break;
                 case UserItemType.Friend:
                     Grid.MouseLeftButtonDown += OpenProfile;
-                    CmBorder.Visibility = Visibility.Hidden;
+                    CountMessagesCircle.Visibility = Visibility.Hidden;
                     SecondAction.Click += DeleteFriend;
+                    break;
+                case UserItemType.Profile:
+                    Grid.MouseLeftButtonDown += OpenProfile;
+                    CountMessagesCircle.Visibility = Visibility.Hidden;
+                    ContextMenu.Visibility = Visibility.Collapsed;
+                    break;
+                case UserItemType.View:
+                    CountMessagesCircle.Visibility = Visibility.Hidden;
+                    ContextMenu.Visibility = Visibility.Collapsed;
+                    Grid.Cursor = Cursors.Arrow;
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
@@ -50,22 +64,42 @@ namespace Vardone.Controls.ItemControls
 
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
+            var messageBoxResult = MessageBox.Show($"Вы точно хотите удалить чат с {User.Username}?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
             var vardoneClient = MainPage.Client;
-            vardoneClient.DeleteChat(vardoneClient.GetPrivateChatWithUser(User.UserId).ChatId);
+            try
+            {
+                vardoneClient.DeleteChat(vardoneClient.GetPrivateChatWithUser(User.UserId).ChatId);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Success,
+                    Title = "Успех",
+                    Message = $"Чат с {User.Username} был успешно удален"
+                });
+            }
+            catch
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Error,
+                    Title = "Ошибка",
+                    Message = "Что-то пошло не так"
+                });
+            }
         }
 
         public void SetCountMessages(int count)
         {
-            if (Type == UserItemType.Friend) return;
+            if (Type == UserItemType.Profile) return;
             switch (count)
             {
                 case < 0: return;
                 case 0:
                     CountMessages.Content = 0;
-                    CmBorder.Visibility = Visibility.Hidden;
+                    CountMessagesCircle.Visibility = Visibility.Hidden;
                     break;
                 default:
-                    CmBorder.Visibility = Visibility.Visible;
+                    CountMessagesCircle.Visibility = Visibility.Visible;
                     CountMessages.Content = count;
                     break;
             }
@@ -86,10 +120,27 @@ namespace Vardone.Controls.ItemControls
 
         private void DeleteFriend(object sender, RoutedEventArgs e)
         {
-            var messageBoxResult = MessageBox.Show("Вы действительно хотите удалить друга?", "Подтвердите",
-                MessageBoxButton.OKCancel);
-            if (messageBoxResult != MessageBoxResult.OK) return;
-            MainPage.Client.DeleteFriend(User.UserId);
+            var messageBoxResult = MessageBox.Show($"Вы действительно хотите удалить друга? {User.Username}", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
+            try
+            {
+                MainPage.Client.DeleteFriend(User.UserId);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Success,
+                    Title = "Успех",
+                    Message = $"Друг {User.Username} был успешно удален"
+                });
+            }
+            catch
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Error,
+                    Title = "Ошибка",
+                    Message = "Что-то пошло не так"
+                });
+            }
             MainPage.GetInstance().LoadFriendList();
         }
 

@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="Vardone.Controls.ItemControls.InvitationItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="60" d:DesignWidth="600">
+    <Grid>
+        <Border Background="#303030">
+            <Grid MinHeight="60">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Viewbox Grid.Column="0"
+                         VerticalAlignment="Center"
+                      HorizontalAlignment="Center" x:Name="User" />
+                <Label Grid.Column="1" Foreground="WhiteSmoke"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       x:Name="InviteCode"
+                       FontSize="13"
+                       FontWeight="Thin">
+                    Код приглашения
+                </Label>
+                <Label Grid.Column="2" Foreground="WhiteSmoke"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       FontSize="13"
+                       x:Name="NumberOfUses"
+                       FontWeight="Thin">
+                    Использования
+                </Label>
+                <Label Grid.Column="3" Foreground="WhiteSmoke"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       FontSize="13"
+                       x:Name="ExpiresIn"
+                       FontWeight="Thin">
+                    Время сохранения
+                </Label>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

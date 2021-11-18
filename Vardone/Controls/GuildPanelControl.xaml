@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Vardone.Controls.ItemControls"
-             mc:Ignorable="d" Width="250" 
+             mc:Ignorable="d" Width="250"
              d:DesignHeight="450" d:DesignWidth="250">
     <UserControl.Resources>
         <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
                          TargetType="{x:Type MenuItem}">
-            <Grid Name="Head"  Background="#404040">
+            <Grid Name="Head" Background="#404040">
                 <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Grid>
 
@@ -22,8 +22,7 @@
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Hidden" Background="#202020">
         <StackPanel>
-            <Grid Height="130"  x:Name="grid" 
-                  MouseRightButtonDown="ContextMenuGrid">
+            <Grid Height="130">
                 <Image x:Name="GuildAvatar" Source="../resources/avatar.jpg"
                        Stretch="UniformToFill" VerticalAlignment="Center" />
                 <Rectangle Fill="Black" Opacity="0.5" Width="250" Height="30"
@@ -32,24 +31,26 @@
                 <TextBlock x:Name="GuildName" Text="Name of Server" Foreground="Wheat"
                            VerticalAlignment="Bottom" HorizontalAlignment="Left"
                            Margin="10,0,0,8" FontWeight="ExtraBold" />
-                <Image Cursor="Hand" Source="/resources/gear.png"
-                       HorizontalAlignment="Right" Width="20"
-                       Height="20" VerticalAlignment="Bottom"
-                       x:Name="SettingsButton"
-                       MouseLeftButtonDown="PropertiesButtonClick" 
-                       Margin="0,0,10,5" />
-
-                <Border CornerRadius="50" BorderBrush="White"
-                        BorderThickness="0.3"
-                    HorizontalAlignment="Right" Width="20"
-                        Height="20" VerticalAlignment="Bottom"
-                        MouseLeftButtonDown="OpenGuildMemberControl" 
-                        Cursor="Hand" Margin="0,0,35,5" 
-                        Background="#707070">
-                    <Image ToolTip="Add member" Source="/resources/qwe.png" Margin="2"/>
-                </Border>
+                <DockPanel Width="50" Height="30" Margin="0,0,10,0"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom">
+                    <Border CornerRadius="50" BorderBrush="White"
+                            DockPanel.Dock="{DynamicResource InviteButtonDock}"
+                            BorderThickness="0.3" HorizontalAlignment="Right"
+                            Width="20" Height="20" VerticalAlignment="Center"
+                            MouseLeftButtonDown="OpenGuildMemberControl"
+                            Cursor="Hand" Background="#707070">
+                        <Image ToolTip="Add member" Source="/resources/add_user.png" Margin="2" />
+                    </Border>
+                    <Image
+                           Cursor="Hand" Source="/resources/gear.png"
+                           HorizontalAlignment="Right" Width="20"
+                           Height="20" VerticalAlignment="Center"
+                           x:Name="SettingsButton"
+                           MouseLeftButtonDown="PropertiesButtonClick" />
+                </DockPanel>
                 <Grid.ContextMenu>
-                    <ContextMenu Visibility="Hidden"/>
+                    <ContextMenu Visibility="Hidden" />
                 </Grid.ContextMenu>
             </Grid>
             <StackPanel x:Name="ChannelsList">
@@ -58,15 +59,15 @@
         </StackPanel>
     </ScrollViewer>
 
-    <UserControl.ContextMenu >
-        <ContextMenu Name="cm" Background="#404040" 
-                             BorderThickness="0" >
-            <MenuItem ClipToBounds="False" Click="NewChannel"
-                          BorderThickness="0" Margin="-1,0,0,0"
-                Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                          Foreground="White" Width="200"
-                          Background="#404040"
-                Header="Создать канал">
+    <UserControl.ContextMenu>
+        <ContextMenu Background="#404040"
+                     BorderThickness="0" x:Name="ContextMenu">
+            <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
+                      BorderThickness="0" Margin="-1,0,0,0"
+                      Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                      Foreground="White" Width="200"
+                      Background="#404040"
+                      Header="Создать канал">
             </MenuItem>
         </ContextMenu>
     </UserControl.ContextMenu>

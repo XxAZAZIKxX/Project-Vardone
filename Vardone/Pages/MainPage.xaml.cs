@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -61,21 +62,20 @@ namespace Vardone.Pages
 
         private void OnNewChannelMessage(ChannelMessage message)
         {
-            if (chatControl.channel is null) return;
+            if (chatControl.channel is null || message is null) return;
             if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
         }
 
         private void OnUpdateChannelList(Guild guild)
         {
-            if (guildPanel.currentGuild.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
-            ChatGrid.Children.Clear();
-            ChatListGrid.Children.Clear();
+            if (guildPanel.currentGuild?.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
         }
 
         public void ExitFromAccount()
         {
             Client = null;
             JsonTokenWorker.SetToken(null);
+            AvatarsWorker.ClearAll();
             //
             ChatListGrid.Children.Clear();
             ChatGrid.Children.Clear();
@@ -87,7 +87,21 @@ namespace Vardone.Pages
             MyUsername.Text = null;
             //
             _instance = null;
+            UserPropertiesPage.ClearInstance();
+            GuildPropertiesPage.ClearInstance();
+            FriendsPropertiesPage.ClearInstance();
+            UserProfilePage.ClearInstance();
+            InviteMemberPage.ClearInstance();
+            DeployImagePage.ClearInstance();
+            AddGuildPage.ClearInstance();
+            JoinGuildControl.ClearInstance();
+            GuildPanelControl.ClearInstance();
+            FriendPanelControl.ClearInstance();
+            ChatControl.ClearInstance();
+            //
             GC.Collect();
+            //
+            MainWindow.FlushMemory();
             //
             AuthorizationPage.GetInstance().OpenAuth();
             MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
@@ -95,7 +109,7 @@ namespace Vardone.Pages
 
         //Events
         private void OnUpdateFriendList() => LoadFriendList();
-        private void OnUpdateOutgoingFriendRequestList() => FriendsProperties.GetInstance().LoadOutgoingRequests();
+        private void OnUpdateOutgoingFriendRequestList() => FriendsPropertiesPage.GetInstance().LoadOutgoingRequests();
         private void OnUpdateIncomingFriendRequestList(bool becameLess)
         {
             Task.Run(() =>
@@ -111,7 +125,7 @@ namespace Vardone.Pages
                         });
                 }
 
-                FriendsProperties.GetInstance().LoadIncomingRequests();
+                FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
             });
         }
         private void OnUpdateOnline(User user)
@@ -136,14 +150,14 @@ namespace Vardone.Pages
                         break;
                     }
 
-                    foreach (var friendRequestItem in FriendsProperties.GetInstance()
+                    foreach (var friendRequestItem in FriendsPropertiesPage.GetInstance()
                         .IncomingRequest.Children.Cast<FriendRequestItem>())
                     {
                         if (friendRequestItem.User.UserId != user.UserId) continue;
                         friendRequestItem.SetStatus(onlineUser);
                     }
 
-                    foreach (var friendRequestItem in FriendsProperties.GetInstance()
+                    foreach (var friendRequestItem in FriendsPropertiesPage.GetInstance()
                         .OutgoingRequest.Children.Cast<FriendRequestItem>())
                     {
                         if (friendRequestItem.User.UserId != user.UserId) continue;
@@ -152,7 +166,7 @@ namespace Vardone.Pages
 
                     if (chatControl.chat is not null || chatControl.channel is not null)
                     {
-                        if(chatControl.chat is not null)chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
+                        if (chatControl.chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
                         foreach (var privateMessage in chatControl.ChatMessagesList.Children.Cast<ChatMessageItem>())
                         {
                             if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
@@ -199,7 +213,7 @@ namespace Vardone.Pages
         }
 
         //Loads
-        public void Load(VardoneClient vardoneClient)
+        public MainPage Load(VardoneClient vardoneClient)
         {
             Client = vardoneClient;
             LoadFriendList();
@@ -207,6 +221,7 @@ namespace Vardone.Pages
             LoadGuilds();
             LoadMe();
             LoadAvatars();
+            return this;
         }
         public void LoadGuilds()
         {
@@ -289,23 +304,16 @@ namespace Vardone.Pages
 
         //Opens
         private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(Client.GetMe(), true);
-        public void UserProfileOpen(User user, bool online, bool isMe = false)
-        {
-            if (isMe) online = Client.SetOnline;
-            UserProfilePage.GetInstance().Load(user, online, isMe);
-            MainFrame.Navigate(UserProfilePage.GetInstance());
-        }
+        public void UserProfileOpen(User user, bool online, bool isMe = false) => MainFrame.Navigate(UserProfilePage.GetInstance().Load(user,online, isMe));
+
         public void DeployImage(BitmapImage image)
         {
             DeployImagePage.GetInstance().LoadImage(image);
             MainFrame.Navigate(DeployImagePage.GetInstance());
         }
         private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) => PropertiesProfileOpen();
-        private void PropertiesProfileOpen()
-        {
-            PropertiesPage.GetInstance().Load();
-            MainFrame.Navigate(PropertiesPage.GetInstance());
-        }
+        private void PropertiesProfileOpen() => MainFrame.Navigate(UserPropertiesPage.GetInstance().Load());
+
         public void OpenGuild(Guild guild)
         {
             friendListPanel.Visibility = Visibility.Collapsed;

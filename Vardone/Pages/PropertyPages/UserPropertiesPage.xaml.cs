@@ -7,19 +7,21 @@ using Notifications.Wpf;
 using Vardone.Core;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Vardone.Pages.PropertyPages
 {
     /// <summary>
-    /// Логика взаимодействия для PropertiesPage.xaml
+    /// Логика взаимодействия для UserPropertiesPage.xaml
     /// </summary>
-    public partial class PropertiesPage
+    public partial class UserPropertiesPage
     {
-        private static PropertiesPage _instance;
-        public static PropertiesPage GetInstance() => _instance ??= new PropertiesPage();
-        private PropertiesPage() => InitializeComponent();
+        private static UserPropertiesPage _instance;
+        public static UserPropertiesPage GetInstance() => _instance ??= new UserPropertiesPage();
+        private UserPropertiesPage() => InitializeComponent();
+        public static void ClearInstance() => _instance = null;
 
-        public void Load()
+        public UserPropertiesPage Load()
         {
             var user = MainPage.Client.GetMe();
             Application.Current.Dispatcher.Invoke(() =>
@@ -30,6 +32,7 @@ namespace Vardone.Pages.PropertyPages
                 EmailTb.Text = user.Email;
                 DescTb.Text = user.Description ?? "Description";
             });
+            return this;
         }
         private void CloseMouseDown(object sender, System.Windows.Input.MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
@@ -172,12 +175,22 @@ namespace Vardone.Pages.PropertyPages
 
         private void ExitEverywhereButtonClick(object sender, RoutedEventArgs e)
         {
+            var messageBoxResult = MessageBox.Show(
+                "Вы точно хотите выйти со всех устройств? Текущая сессия будет завершена",
+                "Подтвердите действие",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
             MainPage.Client.CloseAllSessions();
             MainPage.GetInstance().ExitFromAccount();
         }
 
         private void DeleteAccountButtonClick(object sender, RoutedEventArgs e)
         {
+            var messageBoxResult = MessageBox.Show(
+                "Вы точно хотите удалить свой аккаунт? Все данные связанные с вами буду удалены. Сервера владелец которых вы являетесь и ваши сообщения будут безвозвратно удалены",
+                "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Stop);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
             MainPage.Client.DeleteMe();
             MainPage.GetInstance().ExitFromAccount();
         }

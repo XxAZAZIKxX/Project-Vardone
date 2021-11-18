@@ -14,9 +14,11 @@ namespace Vardone.Pages.Popup
     {
         private static UserProfilePage _instance;
         public static UserProfilePage GetInstance() => _instance ??= new UserProfilePage();
+        public static void ClearInstance() => _instance = null;
+
         private User User { get; set; }
         private UserProfilePage() => InitializeComponent();
-        public void Load(User user, bool online, bool isMe = false)
+        public UserProfilePage Load(User user, bool online, bool isMe = false)
         {
             User = user;
             Username.Text = user.Username;
@@ -29,6 +31,7 @@ namespace Vardone.Pages.Popup
                 true => new SolidColorBrush(Colors.LimeGreen),
                 false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
             };
+            return this;
         }
         private void BackToMainPage(object s, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 

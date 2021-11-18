@@ -24,7 +24,14 @@ namespace Vardone.Controls
     {
         private static ChatControl _instance;
         public static ChatControl GetInstance() => _instance ??= new ChatControl();
+        public static void ClearInstance() => _instance = null;
         public ChatControl() => InitializeComponent();
+
+        ~ChatControl()
+        {
+            CloseChat();
+            GC.Collect();
+        }
 
         public PrivateChat chat;
         public Channel channel;
@@ -45,7 +52,7 @@ namespace Vardone.Controls
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var user = MainPage.Client.GetUser(chat.ToUser.UserId);
-                    var userHeader = new UserItem(user, UserItemType.Friend)
+                    var userHeader = new UserItem(user, UserItemType.Profile)
                     {
                         VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Left
@@ -86,7 +93,7 @@ namespace Vardone.Controls
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    PrivateChatHeader.Children.Add(new ChannelItem(channel));
+                    PrivateChatHeader.Children.Add(new HeaderChannelNameItem(channel));
                     var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
                     foreach (var message in messages) ChatMessagesList.Children.Add(new ChatMessageItem(message));
                     ChatScrollViewer.ScrollToEnd();

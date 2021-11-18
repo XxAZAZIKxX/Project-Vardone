@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities;
@@ -185,6 +184,8 @@ namespace VardoneApi.Controllers
 
                     var invites = new List<GuildInvite>();
 
+                    InviteChecks.ClearExpiredInvites();
+
                     foreach (var item in guildInvites.Where(p => p.Guild.Id == guildId))
                     {
                         invites.Add(new GuildInvite
@@ -204,7 +205,8 @@ namespace VardoneApi.Controllers
                                 GuildId = item.Guild.Id,
                                 Name = item.Guild.Name,
                                 Base64Avatar = item.Guild.Info?.Avatar is not null ? Convert.ToBase64String(item.Guild.Info.Avatar) : null
-                            }
+                            },
+                            NumberOfUses = item.NumberOfUses
                         });
                     }
                     return Ok(invites);
@@ -612,6 +614,8 @@ namespace VardoneApi.Controllers
                     var users = dataContext.Users;
                     users.Include(p => p.Info).Load();
 
+                    InviteChecks.ClearExpiredInvites();
+
                     var inviteCode = CreateInviteCode();
                     while (InviteChecks.IsInviteExists(inviteCode)) inviteCode = CreateInviteCode();
 
@@ -655,7 +659,7 @@ namespace VardoneApi.Controllers
         private static string CreateInviteCode()
         {
             var sb = new StringBuilder();
-            var n = Random.Next(6, 9);
+            var n = Random.Next(6, 10);
             for (var i = 0; i < n; i++)
             {
                 switch (Random.Next(1, 3))
@@ -702,7 +706,8 @@ namespace VardoneApi.Controllers
                     var guilds = dataContext.Guilds;
                     var guildInvites = dataContext.GuildInvites;
                     guildInvites.Include(p => p.Guild).Load();
-                    var guildId = guildInvites.First(p => p.InviteCode == inviteCode).Guild.Id;
+                    var invite = guildInvites.First(p => p.InviteCode == inviteCode);
+                    var guildId = invite.Guild.Id;
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
                     bannedGuildMembers.Include(p => p.User).Load();
@@ -720,6 +725,7 @@ namespace VardoneApi.Controllers
                     }
 
                     members.Add(new GuildMembersTable { User = user, Guild = guild });
+                    invite.NumberOfUses++;
                     dataContext.SaveChanges();
                     return Ok("Joined");
                 }

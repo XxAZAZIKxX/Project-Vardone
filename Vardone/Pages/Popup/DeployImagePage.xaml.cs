@@ -12,6 +12,7 @@ namespace Vardone.Pages.Popup
     {
         private static DeployImagePage _instance;
         public static DeployImagePage GetInstance() => _instance ??= new DeployImagePage();
+        public static void ClearInstance() => _instance = null;
         private BitmapImage _image;
         private DeployImagePage() => InitializeComponent();
         public void LoadImage(BitmapImage loadImage) => Image.Source = _image = loadImage;

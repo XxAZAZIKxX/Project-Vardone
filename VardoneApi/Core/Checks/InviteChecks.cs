@@ -9,6 +9,7 @@ namespace VardoneApi.Core.Checks
         {
             var dataContext = Program.DataContext;
             var guildInvites = dataContext.GuildInvites;
+            ClearExpiredInvites();
             try
             {
                 var _ = guildInvites.First(p => p.InviteCode == inviteCode);
@@ -24,10 +25,23 @@ namespace VardoneApi.Core.Checks
             }
         }
 
+        public static void ClearExpiredInvites()
+        {
+            var dataContext = Program.DataContext;
+            var guildInvites = dataContext.GuildInvites;
+            foreach (var guildInvite in guildInvites)
+            {
+                if (DateTime.Now.Subtract(guildInvite.CreatedAt) >= TimeSpan.FromDays(1))
+                    guildInvites.Remove(guildInvite);
+            }
+            dataContext.SaveChanges();
+        }
+
         public static bool IsInviteExists(long inviteId)
         {
             var dataContext = Program.DataContext;
             var guildInvites = dataContext.GuildInvites;
+            ClearExpiredInvites();
             try
             {
                 var _ = guildInvites.First(p => p.Id == inviteId);

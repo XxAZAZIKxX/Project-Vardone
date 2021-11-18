@@ -8,19 +8,21 @@ using Notifications.Wpf;
 using Vardone.Core;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Vardone.Pages.PropertyPages
 {
     /// <summary>
-    /// Interaction logic for GuildProperties.xaml
+    /// Interaction logic for GuildPropertiesPage.xaml
     /// </summary>
-    public partial class GuildProperties
+    public partial class GuildPropertiesPage
     {
-        private static GuildProperties _instance;
-        public static GuildProperties GetInstance() => _instance ??= new GuildProperties();
-        public GuildProperties() => InitializeComponent();
-        private Guild _guild;
+        private static GuildPropertiesPage _instance;
+        public static GuildPropertiesPage GetInstance() => _instance ??= new GuildPropertiesPage();
+        public static void ClearInstance() => _instance = null;
+        private GuildPropertiesPage() => InitializeComponent();
 
+        private Guild _guild;
         private void Change_Avatar(object sender, MouseButtonEventArgs e)
         {
             var openFileDialog = new OpenFileDialog { Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg", Multiselect = false };
@@ -41,17 +43,38 @@ namespace Vardone.Pages.PropertyPages
             MainPage.GetInstance().OpenGuild(_guild);
         }
 
-        public void LoadGuild(Guild guild)
+        public GuildPropertiesPage LoadGuild(Guild guild)
         {
             _guild = guild;
             AvatarImage.ImageSource = AvatarsWorker.GetGuildAvatar(guild.GuildId);
             GuildName.Content = guild.Name;
             GuildNameTb.Text = guild.Name;
+            return this;
         }
 
         private void GuildDeleteButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainPage.Client.DeleteGuild(_guild.GuildId);
+            var messageBoxResult = MessageBox.Show($"Вы действительно хотите удалить сервер \"{_guild.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
+            try
+            {
+                MainPage.Client.DeleteGuild(_guild.GuildId);
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Success,
+                    Title = "Успех",
+                    Message = $"Сервер \"{_guild.Name}\" был успешно удален"
+                });
+            }
+            catch 
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Error,
+                    Title = "Ошибка",
+                    Message = "Что-то пошло не так"
+                });
+            }
             MainPage.GetInstance().MainFrame.Navigate(null);
             MainPage.GetInstance().LoadGuilds();
             MainPage.GetInstance().PrivateChatButtonClicked(null, null);
@@ -76,8 +99,8 @@ namespace Vardone.Pages.PropertyPages
                     GuildId = _guild.GuildId,
                     Name = GuildNameTb.Text
                 });
-                var guild = MainPage.Client.GetGuilds().FirstOr(p=>p.GuildId == _guild.GuildId, null!);
-                if(guild is not null) LoadGuild(guild);
+                var guild = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == _guild.GuildId, null!);
+                if (guild is not null) LoadGuild(guild);
                 else CloseMouseDown(null, null);
             }
             GuildNameTb.IsEnabled = !GuildNameTb.IsEnabled;

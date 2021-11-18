@@ -13,6 +13,7 @@ namespace Vardone.Controls
     {
         private static JoinGuildControl _instance;
         public static JoinGuildControl GetInstance() => _instance ??= new JoinGuildControl();
+        public static void ClearInstance() => _instance = null;
         private JoinGuildControl() => InitializeComponent();
 
         public void Reset() => CodeTextBox.Text = string.Empty;

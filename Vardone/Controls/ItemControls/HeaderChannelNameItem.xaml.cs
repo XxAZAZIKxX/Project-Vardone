@@ -3,11 +3,11 @@
 namespace Vardone.Controls.ItemControls
 {
     /// <summary>
-    /// Interaction logic for ChannelItem.xaml
+    /// Interaction logic for HeaderChannelNameItem.xaml
     /// </summary>
-    public partial class ChannelItem
+    public partial class HeaderChannelNameItem
     {
-        public ChannelItem(Channel channel)
+        public HeaderChannelNameItem(Channel channel)
         {
             InitializeComponent();
             ChannelNameLabel.Content = channel.Name;

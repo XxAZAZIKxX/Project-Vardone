@@ -438,7 +438,7 @@ namespace VardoneApi.Controllers
                                 Description = item.Guild.Owner.Info?.Description,
                                 Base64Avatar = item.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(item.Guild.Owner.Info.Avatar) : null
                             },
-                            Channels = GuildCreateHelper.GetGuildChannels(item.Id)
+                            Channels = GuildCreateHelper.GetGuildChannels(item.Guild.Id)
                         });
                     }
 

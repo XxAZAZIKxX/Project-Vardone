@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Core.Checks
@@ -128,18 +129,13 @@ namespace VardoneApi.Core.Checks
             var guildsMembers = dataContext.GuildMembers;
             guildsMembers.Include(p => p.Guild).Load();
             guildsMembers.Include(p => p.User).Load();
-
+            
             var user1 = users.First(p => p.Id == idFirstUser);
             var user2 = users.First(p => p.Id == idSecondUser);
 
-            var user1Guilds = guildsMembers.Where(p => p.User == user1);
-            var user2Guilds = guildsMembers.Where(p => p.User == user2);
+            var count = guildsMembers.Where(p => p.User == user1 || p.User == user2).ToList().GroupBy(p => p.Guild).Count();
 
-            foreach (var guild in user1Guilds)
-            {
-                if (user2Guilds.Contains(guild)) return true;
-            }
-            return false;
+            return count > 0;
         }
 
         public static bool CanGetUser(long idFirstUser, long idSecondUser)

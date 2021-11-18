@@ -28,7 +28,7 @@ namespace Vardone.Controls.ItemControls
             InitializeComponent();
             User = user;
             Type = type;
-
+            SetStatus(MainPage.Client.GetOnlineUser(user.UserId));
             switch (type)
             {
                 case RequestType.Incoming:
@@ -49,14 +49,14 @@ namespace Vardone.Controls.ItemControls
         private void Accept_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             MainPage.Client.AddFriend(User.Username);
-            FriendsProperties.GetInstance().LoadIncomingRequests();
+            FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
         }
 
         private void Decline_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             MainPage.Client.DeleteFriend(User.UserId);
-            FriendsProperties.GetInstance().LoadIncomingRequests();
-            FriendsProperties.GetInstance().LoadOutgoingRequests();
+            FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
+            FriendsPropertiesPage.GetInstance().LoadOutgoingRequests();
         }
 
         public void SetStatus(bool online)

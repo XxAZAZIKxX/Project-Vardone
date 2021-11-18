@@ -223,7 +223,7 @@ namespace VardoneLibrary.Core.Client
                     foreach (var p in list.Where(p => !channels.Contains(p))) onUpdateChannelList?.Invoke(p.Guild);
 
                     list = channels;
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    Thread.Sleep(TimeSpan.FromSeconds(1.5));
                 }
             }
             catch (Exception e)
@@ -309,14 +309,14 @@ namespace VardoneLibrary.Core.Client
         }
         private void CheckNewChannelMessagesThread()
         {
-            var dictionary = new Dictionary<long, long>();
+            var dictionary = new Dictionary<long, long?>();
             foreach (var guild in _client.GetGuilds())
             {
                 if (guild.Channels is null) continue;
                 foreach (var guildChannel in guild.Channels)
                 {
                     var channelMessage = _client.GetChannelMessages(guildChannel.ChannelId, 1).FirstOrDefault();
-                    dictionary[guildChannel.ChannelId] = channelMessage.MessageId;
+                    dictionary[guildChannel.ChannelId] = channelMessage?.MessageId;
                 }
             }
             try
@@ -329,10 +329,10 @@ namespace VardoneLibrary.Core.Client
                         foreach (var guildChannel in guild.Channels)
                         {
                             var channelMessage = _client.GetChannelMessages(guildChannel.ChannelId, 1).FirstOrDefault();
-                            if (!dictionary.ContainsKey(guildChannel.ChannelId) || dictionary[guildChannel.ChannelId] != channelMessage.MessageId)
+                            if (!dictionary.ContainsKey(guildChannel.ChannelId) || dictionary[guildChannel.ChannelId] != channelMessage?.MessageId)
                             {
                                 onNewChannelMessage?.Invoke(channelMessage);
-                                dictionary[guildChannel.ChannelId] = channelMessage.MessageId;
+                                dictionary[guildChannel.ChannelId] = channelMessage?.MessageId;
                             }
                         }
                     }
@@ -341,9 +341,7 @@ namespace VardoneLibrary.Core.Client
             }
             catch (Exception e)
             {
-                if (e is UnauthorizedException)
-                    _isCheckNewChannelMessagesThreadWork = false;
-                else throw;
+                if (e is UnauthorizedException) _isCheckNewChannelMessagesThreadWork = false;
             }
         }
         //Other

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Input;
@@ -26,6 +27,19 @@ namespace Vardone
         private static MainWindow _instance;
         public static MainWindow GetInstance() => _instance;
 
+        public static void FlushMemory()
+        {
+            var prs = Process.GetCurrentProcess();
+            try
+            {
+                prs.MinWorkingSet = (IntPtr)(300000);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
         private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static readonly string Path = System.IO.Path.GetDirectoryName(DllPath);
         private WinForms.NotifyIcon _trayIcon;
@@ -51,7 +65,7 @@ namespace Vardone
             };
             _trayIcon.MouseClick += TrayIconOnMouseClick;
 
-; _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
             _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
         }
 
@@ -89,8 +103,7 @@ namespace Vardone
         public void LoadApp(VardoneClient client)
         {
             JsonTokenWorker.SetToken(client.Token);
-            MainPage.GetInstance().Load(client);
-            MainFrame.Navigate(MainPage.GetInstance());
+            MainFrame.Navigate(MainPage.GetInstance().Load(client));
         }
 
         private void CloseBtnClick(object sender, RoutedEventArgs e)
@@ -103,6 +116,7 @@ namespace Vardone
                 Message = "Иконку можно найти в трее",
                 Type = NotificationType.Information
             }, "", TimeSpan.FromSeconds(5), () => TrayOpenClick(null, null));
+            FlushMemory();
         }
 
         private void CloseApp()
