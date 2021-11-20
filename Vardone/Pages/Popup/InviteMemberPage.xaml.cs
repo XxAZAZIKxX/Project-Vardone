@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using Notifications.Wpf;
 using Vardone.Controls;
-using Vardone.Controls.ItemControls;
+using Vardone.Controls.Items;
 using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Pages.Popup
@@ -56,7 +56,7 @@ namespace Vardone.Pages.Popup
                     Invintations.Visibility = Visibility.Visible;
                     foreach (var guildInvite in MainPage.Client.GetGuildInvites(guild.GuildId))
                     {
-                        InviteList.Children.Add(new InvitationItem(guildInvite));
+                        InviteList.Children.Add(new GuildInvitationItem(guildInvite));
                     }
                 }
                 foreach (var guildMember in MainPage.Client.GetGuildMembers(guild.GuildId))

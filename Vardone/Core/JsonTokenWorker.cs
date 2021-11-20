@@ -7,7 +7,7 @@ namespace Vardone.Core
 {
     public abstract class JsonTokenWorker
     {
-        private static readonly string FilePath = MainWindow.Path + @"\token.json";
+        private static readonly string FilePath = MainWindow.PATH + @"\token.json";
         public static string GetToken() => !File.Exists(FilePath) ? null : Encoding.Default.GetString(File.ReadAllBytes(FilePath));
 
         public static void SetToken(string token)

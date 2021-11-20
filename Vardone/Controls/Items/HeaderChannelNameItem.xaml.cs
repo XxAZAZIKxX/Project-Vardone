@@ -1,6 +1,6 @@
 ﻿using VardoneEntities.Entities.Guild;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     /// <summary>
     /// Interaction logic for HeaderChannelNameItem.xaml

@@ -8,7 +8,7 @@ using Vardone.Pages;
 using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     public enum RequestType
     {

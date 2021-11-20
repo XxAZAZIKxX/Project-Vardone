@@ -6,7 +6,7 @@ using Notifications.Wpf;
 using Vardone.Pages;
 using VardoneEntities.Entities.Guild;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     /// <summary>
     /// Interaction logic for GuildChannelItem.xaml

@@ -1,14 +1,14 @@
 ﻿using VardoneEntities.Entities.Guild;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     /// <summary>
-    /// Interaction logic for InvitationItem.xaml
+    /// Interaction logic for GuildInvitationItem.xaml
     /// </summary>
-    public partial class InvitationItem
+    public partial class GuildInvitationItem
     {
         public GuildInvite invite;
-        public InvitationItem(GuildInvite invite)
+        public GuildInvitationItem(GuildInvite invite)
         {
             InitializeComponent();
             this.invite = invite;

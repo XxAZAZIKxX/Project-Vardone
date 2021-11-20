@@ -6,7 +6,6 @@
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       xmlns:controls="clr-namespace:Vardone.Controls"
-      xmlns:itemControls="clr-namespace:Vardone.Controls.ItemControls"
 
       Title="MainPage">
 
@@ -90,7 +89,7 @@
         <Frame Name="MainFrame" Grid.ColumnSpan="3" Grid.Column="0"
                Grid.Row="0" Grid.RowSpan="2" NavigationUIVisibility="Hidden" />
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="40" Width="5*" MaxWidth="60"/>
+            <ColumnDefinition MinWidth="40" Width="5*" MaxWidth="50"/>
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="95*" />
         </Grid.ColumnDefinitions>

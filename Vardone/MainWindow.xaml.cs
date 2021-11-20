@@ -25,8 +25,37 @@ namespace Vardone
         private int _normalY;
 
         private static MainWindow _instance;
-        public static MainWindow GetInstance() => _instance;
+        public static MainWindow GetInstance() => _instance ??= new MainWindow();
 
+        private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        public static readonly string PATH = System.IO.Path.GetDirectoryName(DllPath);
+
+        public readonly NotificationManager notificationManager = new();
+        private WinForms.NotifyIcon _trayIcon;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            _instance = this;
+
+            InitializeTrayIcon();
+            TryLogin();
+        }
+        private void InitializeTrayIcon()
+        {
+            _trayIcon = new WinForms.NotifyIcon
+            {
+                Visible = true,
+                Text = "Vardone",
+                Icon = new Icon(PATH + @"\resources\contentRes\va.ico"),
+                ContextMenuStrip = new WinForms.ContextMenuStrip()
+            };
+            _trayIcon.MouseClick += TrayIconOnMouseClick;
+
+            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
+        }
+        //Methods
         public static void FlushMemory()
         {
             var prs = Process.GetCurrentProcess();
@@ -39,56 +68,6 @@ namespace Vardone
                 // ignored
             }
         }
-
-        private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        public static readonly string Path = System.IO.Path.GetDirectoryName(DllPath);
-        private WinForms.NotifyIcon _trayIcon;
-        public readonly NotificationManager notificationManager = new();
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            _instance = this;
-
-            InitializeTrayIcon();
-            TryLogin();
-        }
-
-        private void InitializeTrayIcon()
-        {
-            _trayIcon = new WinForms.NotifyIcon
-            {
-                Visible = true,
-                Text = "Vardone",
-                Icon = new Icon(Path + @"\resources\contentRes\va.ico"),
-                ContextMenuStrip = new WinForms.ContextMenuStrip()
-            };
-            _trayIcon.MouseClick += TrayIconOnMouseClick;
-
-            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
-            _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
-        }
-
-        private void TrayIconOnMouseClick(object sender, WinForms.MouseEventArgs e)
-        {
-            if (e.Button != WinForms.MouseButtons.Left) return;
-            if (ShowInTaskbar) CloseBtnClick(null, null);
-            else TrayOpenClick(null, null);
-        }
-
-        private void TrayOpenClick(object sender, EventArgs e)
-        {
-            Focus();
-            Show();
-            ShowInTaskbar = true;
-        }
-
-        private void TrayCloseClick(object sender, EventArgs e)
-        {
-            _trayIcon.Dispose();
-            CloseApp();
-        }
-
         private void TryLogin()
         {
             var token = JsonTokenWorker.GetToken();
@@ -99,13 +78,34 @@ namespace Vardone
                 else MainFrame.Navigate(AuthorizationPage.GetInstance());
             }
         }
-
         public void LoadApp(VardoneClient client)
         {
             JsonTokenWorker.SetToken(client.Token);
             MainFrame.Navigate(MainPage.GetInstance().Load(client));
         }
-
+        private void CloseApp()
+        {
+            _trayIcon.Dispose();
+            Environment.Exit(0);
+        }
+        //Events
+        private void TrayIconOnMouseClick(object sender, WinForms.MouseEventArgs e)
+        {
+            if (e.Button != WinForms.MouseButtons.Left) return;
+            if (ShowInTaskbar) CloseBtnClick(null, null);
+            else TrayOpenClick(null, null);
+        }
+        private void TrayOpenClick(object sender, EventArgs e)
+        {
+            Focus();
+            Show();
+            ShowInTaskbar = true;
+        }
+        private void TrayCloseClick(object sender, EventArgs e)
+        {
+            _trayIcon.Dispose();
+            CloseApp();
+        }
         private void CloseBtnClick(object sender, RoutedEventArgs e)
         {
             ShowInTaskbar = false;
@@ -117,12 +117,6 @@ namespace Vardone
                 Type = NotificationType.Information
             }, "", TimeSpan.FromSeconds(5), () => TrayOpenClick(null, null));
             FlushMemory();
-        }
-
-        private void CloseApp()
-        {
-            _trayIcon.Dispose();
-            Environment.Exit(0);
         }
 
         //Resize controls
@@ -137,13 +131,11 @@ namespace Vardone
                 // ignored
             }
         }
-
         private void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
             if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
         }
-
         private void ThumbTopRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
@@ -151,7 +143,6 @@ namespace Vardone
             Top += e.VerticalChange;
             Height -= e.VerticalChange;
         }
-
         private void ThumbTopLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Left + e.HorizontalChange > 10)
@@ -164,7 +155,6 @@ namespace Vardone
             Top += e.VerticalChange;
             Height -= e.VerticalChange;
         }
-
         private void ThumbBottomLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Left + e.HorizontalChange > 10)
@@ -175,12 +165,10 @@ namespace Vardone
 
             if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
         }
-
         private void ThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
         }
-
         private void ThumbLeft_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (e.HorizontalChange > 0 && Math.Abs(Width - MinWidth) < 0.01) return;
@@ -188,24 +176,20 @@ namespace Vardone
             Left += e.HorizontalChange;
             Width -= e.HorizontalChange;
         }
-
         private void ThumbBottom_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
         }
-
         private void ThumbTop_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (!(Top + e.VerticalChange > 10)) return;
             Top += e.VerticalChange;
             Height -= e.VerticalChange;
         }
-
         private void Minimize(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
         }
-
         private void Maximize(object sender, RoutedEventArgs e)
         {
             if (_maximized)
@@ -233,7 +217,6 @@ namespace Vardone
                 Thumbs();
             }
         }
-
         private void Thumbs()
         {
             if (_maximized)

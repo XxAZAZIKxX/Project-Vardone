@@ -9,7 +9,7 @@ using Vardone.Pages;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     public enum UserItemType
     {

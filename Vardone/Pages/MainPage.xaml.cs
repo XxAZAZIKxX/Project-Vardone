@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,7 +7,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.EntityFrameworkCore.Internal;
 using Notifications.Wpf;
 using Vardone.Controls;
-using Vardone.Controls.ItemControls;
+using Vardone.Controls.Items;
 using Vardone.Core;
 using Vardone.Pages.Popup;
 using Vardone.Pages.PropertyPages;
@@ -159,7 +158,7 @@ namespace Vardone.Pages
                     if (chatControl.chat is not null || chatControl.channel is not null)
                     {
                         if (chatControl.chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
-                        foreach (var privateMessage in chatControl.ChatMessagesList.Children.Cast<ChatMessageItem>())
+                        foreach (var privateMessage in chatControl.ChatMessagesList.Children.Cast<MessageItem>())
                         {
                             if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
                         }
@@ -239,10 +238,10 @@ namespace Vardone.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GuildList.Children.Clear();
-                foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildItem(guild));
+                foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildListItem(guild));
                 if (guildPanel.Visibility == Visibility.Visible)
                 {
-                    foreach (var guildItem in GuildList.Children.Cast<GuildItem>())
+                    foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
                     {
                         if (guildItem.guild.GuildId == guildPanel.currentGuild.GuildId) guildItem.IsActive = true;
                     }
@@ -332,13 +331,13 @@ namespace Vardone.Pages
             guildPanel.ChangeGuild(guild);
             chatControl.CloseChat();
             chatControl.LoadChat(guild.Channels?.FirstOr(null!));
-            foreach (var guildItem in GuildList.Children.Cast<GuildItem>())
+            foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
                 if (guildItem.guild.GuildId == guild.GuildId)
                     guildItem.IsActive = true;
         }
         public void PrivateChatButtonClicked(object sender, MouseButtonEventArgs e)
         {
-            GuildItem.ClearAllHovers();
+            GuildListItem.ClearAllHovers();
             friendListPanel.Visibility = Visibility.Visible;
             guildPanel.Visibility = Visibility.Collapsed;
             chatControl.CloseChat();

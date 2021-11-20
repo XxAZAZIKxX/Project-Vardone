@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Notifications.Wpf;
-using Vardone.Controls.ItemControls;
+using Vardone.Controls.Items;
 
 namespace Vardone.Pages.PropertyPages
 {

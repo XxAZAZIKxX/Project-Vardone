@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities.Guild;
-using System.Windows.Shapes;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
    
     /// <summary>
-    /// Interaction logic for GuildItem.xaml
+    /// Interaction logic for GuildListItem.xaml
     /// </summary>
-    public partial class GuildItem
+    public partial class GuildListItem
     {
-        private static readonly List<GuildItem> Items = new();
+        private static readonly List<GuildListItem> Items = new();
         public readonly Guild guild;
         private bool _isActive;
 
@@ -31,7 +30,7 @@ namespace Vardone.Controls.ItemControls
                 _isActive = value;
             }
         }
-        public GuildItem([NotNull] Guild guild)
+        public GuildListItem([NotNull] Guild guild)
         {
             InitializeComponent();
             this.guild = guild;
@@ -40,7 +39,7 @@ namespace Vardone.Controls.ItemControls
         }
 
 
-        ~GuildItem() => Items.Remove(this);
+        ~GuildListItem() => Items.Remove(this);
 
 
         private void AvatarClicked(object sender, MouseButtonEventArgs e)

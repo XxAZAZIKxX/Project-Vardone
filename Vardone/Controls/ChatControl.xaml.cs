@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
-using Vardone.Controls.ItemControls;
+using Vardone.Controls.Items;
 using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
@@ -62,7 +62,7 @@ namespace Vardone.Controls
                     PrivateChatHeader.Children.Add(userHeader);
                     foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 15).OrderBy(p => p.MessageId))
                     {
-                        var messageItem = new ChatMessageItem(message);
+                        var messageItem = new MessageItem(message);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
                         ChatMessagesList.Children.Add(messageItem);
                     }
@@ -95,7 +95,7 @@ namespace Vardone.Controls
                 {
                     PrivateChatHeader.Children.Add(new HeaderChannelNameItem(channel));
                     var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
-                    foreach (var message in messages) ChatMessagesList.Children.Add(new ChatMessageItem(message));
+                    foreach (var message in messages) ChatMessagesList.Children.Add(new MessageItem(message));
                     ChatScrollViewer.ScrollToEnd();
                     
                 });
@@ -125,22 +125,22 @@ namespace Vardone.Controls
 
                     if (chat is not null)
                     {
-                        var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((ChatMessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
+                        var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
                         numberAdded = list.Count;
                         foreach (var message in list)
                         {
-                            var messageItem = new ChatMessageItem(message);
+                            var messageItem = new MessageItem(message);
                             messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
                             ChatMessagesList.Children.Insert(0, messageItem);
                         }
                     }
                     else
                     {
-                        var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((ChatMessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
+                        var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
                         numberAdded = list.Count;
                         foreach (var message in list)
                         {
-                            var messageItem = new ChatMessageItem(message);
+                            var messageItem = new MessageItem(message);
                             messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
                             ChatMessagesList.Children.Insert(0, messageItem);
                         }

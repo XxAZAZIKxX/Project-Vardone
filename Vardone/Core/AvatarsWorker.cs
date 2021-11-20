@@ -11,7 +11,7 @@ namespace Vardone.Core
     {
         private static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
         private static Dictionary<long, BitmapImage> GuildAvatars { get; } = new();
-        private static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.Path + @"\resources\contentRes\avatar.jpg"));
+        private static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\contentRes\avatar.jpg"));
         private static readonly object Locker = new();
 
         public static BitmapImage GetAvatarUser(long userId)

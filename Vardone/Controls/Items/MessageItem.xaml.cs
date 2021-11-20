@@ -10,17 +10,17 @@ using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 
-namespace Vardone.Controls.ItemControls
+namespace Vardone.Controls.Items
 {
     /// <summary>
     /// Логика взаимодействия для MessageGridItem.xaml
     /// </summary>
-    public partial class ChatMessageItem
+    public partial class MessageItem
     {
         public PrivateMessage PrivateMessage { get; }
         public ChannelMessage ChannelMessage { get; }
         public User Author { get; }
-        public ChatMessageItem([NotNull] PrivateMessage message)
+        public MessageItem([NotNull] PrivateMessage message)
         {
             InitializeComponent();
 
@@ -33,12 +33,12 @@ namespace Vardone.Controls.ItemControls
 
             CreatedTime.Content = message.CreatedTime.ToShortDateString() + " " + message.CreatedTime.ToShortTimeString();
             Username.Content = Author.Username;
-            Text.Content = message.Text;
+            Text.Text = message.Text;
             if (message.Base64Image is null) ImageRow.Height = new GridLength(0d);
             else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
         }
 
-        public ChatMessageItem([NotNull] ChannelMessage channelMessage)
+        public MessageItem([NotNull] ChannelMessage channelMessage)
         {
             InitializeComponent();
 
@@ -51,7 +51,7 @@ namespace Vardone.Controls.ItemControls
 
             CreatedTime.Content = channelMessage.CreatedTime.ToShortDateString() + " " + channelMessage.CreatedTime.ToShortTimeString();
             Username.Content = Author.Username;
-            Text.Content = channelMessage.Text;
+            Text.Text = channelMessage.Text;
             if (channelMessage.Base64Image is null) ImageRow.Height = new GridLength(0d);
             else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(channelMessage.Base64Image));
         }
