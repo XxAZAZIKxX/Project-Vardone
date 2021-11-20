@@ -21,6 +21,7 @@
     <None Remove="Resources\download.png" />
     <None Remove="Resources\exit.png" />
     <None Remove="Resources\gear.png" />
+    <None Remove="Resources\info-icon.png" />
     <None Remove="Resources\message.png" />
     <None Remove="Resources\tick.ico" />
     <None Remove="Resources\va.ico" />
@@ -40,6 +41,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="Resources\add_user.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\info-icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\va.ico">
