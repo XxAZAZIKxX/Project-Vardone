@@ -21,5 +21,9 @@
         public static VardoneDelegates.UpdateGuildListHandler onUpdateGuildList;
         
         public static VardoneDelegates.UpdateChannelListHandler onUpdateChannelList;
+
+        public static VardoneDelegates.DeleteChannelMessageHandler onDeleteChannelMessage;
+
+        public static VardoneDelegates.DeletePrivateChatMessageHandler onDeletePrivateChatMessage;
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core.Checks;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 
 namespace VardoneApi.Core

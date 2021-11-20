@@ -12,60 +12,44 @@ namespace VardoneLibrary.Core.Client
     {
         private VardoneClient _client;
 
-        /// <summary>
-        /// Поток проверки наличия новых сообщений
-        /// </summary>
         private Thread _checkNewPrivateMessageThread;
         private bool _isCheckNewPrivateMessageThreadWork = true;
-        /// <summary>
-        /// Поток который обновляет онлайн текущего пользователя
-        /// </summary>
+        //
         private Thread _settingOnlineThread;
         private bool _isSettingOnlineThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновления списка друзей
-        /// </summary>
+        //
         private Thread _checkUpdatesOnFriendListThread;
         private bool _isCheckUpdatesOnFriendListThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновления списка чатов
-        /// </summary>
+        //
         private Thread _checkUpdatesOnChatListThread;
         private bool _isCheckUpdatesOnChatListThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновление статуса друзей
-        /// </summary>
+        //
         private Thread _checkOnlineUsersThread;
         private bool _isCheckOnlineUsersThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновление списка входящих запросов в друзья
-        /// </summary>
+        //
         private Thread _checkUpdatesIncomingRequestThread;
         private bool _isCheckUpdatesIncomingRequestThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновление списка исходящих запросов в друзья
-        /// </summary>
+        //
         private Thread _checkUpdatesOutgoingRequestThread;
         private bool _isCheckUpdatesOutgoingRequestThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновление списка серверов
-        /// </summary>
+        //
         private Thread _checkUpdatesOnGuildListThread;
         private bool _isCheckUpdatesOnGuildListThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на обновления списка каналов на сервере
-        /// </summary>
+        //
         private Thread _checkUpdatesOnChannelsListThread;
         private bool _isCheckUpdateOnChannelsListThreadWork = true;
-        /// <summary>
-        /// Поток проверяющий на новые сообщения в канале на сервере
-        /// </summary>
+        //
         private Thread _checkNewChannelMessagesThread;
         private bool _isCheckNewChannelMessagesThreadWork = true;
-        /// <summary>
-        /// Обновлять ли статус текущего пользователя
-        /// </summary>
+        //
+        private Thread _checkDeleteMessagesOnChat;
+        private bool _isCheckDeleteMessagesOnChatWork = true;
+        //
+        private Thread _checkDeleteMessagesOnChannel;
+        private bool _isCheckDeleteMessagesOnChannelWork = true;
+        //
         internal bool setOnline = true;
+        //
 
         public VardoneClientBackground(VardoneClient client)
         {
@@ -109,12 +93,21 @@ namespace VardoneLibrary.Core.Client
             //
             _checkNewChannelMessagesThread = new Thread(CheckNewChannelMessagesThread);
             _checkNewChannelMessagesThread.Start();
+            //
+            _checkDeleteMessagesOnChat = new Thread(CheckDeleteMessagesOnChatThread);
+            _checkDeleteMessagesOnChat.Start();
+            //
+            _checkDeleteMessagesOnChannel = new Thread(CheckDeleteMessagesOnChannelThread);
+            _checkDeleteMessagesOnChannel.Start();
         }
-        internal void StopThreads() => _isCheckNewPrivateMessageThreadWork = _isSettingOnlineThreadWork =
-            _isCheckUpdatesOnFriendListThreadWork = _isCheckUpdatesOnChatListThreadWork =
-                _isCheckOnlineUsersThreadWork = _isCheckUpdatesIncomingRequestThreadWork =
-                    _isCheckUpdatesOutgoingRequestThreadWork = _isCheckUpdatesOnGuildListThreadWork =
-                        _isCheckUpdateOnChannelsListThreadWork = _isCheckNewChannelMessagesThreadWork = false;
+
+        internal void StopThreads() =>
+            _isCheckNewPrivateMessageThreadWork = _isSettingOnlineThreadWork = _isCheckUpdatesOnFriendListThreadWork =
+                _isCheckUpdatesOnChatListThreadWork = _isCheckOnlineUsersThreadWork =
+                    _isCheckUpdatesIncomingRequestThreadWork = _isCheckUpdatesOutgoingRequestThreadWork =
+                        _isCheckUpdatesOnGuildListThreadWork = _isCheckUpdateOnChannelsListThreadWork =
+                            _isCheckNewChannelMessagesThreadWork = _isCheckDeleteMessagesOnChatWork =
+                                _isCheckDeleteMessagesOnChannelWork = false;
 
 
         //Friends
@@ -344,6 +337,58 @@ namespace VardoneLibrary.Core.Client
                 if (e is UnauthorizedException) _isCheckNewChannelMessagesThreadWork = false;
             }
         }
+        private void CheckDeleteMessagesOnChannelThread()
+        {
+            var dictionary = new Dictionary<long, DateTime?>();
+            foreach (var guildChannel in _client.GetGuilds().SelectMany(guild => _client.GetGuildChannels(guild.GuildId)))
+            {
+                dictionary[guildChannel.ChannelId] = _client.GetLastDeleteMessageTimeOnChannel(guildChannel.ChannelId);
+            }
+            try
+            {
+                while (_isCheckDeleteMessagesOnChannelWork)
+                {
+                    foreach (var guildChannel in _client.GetGuilds().SelectMany(guild => _client.GetGuildChannels(guild.GuildId)))
+                    {
+                        var lastDeleteMessageTimeOnChannel = _client.GetLastDeleteMessageTimeOnChannel(guildChannel.ChannelId);
+                        if (dictionary[guildChannel.ChannelId] != lastDeleteMessageTimeOnChannel) onDeleteChannelMessage?.Invoke(guildChannel);
+                        else continue;
+                        dictionary[guildChannel.ChannelId] = lastDeleteMessageTimeOnChannel;
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException) _isCheckDeleteMessagesOnChannelWork = false;
+            }
+        }
+        private void CheckDeleteMessagesOnChatThread()
+        {
+            var dictionary = new Dictionary<long, DateTime?>();
+            foreach (var privateChat in _client.GetPrivateChats())
+            {
+                dictionary[privateChat.ChatId] = _client.GetLastDeleteTimeOnChat(privateChat.ChatId);
+            }
+            try
+            {
+                while (_isCheckDeleteMessagesOnChatWork)
+                {
+                    foreach (var privateChat in _client.GetPrivateChats())
+                    {
+                        var lastDeleteTimeOnChat = _client.GetLastDeleteTimeOnChat(privateChat.ChatId);
+                        if (dictionary[privateChat.ChatId] != lastDeleteTimeOnChat) onDeletePrivateChatMessage?.Invoke(privateChat);
+                        else continue;
+                        dictionary[privateChat.ChatId] = lastDeleteTimeOnChat;
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is UnauthorizedException) _isCheckDeleteMessagesOnChatWork = false;
+            }
+        }
         //Other
         private void CheckOnlineUsersThread()
         {
@@ -395,6 +440,5 @@ namespace VardoneLibrary.Core.Client
                     throw;
             }
         }
-
     }
 }

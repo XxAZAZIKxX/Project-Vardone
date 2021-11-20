@@ -163,7 +163,7 @@ namespace VardoneLibrary.Core.Client
                     if (IsTokenExpired(response))
                     {
                         UpdateToken();
-                        return GetChannelMessages(channelId);
+                        return GetChannelMessages(channelId, limit, startFrom);
                     }
                     else
                         throw new UnauthorizedException();
@@ -174,6 +174,32 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
+        internal List<ChannelMessage> GetChannelMessages(long channelId, bool read = true, int limit = 0, long startFrom = 0)
+        {
+            var response = ExecutePostWithToken("channels/getChannelMessages", null,
+                new Dictionary<string, string>
+                {
+                    { "channelId", channelId.ToString() },
+                    { "limit", limit.ToString() },
+                    { "startFrom", startFrom.ToString() },
+                    { "read", read.ToString() }
+                });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetChannelMessages(channelId, read, limit, startFrom);
+                    }
+                    else
+                        throw new UnauthorizedException();
+                case HttpStatusCode.OK:
+                    return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
+                default:
+                    throw new Exception(response.Content);
+            }
+        }
         //Create
         /// <summary>
         /// Создать сервер
@@ -548,6 +574,26 @@ namespace VardoneLibrary.Core.Client
                     return;
                 default:
                     throw new Exception(response.Content);
+            }
+        }
+
+        public DateTime? GetLastDeleteMessageTimeOnChannel(long channelId)
+        {
+            var response = ExecutePostWithToken("channels/getLastDeleteMessageTime", null, new Dictionary<string, string>
+            {
+                {"channelId", channelId.ToString()}
+            });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetLastDeleteMessageTimeOnChannel(channelId);
+                    }
+                    else throw new UnauthorizedException();
+                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<DateTime?>(response.Content);
+                default: throw new Exception(response.Content);
             }
         }
     }

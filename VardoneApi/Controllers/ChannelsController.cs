@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities;
@@ -22,18 +23,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -62,18 +55,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -107,18 +92,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -153,18 +130,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -209,22 +178,14 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessages")]
-        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
+        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] bool read = true, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -253,17 +214,15 @@ namespace VardoneApi.Controllers
 
                     var selectedMessages = channelMessages.Where(p => p.Channel.Id == channelId);
                     if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
-                    if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p=>p.Id).Take(limit);
+                    if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
 
                     var returnMessages = new List<ChannelMessage>();
                     foreach (var m in selectedMessages)
                     {
-                        returnMessages.Add(new ChannelMessage
+                        var item = new ChannelMessage
                         {
                             MessageId = m.Id,
-                            Text = m.Text,
                             CreatedTime = m.CreatedTime,
-                            Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null,
                             Author = new User
                             {
                                 UserId = m.Author.Id,
@@ -289,7 +248,13 @@ namespace VardoneApi.Controllers
                                     }
                                 }
                             }
-                        });
+                        };
+                        if (read)
+                        {
+                            item.Text = m.Text;
+                            item.Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null;
+                        }
+                        returnMessages.Add(item);
                     }
                     return Ok(returnMessages);
                 }
@@ -297,7 +262,6 @@ namespace VardoneApi.Controllers
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //
@@ -306,18 +270,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -326,6 +282,10 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var dataContext = Program.DataContext;
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.User).Load();
+                    var channels = dataContext.Channels;
                     var channelMessages = dataContext.ChannelMessages;
                     channelMessages.Include(p => p.Author).Load();
                     channelMessages.Include(p => p.Channel).Load();
@@ -333,14 +293,53 @@ namespace VardoneApi.Controllers
                     channelMessages.Include(p => p.Channel.Guild.Owner).Load();
 
                     if (channelMessages.Count(p => p.Id == messageId) == 0) return BadRequest("Message is not exists");
-
                     var channelMessage = channelMessages.First(p => p.Id == messageId);
+                    if (!guildMembers.Any(p => p.Guild.Id == channelMessage.Channel.Guild.Id && p.User.Id == userId)) return BadRequest("You are not member");
 
                     if (channelMessage.Author.Id != userId && channelMessage.Channel.Guild.Owner.Id != userId) return BadRequest("You cannot delete this message");
 
+                    var channel = channels.First(p => p.Id == channelMessage.Channel.Id);
+                    channel.LastDeleteMessageTime = DateTime.Now;
                     channelMessages.Remove(channelMessage);
                     dataContext.SaveChanges();
                     return Ok("Deleted");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getLastDeleteMessageTime")]
+        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long channelId)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+                if (!ChannelChecks.IsChannelExists(channelId)) return BadRequest("Channel is not exists");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var channels = dataContext.Channels;
+                    channels.Include(p => p.Guild).Load();
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
+                    guildMembers.Include(p => p.Guild).Load();
+
+                    var channel = channels.First(p => p.Id == channelId);
+
+                    if (guildMembers.Count(p => p.User.Id == userId && p.Guild.Id == channel.Guild.Id) == 0) return BadRequest("You not a member of this guild");
+
+                    return channel.LastDeleteMessageTime is not null ? Ok(channel.LastDeleteMessageTime) : new EmptyResult();
                 }
                 catch (Exception e)
                 {

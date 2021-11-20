@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
-using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
 {
@@ -25,18 +25,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -81,18 +73,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -154,18 +138,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -224,18 +200,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -285,18 +253,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -336,18 +296,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -378,18 +330,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -423,18 +367,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -483,18 +419,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -539,18 +467,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -585,18 +505,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -656,42 +568,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-        private static string CreateInviteCode()
-        {
-            var sb = new StringBuilder();
-            var n = Random.Next(6, 10);
-            for (var i = 0; i < n; i++)
-            {
-                switch (Random.Next(1, 3))
-                {
-                    case 1:
-                        sb.Append((char)Random.Next(65, 91));
-                        break;
-                    case 2:
-                        sb.Append((char)Random.Next(97, 123));
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
         //
         [HttpPost, Route("joinGuild")]
         public async Task<IActionResult> JoinGuild([FromQuery] string inviteCode)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -741,18 +627,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -784,18 +662,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -820,6 +690,26 @@ namespace VardoneApi.Controllers
                     return Ok("You are not member");
                 }
             }));
+        }
+
+        //Methods
+        private static string CreateInviteCode()
+        {
+            var sb = new StringBuilder();
+            var n = Random.Next(6, 10);
+            for (var i = 0; i < n; i++)
+            {
+                switch (Random.Next(1, 3))
+                {
+                    case 1:
+                        sb.Append((char)Random.Next(65, 91));
+                        break;
+                    case 2:
+                        sb.Append((char)Random.Next(97, 123));
+                        break;
+                }
+            }
+            return sb.ToString();
         }
     }
 }

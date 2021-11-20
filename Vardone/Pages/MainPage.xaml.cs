@@ -58,18 +58,10 @@ namespace Vardone.Pages
             VardoneEvents.onUpdateGuildList += LoadGuilds;
             VardoneEvents.onUpdateChannelList += OnUpdateChannelList;
             VardoneEvents.onNewChannelMessage += OnNewChannelMessage;
+            VardoneEvents.onDeleteChannelMessage += OnDeleteChannelMessage;
+            VardoneEvents.onDeletePrivateChatMessage += OnDeletePrivateChatMessage;
         }
 
-        private void OnNewChannelMessage(ChannelMessage message)
-        {
-            if (chatControl.channel is null || message is null) return;
-            if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
-        }
-
-        private void OnUpdateChannelList(Guild guild)
-        {
-            if (guildPanel.currentGuild?.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
-        }
 
         public void ExitFromAccount()
         {
@@ -211,6 +203,25 @@ namespace Vardone.Pages
                 if (Equals(user, Client.GetMe())) LoadMe();
             });
         }
+        private void OnDeletePrivateChatMessage(PrivateChat chat)
+        {
+            if (chatControl.chat is null || chatControl.chat.ChatId != chat.ChatId) return;
+            chatControl.LoadChat(chat);
+        }
+        private void OnDeleteChannelMessage(Channel channel)
+        {
+            if (chatControl.channel is null || chatControl.channel.ChannelId != channel.ChannelId) return;
+            chatControl.LoadChat(channel);
+        }
+        private void OnNewChannelMessage(ChannelMessage message)
+        {
+            if (chatControl.channel is null || message is null) return;
+            if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
+        }
+        private void OnUpdateChannelList(Guild guild)
+        {
+            if (guildPanel.currentGuild?.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
+        }
 
         //Loads
         public MainPage Load(VardoneClient vardoneClient)
@@ -304,7 +315,7 @@ namespace Vardone.Pages
 
         //Opens
         private void MyProfileOpen(object s, MouseEventArgs e) => UserProfileOpen(Client.GetMe(), true);
-        public void UserProfileOpen(User user, bool online, bool isMe = false) => MainFrame.Navigate(UserProfilePage.GetInstance().Load(user,online, isMe));
+        public void UserProfileOpen(User user, bool online, bool isMe = false) => MainFrame.Navigate(UserProfilePage.GetInstance().Load(user, online, isMe));
 
         public void DeployImage(BitmapImage image)
         {

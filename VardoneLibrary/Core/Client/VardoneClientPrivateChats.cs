@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -104,8 +105,7 @@ namespace VardoneLibrary.Core.Client
         /// <param name="limit">Количество сообщений для получения. По умолчанию 0 (получаются все)</param>
         /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
-        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0,
-            long startFrom = 0)
+        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
         {
             var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
                 new Dictionary<string, string>
@@ -206,12 +206,32 @@ namespace VardoneLibrary.Core.Client
                     else
                         throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                {
-                    onUpdateChatList?.Invoke();
-                    return;
-                }
+                    {
+                        onUpdateChatList?.Invoke();
+                        return;
+                    }
                 default:
                     throw new Exception(response.Content);
+            }
+        }
+
+        public DateTime? GetLastDeleteTimeOnChat(long chatId)
+        {
+            var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string>
+            {
+                { "chatId", chatId.ToString() }
+            });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    if (IsTokenExpired(response))
+                    {
+                        UpdateToken();
+                        return GetLastDeleteTimeOnChat(chatId);
+                    }
+                    else throw new UnauthorizedException();
+                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<DateTime?>(response.Content);
+                default: throw new Exception(response.Content);
             }
         }
     }

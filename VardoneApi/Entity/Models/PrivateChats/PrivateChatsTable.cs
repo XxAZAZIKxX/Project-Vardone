@@ -13,5 +13,6 @@ namespace VardoneApi.Entity.Models.PrivateChats
         [Column("to_id"), ForeignKey("to_id"), Required] public UsersTable ToUser { get; set; }
         [Column("from_last_readTime_messages"), Required] public DateTime FromLastReadTimeMessages { get; set; }
         [Column("to_last_readTime_messages"), Required] public DateTime ToLastReadTimeMessages { get; set; }
+        [Column("last_delete_message_time")] public DateTime? LastDeleteMessageTime { get; set; }
     }
 }

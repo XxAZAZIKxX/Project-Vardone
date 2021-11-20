@@ -23,10 +23,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                var token = User.Claims.First(p => p.Type == "token").Value;
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Token empty");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -69,43 +69,41 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("checkFriend")]
         public async Task<IActionResult> CheckFriend([FromQuery] long secondId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                var token = User.Claims.First(p => p.Type == "token").Value;
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (userId == secondId) return BadRequest("Username equal second userId");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
+                if (userId == secondId) return BadRequest("Username equal second userId");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest("Second userId does not exists");
                 return Ok(!UserChecks.IsFriends(userId, secondId));
             }));
         }
-
         //
         [HttpPost, Route("deleteFriend")]
         public async Task<IActionResult> DeleteFriend([FromQuery] long secondId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                var token = User.Claims.First(p => p.Type == "token").Value;
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (userId == secondId) return BadRequest("Username equal friend userId");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
+                if (userId == secondId) return BadRequest("Username equal friend userId");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest("Friend does not exist");
                 var dataContext = Program.DataContext;
@@ -128,17 +126,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getFriends")]
         public async Task<IActionResult> GetFriends()
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                var token = User.Claims.First(p => p.Type == "token").Value;
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -175,17 +172,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getIncomingFriendRequests")]
         public async Task<IActionResult> GetIncomingFriendRequests()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -227,17 +223,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getOutgoingFriendRequests")]
         public async Task<IActionResult> GetOutgoingFriendRequests()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -280,17 +275,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getMe")]
         public async Task<IActionResult> GetMe()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -317,17 +311,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getUser")]
         public async Task<IActionResult> GetUser([FromQuery] long secondId)
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -355,17 +348,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getUserOnline")]
         public async Task<IActionResult> getUserOnline([FromQuery] long secondId)
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -397,16 +389,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getGuilds")]
         public async Task<IActionResult> GetGuilds()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -450,17 +442,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("getPrivateChats")]
         public async Task<IActionResult> GetPrivateChats()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -521,17 +512,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("closeAllSessions")]
         public async Task<IActionResult> CloseAllSessions()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -553,17 +543,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("closeCurrentSession")]
         public async Task<IActionResult> CloseCurrentSession()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -574,7 +563,7 @@ namespace VardoneApi.Controllers
                 tokens.Include(p => p.User).Load();
                 try
                 {
-                    var first = tokens.First(p => p.User.Id == userId && p.Token == token);
+                    var first = tokens.First(p => p.User.Id == userId && p.Token == token.Token);
                     tokens.Remove(first);
                     dataContext.SaveChanges();
                     return Ok();
@@ -585,17 +574,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("deleteMe")]
         public async Task<IActionResult> DeleteMe()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -615,17 +603,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("setOnline")]
         public async Task<IActionResult> setOnline()
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -662,18 +649,16 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("updatePassword")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordModel updatePasswordModel)
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (updatePasswordModel is null) return BadRequest("Empty updatePasswordModel");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -699,25 +684,22 @@ namespace VardoneApi.Controllers
                 }
             }));
         }
-
         //
         [HttpPost, Route("updateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUserModel)
         {
-            var userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-            var token = User.Claims.First(p => p.Type == "token").Value;
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (updateUserModel == null) return BadRequest("Empty user model");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
-                if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email))
-                    return BadRequest("Email is booked");
+                if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email)) return BadRequest("Email is booked");
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
                 users.Include(p => p.Info).Load();

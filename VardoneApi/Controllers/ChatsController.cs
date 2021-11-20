@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities;
@@ -21,19 +22,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -123,26 +115,17 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
 
                 if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!PrivateChatChecks.IsCanReadMessages(userId, chatId)) return BadRequest("No access");
+                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
 
                 try
                 {
@@ -178,7 +161,7 @@ namespace VardoneApi.Controllers
                         {
                             var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;
                             var user2 = message.Chat.FromUser.Id != userId ? message.Chat.FromUser : message.Chat.ToUser;
-                            messages.Add(new PrivateMessage
+                            var item = new PrivateMessage
                             {
                                 MessageId = message.Id,
                                 Chat = new PrivateChat
@@ -206,12 +189,15 @@ namespace VardoneApi.Controllers
                                     Base64Avatar = message.Author.Info?.Avatar == null ? null : Convert.ToBase64String(message.Author.Info.Avatar),
                                     Description = message.Author.Info?.Description
                                 },
-                                Text = message.Text,
-                                Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image),
                                 CreatedTime = message.CreatedTime
-                            });
+                            };
+                            if (read)
+                            {
+                                item.Text = message.Text;
+                                item.Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image);
+                            }
+                            messages.Add(item);
                         }
-
                         return Ok(messages);
                     }
                     catch
@@ -231,25 +217,16 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (message == null) return BadRequest("Empty message");
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (userId == secondId) return BadRequest("Username equal second username");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
+                if (message == null) return BadRequest("Empty message");
+                if (userId == secondId) return BadRequest("Username equal second username");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest();
                 if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
@@ -306,19 +283,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -347,19 +315,10 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                long userId;
-                string token;
-                try
-                {
-                    userId = Convert.ToInt64(User.Claims.First(p => p.Type == "id").Value);
-                    token = User.Claims.First(p => p.Type == "token").Value;
-                }
-                catch
-                {
-                    return BadRequest("Token parser problem");
-                }
-                if (string.IsNullOrWhiteSpace(token)) return BadRequest("Empty token");
-                if (!UserChecks.CheckToken(new UserTokenModel { UserId = userId, Token = token }))
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
@@ -370,18 +329,47 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var messages = dataContext.PrivateMessages;
                     messages.Include(p => p.Author).Load();
+                    messages.Include(p => p.Chat).Load();
+                    var chats = dataContext.PrivateChats;
 
-                    try
-                    {
-                        var message = messages.First(p => p.Author.Id == userId && p.Id == messageId);
-                        messages.Remove(message);
-                        dataContext.SaveChanges();
-                        return Ok("Deleted");
-                    }
-                    catch
-                    {
-                        return BadRequest("You cannot delete this message");
-                    }
+                    var message = messages.First(p => p.Id == messageId);
+                    var chat = chats.First(p => p.Id == message.Chat.Id);
+                    if (message.Author.Id != userId) return BadRequest("You cannot delete this message");
+                    chat.LastDeleteMessageTime = DateTime.Now;
+                    messages.Remove(message);
+                    dataContext.SaveChanges();
+                    return Ok("Deleted");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getLastDeleteMessageTime")]
+        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long chatId)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateChats = dataContext.PrivateChats;
+                    var chat = privateChats.First(p => p.Id == chatId);
+                    return chat.LastDeleteMessageTime is not null ? Ok(chat.LastDeleteMessageTime) : new EmptyResult();
                 }
                 catch (Exception e)
                 {

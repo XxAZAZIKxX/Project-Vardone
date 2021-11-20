@@ -22,6 +22,7 @@ namespace VardoneApi.Controllers
     public class AuthController : ControllerBase
     {
         private static readonly Random Random = new();
+        //
         [HttpPost, Route("authUser")]
         public async Task<IActionResult> AuthUser([FromBody] GetUserTokenApiModel loginRequestModel)
         {
@@ -66,62 +67,6 @@ namespace VardoneApi.Controllers
                 dataContext.SaveChanges();
                 return Ok(GetJwtToken(GetIdentity(user.Id, newToken.Token)));
             }));
-        }
-        private static ClaimsIdentity GetIdentity(long id, string token)
-        {
-            if (token is null) return null;
-            var claims = new List<Claim>
-            {
-                new ("id", id.ToString()),
-                new ("token", token)
-            };
-
-            return new ClaimsIdentity(claims);
-        }
-        private static string GetJwtToken(ClaimsIdentity ident)
-        {
-            var now = DateTime.Now;
-            var jwt = new JwtSecurityToken(
-                TokenOptions.ISSUER,
-                TokenOptions.AUDIENCE,
-                ident.Claims,
-                now,
-                now.Add(TimeSpan.FromMinutes(TokenOptions.LIFETIME)),
-                new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-
-
-            return new JwtSecurityTokenHandler().WriteToken(jwt);
-        }
-        private static string GenerateToken() => CreateMd5((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CreateRandomString());
-        private static string CreateRandomString()
-        {
-            var sb = new StringBuilder();
-            var n = Random.Next(1, 23);
-            for (var i = 0; i < n; i++)
-            {
-                switch (Random.Next(1, 3))
-                {
-                    case 1:
-                        sb.Append((char)Random.Next(65, 91));
-                        break;
-                    case 2:
-                        sb.Append((char)Random.Next(97, 123));
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
-        private static string CreateMd5(string input)
-        {
-            // Use input string to calculate MD5 hash
-            using var md5 = MD5.Create();
-            var inputBytes = Encoding.ASCII.GetBytes(input);
-            var hashBytes = md5.ComputeHash(inputBytes);
-
-            // Convert the byte array to hexadecimal string
-            var sb = new StringBuilder();
-            foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
-            return sb.ToString();
         }
         //
         [HttpPost, Route("checkUserToken"), Authorize]
@@ -229,11 +174,68 @@ namespace VardoneApi.Controllers
             }));
         }
 
+        //Methods
         private static bool CheckSignature(JwtSecurityToken jwt)
         {
             var signature = JwtTokenUtilities.CreateEncodedSignature(jwt.EncodedHeader + "." + jwt.EncodedPayload,
                 new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             return signature == jwt.RawSignature;
+        }
+        private static ClaimsIdentity GetIdentity(long id, string token)
+        {
+            if (token is null) return null;
+            var claims = new List<Claim>
+            {
+                new ("id", id.ToString()),
+                new ("token", token)
+            };
+
+            return new ClaimsIdentity(claims);
+        }
+        private static string GetJwtToken(ClaimsIdentity ident)
+        {
+            var now = DateTime.Now;
+            var jwt = new JwtSecurityToken(
+                TokenOptions.ISSUER,
+                TokenOptions.AUDIENCE,
+                ident.Claims,
+                now,
+                now.Add(TimeSpan.FromMinutes(TokenOptions.LIFETIME)),
+                new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+
+
+            return new JwtSecurityTokenHandler().WriteToken(jwt);
+        }
+        private static string GenerateToken() => CreateMd5((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CreateRandomString());
+        private static string CreateRandomString()
+        {
+            var sb = new StringBuilder();
+            var n = Random.Next(1, 23);
+            for (var i = 0; i < n; i++)
+            {
+                switch (Random.Next(1, 3))
+                {
+                    case 1:
+                        sb.Append((char)Random.Next(65, 91));
+                        break;
+                    case 2:
+                        sb.Append((char)Random.Next(97, 123));
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
+        private static string CreateMd5(string input)
+        {
+            // Use input string to calculate MD5 hash
+            using var md5 = MD5.Create();
+            var inputBytes = Encoding.ASCII.GetBytes(input);
+            var hashBytes = md5.ComputeHash(inputBytes);
+
+            // Convert the byte array to hexadecimal string
+            var sb = new StringBuilder();
+            foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
+            return sb.ToString();
         }
     }
 }
