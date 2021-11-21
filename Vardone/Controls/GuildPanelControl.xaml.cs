@@ -21,7 +21,7 @@ namespace Vardone.Controls
         public static GuildPanelControl GetInstance() => _instance ??= new GuildPanelControl();
         public static void ClearInstance() => _instance = null;
         private GuildPanelControl() => InitializeComponent();
-        
+
         public Guild currentGuild;
 
         private void SetGuild()
@@ -31,7 +31,7 @@ namespace Vardone.Controls
                 GuildName.Text = currentGuild.Name;
                 GuildAvatar.Source = AvatarsWorker.GetGuildAvatar(currentGuild.GuildId);
                 UpdateChannelsList();
-                SetButtons(currentGuild.Owner.UserId == MainPage.Client.GetMe().UserId
+                SetButtons(currentGuild.Owner.User.UserId == MainPage.Client.GetMe().UserId
                     ? ViewButtonPermission.Owner
                     : ViewButtonPermission.Member);
             });
@@ -84,7 +84,7 @@ namespace Vardone.Controls
                 if (channels is null) return;
                 foreach (var channel in channels)
                     ChannelsList.Children.Add(new GuildChannelItem(channel,
-                        currentGuild.Owner.UserId == MainPage.Client.GetMe().UserId
+                        currentGuild.Owner.User.UserId == MainPage.Client.GetMe().UserId
                             ? GuildChannelItem.ActiveContextMenu.Active
                             : GuildChannelItem.ActiveContextMenu.Disable));
             });
@@ -92,10 +92,8 @@ namespace Vardone.Controls
 
         private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(GuildPropertiesPage.GetInstance().LoadGuild(currentGuild));
 
-        private void ContextMenuNewChannelButtonClicked(object sender, RoutedEventArgs e)
-        {
-        }
+        private void ContextMenuNewChannelButtonClicked(object sender, RoutedEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(EditChannelNamePage.GetInstance().Load(new Channel { Guild = currentGuild }, EditChannelNamePage.ActionType.Create));
 
-        private void OpenGuildMemberControl(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(InviteMemberPage.GetInstance().Load(currentGuild));
+        private void OpenGuildMemberControl(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(GuildMembersPage.GetInstance().Load(currentGuild));
     }
 }

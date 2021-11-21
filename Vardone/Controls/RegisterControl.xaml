@@ -48,7 +48,7 @@
                     <RowDefinition Height="50*" />
                 </Grid.RowDefinitions>
                 <Viewbox Grid.Column="1" Grid.Row="1">
-                    <TextBlock Name="Title" Foreground="Azure"
+                    <TextBlock Foreground="Azure"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontWeight="UltraBlack"
                                Text="WELCOME" />
@@ -61,6 +61,7 @@
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3"
+                         MaxLength="15"
                          TabIndex="1"
                          CaretBrush="White"
                          HorizontalContentAlignment="Center"
@@ -78,6 +79,7 @@
                          Foreground="Gray" />
                 <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5"
                          TabIndex="2"
+                         MaxLength="15"
                          CaretBrush="White"
                          HorizontalContentAlignment="Center"
                          GotFocus="TbEmail_OnGotFocus" LostFocus="TbEmail_OnLostFocus"
@@ -102,7 +104,7 @@
                              VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
-                <Button Name="Button" Content="Sign Up" Foreground="azure"
+                <Button Content="Sign Up" Foreground="azure"
                         Grid.Column="1" Grid.Row="9" FontWeight="Bold" Click="RegisterBtnClick"
                         Background="DimGray" Template="{StaticResource ButtonGo}" />
                 <Viewbox Grid.Row="10" Grid.Column="1">

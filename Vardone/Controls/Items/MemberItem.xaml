@@ -19,59 +19,64 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-    </UserControl.Resources> <Grid>
-        <Border Background="#303030">
-            <Grid MinHeight="60">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+    </UserControl.Resources>
+    <Grid Background="Transparent">
+        <Grid MinHeight="60" MaxHeight="100">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <Viewbox Grid.Column="0"
+            <Viewbox Grid.Column="0" MaxHeight="40"
                          VerticalAlignment="Center"
-                      HorizontalAlignment="Center" x:Name="User" />
-                <Label Grid.Column="1" Foreground="WhiteSmoke"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       x:Name="InviteCode"
-                       FontSize="13"
-                       FontWeight="Thin">
-                    Дата присоединения
-                </Label>
-                <Label Grid.Column="2" Foreground="WhiteSmoke"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       FontSize="13"
-                       x:Name="NumberOfUses"
-                       FontWeight="Thin">
-                    Колличество приглашенных
-                </Label>
+                      HorizontalAlignment="Center" x:Name="Member" />
 
-            </Grid>
-        </Border>
+            <Label Grid.Column="1" Foreground="WhiteSmoke"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
+                       x:Name="JoinDate"
+                       FontSize="13"
+                       FontWeight="Thin">
+                Дата присоединения
+            </Label>
+            <Label Grid.Column="2" Foreground="WhiteSmoke"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
+                       FontSize="13"
+                       x:Name="NumberOfInvitedMembers"
+                       FontWeight="Thin">
+                Количество приглашенных
+            </Label>
+        </Grid>
         <Grid.ContextMenu>
             <ContextMenu Background="#404040"
-                     BorderThickness="0" x:Name="ContextMenu">
-                <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
+                     BorderThickness="0">
+                <MenuItem ClipToBounds="False" Click="WriteMessageButtonClick"
                       BorderThickness="0" Margin="-1,0,0,0"
                       Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                       Foreground="White" Width="200"
                       Background="#404040"
                       Header="Написать">
                 </MenuItem>
-                    <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
+                <MenuItem ClipToBounds="False" Click="KickMemberButtonClick"
                       BorderThickness="0" Margin="-1,0,0,0"
                       Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                       Foreground="White" Width="200"
                       Background="#404040"
+                      x:Name="KickMenuItem"
                       Header="Выгнать">
                 </MenuItem>
-                <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
+                <MenuItem ClipToBounds="False" Click="BanMemberButtonClick"
                       BorderThickness="0" Margin="-1,0,0,0"
                       Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                       Foreground="White" Width="200"
                       Background="#404040"
+                      x:Name="BanMenuItem"
                       Header="Забанить">
                 </MenuItem>
             </ContextMenu>

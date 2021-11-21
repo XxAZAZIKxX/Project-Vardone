@@ -226,7 +226,6 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
                 if (message == null) return BadRequest("Empty message");
-                if (userId == secondId) return BadRequest("Username equal second username");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest();
                 if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");

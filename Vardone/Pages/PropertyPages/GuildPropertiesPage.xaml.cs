@@ -35,13 +35,10 @@ namespace Vardone.Pages.PropertyPages
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });
             LoadGuild(_guild);
-        }
-
-        private void CloseMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            MainPage.GetInstance().MainFrame.Navigate(null);
             MainPage.GetInstance().OpenGuild(_guild);
         }
+
+        private void CloseMouseDown(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
         public GuildPropertiesPage LoadGuild(Guild guild)
         {
@@ -66,7 +63,7 @@ namespace Vardone.Pages.PropertyPages
                     Message = $"Сервер \"{_guild.Name}\" был успешно удален"
                 });
             }
-            catch 
+            catch
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
@@ -100,8 +97,12 @@ namespace Vardone.Pages.PropertyPages
                     Name = GuildNameTb.Text
                 });
                 var guild = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == _guild.GuildId, null!);
-                if (guild is not null) LoadGuild(guild);
-                else CloseMouseDown(null, null);
+                if (guild is null) CloseMouseDown(null, null);
+                else
+                {
+                    LoadGuild(guild);
+                    MainPage.GetInstance().OpenGuild(_guild);
+                }
             }
             GuildNameTb.IsEnabled = !GuildNameTb.IsEnabled;
             GuildNameChangeButton.Content = GuildNameChangeButton.Content.ToString() == "Изменить" ? "Сохранить" : "Изменить";

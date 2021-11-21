@@ -21,9 +21,8 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
     </UserControl.Resources>
-    <Grid>
-        <Border Background="#303030">
-            <Grid MinHeight="60">
+    <Grid Background="Transparent">
+        <Grid MinHeight="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -31,42 +30,48 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Viewbox Grid.Column="0"
+                <Viewbox Grid.Column="0" MaxHeight="40"
                          VerticalAlignment="Center"
-                      HorizontalAlignment="Center" x:Name="User" />
+                      HorizontalAlignment="Center" x:Name="BannedMember" />
+
                 <Label Grid.Column="1" Foreground="WhiteSmoke"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"
-                       x:Name="InviteCode"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
+                       x:Name="BannedTime"
                        FontSize="13"
                        FontWeight="Thin">
                     Был забанен
                 </Label>
-                <Viewbox Grid.Column="2"
+
+                <Viewbox Grid.Column="2" x:Name="WasBannedByMember" MaxHeight="40"
                          VerticalAlignment="Center"
                       HorizontalAlignment="Center"  />
+
                 <Label Grid.Column="3" Foreground="WhiteSmoke"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
                        FontSize="13"
-                       x:Name="NumberOfUses"
+                       x:Name="BannedByReasonTb"
                        FontWeight="Thin">
                     Причина
                 </Label>
 
             </Grid>
-        </Border>
-        <Grid.ContextMenu>
+            <Grid.ContextMenu>
             <ContextMenu Background="#404040"
                      BorderThickness="0" x:Name="ContextMenu">
-                <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
+                <MenuItem ClipToBounds="False" Click="UnbanButtonClicked"
                       BorderThickness="0" Margin="-1,0,0,0"
                       Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
                       Foreground="White" Width="200"
                       Background="#404040"
                       Header="Разбанить">
                 </MenuItem>
-              
+
             </ContextMenu>
         </Grid.ContextMenu>
 

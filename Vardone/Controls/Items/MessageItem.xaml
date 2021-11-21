@@ -26,7 +26,7 @@
                  Margin="32,22,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
-        <Label Grid.Row="0" Grid.Column="1" x:Name="Username" Content="User"
+        <Label Grid.Row="0" Grid.Column="1" x:Name="Username" Content="BannedUser"
                Foreground="white"
                Width="160"
                FontSize="14"

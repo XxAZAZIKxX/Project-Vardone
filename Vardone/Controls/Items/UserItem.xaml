@@ -55,7 +55,7 @@
                  Fill="#505050"
                  x:Name="OnlineStatus"
                  x:FieldModifier="private" />
-        <Label x:Name="Username" Content="User"
+        <Label x:Name="Username" Content="BannedUser"
                Foreground="white"
                MaxWidth="125"
                FontSize="14"

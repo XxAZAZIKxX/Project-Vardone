@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
+using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
@@ -223,31 +224,8 @@ namespace VardoneApi.Controllers
                         {
                             MessageId = m.Id,
                             CreatedTime = m.CreatedTime,
-                            Author = new User
-                            {
-                                UserId = m.Author.Id,
-                                Username = m.Author.Username,
-                                Base64Avatar = m.Author.Info?.Avatar is not null ? Convert.ToBase64String(m.Author.Info.Avatar) : null,
-                                Description = m.Author.Info?.Description
-                            },
-                            Channel = new Channel
-                            {
-                                ChannelId = m.Channel.Id,
-                                Name = m.Channel.Name,
-                                Guild = new Guild
-                                {
-                                    GuildId = m.Channel.Guild.Id,
-                                    Name = m.Channel.Guild.Name,
-                                    Base64Avatar = m.Channel.Guild.Info?.Avatar is not null ? Convert.ToBase64String(m.Channel.Guild.Info.Avatar) : null,
-                                    Owner = new User
-                                    {
-                                        UserId = m.Channel.Guild.Owner.Id,
-                                        Username = m.Channel.Guild.Owner.Username,
-                                        Description = m.Channel.Guild.Owner.Info?.Description,
-                                        Base64Avatar = m.Channel.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(m.Channel.Guild.Owner.Info.Avatar) : null
-                                    }
-                                }
-                            }
+                            Author = UserCreateHelper.GetUser(m.Author),
+                            Channel = GuildCreateHelper.GetChannel(m.Channel)
                         };
                         if (read)
                         {

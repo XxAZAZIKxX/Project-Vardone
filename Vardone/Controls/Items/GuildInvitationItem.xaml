@@ -18,55 +18,61 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-    </UserControl.Resources> <Grid>
-        <Border Background="#303030">
-            <Grid MinHeight="60">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+    </UserControl.Resources>
+    <Grid Background="Transparent">
+        <Grid MinHeight="60">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <Viewbox Grid.Column="0"
-                         VerticalAlignment="Center"
-                      HorizontalAlignment="Center" x:Name="User" />
-                <Label Grid.Column="1" Foreground="WhiteSmoke"
-                       VerticalAlignment="Center"
+            <Viewbox Grid.Column="0" MaxHeight="40"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center" x:Name="User" />
+
+            <Label Grid.Column="1" Foreground="WhiteSmoke"
                        HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
                        x:Name="InviteCode"
                        FontSize="13"
                        FontWeight="Thin">
-                    Код приглашения
-                </Label>
-                <Label Grid.Column="2" Foreground="WhiteSmoke"
+                Код приглашения
+            </Label>
+            <Label Grid.Column="2" Foreground="WhiteSmoke"
                        VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
+                       HorizontalAlignment="Stretch"
                        FontSize="13"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Center"
                        x:Name="NumberOfUses"
                        FontWeight="Thin">
-                    Использования
-                </Label>
-                <Label Grid.Column="3" Foreground="WhiteSmoke"
+                Использования
+            </Label>
+            <Label Grid.Column="3" Foreground="WhiteSmoke"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"
+                       VerticalContentAlignment="Stretch"
+                       HorizontalContentAlignment="Stretch"
                        FontSize="13"
                        x:Name="ExpiresIn"
                        FontWeight="Thin">
-                    Время сохранения
-                </Label>
-            </Grid>
-        </Border>
+                Время сохранения
+            </Label>
+        </Grid>
+
         <Grid.ContextMenu>
             <ContextMenu Background="#404040"
-                     BorderThickness="0" x:Name="ContextMenu">
-                <MenuItem ClipToBounds="False" Click="ContextMenuNewChannelButtonClicked"
-                      BorderThickness="0" Margin="-1,0,0,0"
-                      Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                      Foreground="White" Width="200"
-                      Background="#404040"
-                      Header="Отозвать приглашение">
-                </MenuItem>
+                         BorderThickness="0">
+                <MenuItem ClipToBounds="False" Click="DeleteInvintationButton"
+                          BorderThickness="0" Margin="-1,0,0,0"
+                          Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                          Foreground="White" Width="200"
+                          Background="#404040"
+                          Header="Отозвать приглашение" />
 
             </ContextMenu>
         </Grid.ContextMenu>

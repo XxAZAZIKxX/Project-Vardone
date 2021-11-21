@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
+using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
@@ -41,22 +42,22 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
-                    bannedGuildMembers.Include(p => p.User).Load();
-                    bannedGuildMembers.Include(p => p.User.Info).Load();
+                    bannedGuildMembers.Include(p => p.Guild.Info).Load();
+                    bannedGuildMembers.Include(p => p.BannedUser).Load();
+                    bannedGuildMembers.Include(p => p.BannedUser.Info).Load();
+                    bannedGuildMembers.Include(p => p.BannedByUser).Load();
+                    bannedGuildMembers.Include(p => p.BannedByUser.Info).Load();
 
-                    var bannedUsers = new List<BannedUser>();
+                    var bannedUsers = new List<BannedMember>();
                     foreach (var item in bannedGuildMembers.Where(p => p.Guild.Id == guildId))
                     {
-                        bannedUsers.Add(new BannedUser
+                        bannedUsers.Add(new BannedMember
                         {
-                            User = new User
-                            {
-                                UserId = item.User.Id,
-                                Username = item.User.Username,
-                                Description = item.User.Info?.Description,
-                                Base64Avatar = item.User.Info?.Description is not null ? Convert.ToBase64String(item.User.Info.Avatar) : null
-                            },
-                            Reason = item.Reason
+                            BannedUser = UserCreateHelper.GetUser(item.BannedUser),
+                            BannedByUser = UserCreateHelper.GetUser(item.BannedByUser),
+                            Reason = item.Reason,
+                            BanDateTime = item.BanDate,
+                            Guild = GuildCreateHelper.GetGuild(item.Guild)
                         });
                     }
                     return Ok(bannedUsers);
@@ -106,21 +107,7 @@ namespace VardoneApi.Controllers
                         {
                             ChannelId = itemChannelsTable.Id,
                             Name = itemChannelsTable.Name,
-                            Guild = new Guild
-                            {
-                                GuildId = itemChannelsTable.Guild.Id,
-                                Name = itemChannelsTable.Guild.Name,
-                                Base64Avatar = itemChannelsTable.Guild.Info?.Avatar is not null
-                                    ? Convert.ToBase64String(itemChannelsTable.Guild.Info.Avatar)
-                                    : null,
-                                Owner = new User
-                                {
-                                    UserId = itemChannelsTable.Guild.Owner.Id,
-                                    Username = itemChannelsTable.Guild.Owner.Username,
-                                    Description = itemChannelsTable.Guild.Owner.Info?.Description,
-                                    Base64Avatar = itemChannelsTable.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(itemChannelsTable.Guild.Owner.Info.Avatar) : null
-                                }
-                            }
+                            Guild = GuildCreateHelper.GetGuild(itemChannelsTable.Guild)
                         });
                     }
 
@@ -169,19 +156,8 @@ namespace VardoneApi.Controllers
                             InviteId = item.Id,
                             CreatedAt = item.CreatedAt,
                             InviteCode = item.InviteCode,
-                            CreatedBy = new User
-                            {
-                                UserId = item.CreatedByUser.Id,
-                                Username = item.CreatedByUser.Username,
-                                Description = item.CreatedByUser.Info?.Description,
-                                Base64Avatar = item.CreatedByUser.Info?.Avatar is not null ? Convert.ToBase64String(item.CreatedByUser.Info.Avatar) : null
-                            },
-                            Guild = new Guild
-                            {
-                                GuildId = item.Guild.Id,
-                                Name = item.Guild.Name,
-                                Base64Avatar = item.Guild.Info?.Avatar is not null ? Convert.ToBase64String(item.Guild.Info.Avatar) : null
-                            },
+                            CreatedBy = UserCreateHelper.GetUser(item.CreatedByUser),
+                            Guild = GuildCreateHelper.GetGuild(item.Guild),
                             NumberOfUses = item.NumberOfUses
                         });
                     }
@@ -219,27 +195,15 @@ namespace VardoneApi.Controllers
                     members.Include(p => p.User).Load();
                     members.Include(p => p.User.Info).Load();
 
-                    var users = new List<User>();
-                    try
-                    {
-                        var _ = members.First(p => p.User.Id == userId && p.Guild.Id == guildId);
-                        foreach (var member in members.Where(p => p.Guild.Id == guildId))
-                        {
-                            users.Add(new User
-                            {
-                                UserId = member.User.Id,
-                                Username = member.User.Username,
-                                Description = member.User.Info?.Description,
-                                Base64Avatar = member.User.Info?.Avatar is not null ? Convert.ToBase64String(member.User.Info.Avatar) : null
-                            });
-                        }
+                    var returnMembers = new List<Member>();
+                    if (!members.Any(p => p.Guild.Id == guildId && p.User.Id == userId)) return BadRequest("You not member that guild");
 
-                        return Ok(users);
-                    }
-                    catch
+                    foreach (var member in members.Where(p => p.Guild.Id == guildId))
                     {
-                        return BadRequest("You not member that guild");
+                        returnMembers.Add(UserCreateHelper.GetMember(member));
                     }
+
+                    return Ok(returnMembers);
                 }
                 catch (Exception e)
                 {
@@ -279,7 +243,7 @@ namespace VardoneApi.Controllers
                     };
                     guilds.Add(guild);
                     dataContext.SaveChanges();
-                    members.Add(new GuildMembersTable { User = user, Guild = guild });
+                    members.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
                     dataContext.SaveChanges();
                     return Ok("Created");
                 }
@@ -440,18 +404,22 @@ namespace VardoneApi.Controllers
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.User).Load();
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
-                    bannedGuildMembers.Include(p => p.User).Load();
+                    bannedGuildMembers.Include(p => p.BannedUser).Load();
                     bannedGuildMembers.Include(p => p.Guild).Load();
+                    var invites = dataContext.GuildInvites;
+                    invites.Include(p=>p.CreatedByUser).Load();
 
-                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
+                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId));
                     guildMembers.RemoveRange(guildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
+                    invites.RemoveRange(invites.Where(p=>p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
 
                     dataContext.SaveChanges();
 
                     var guild = guilds.First(p => p.Id == guildId);
-                    var user = users.First(p => p.Id == secondId);
+                    var bannedUser = users.First(p => p.Id == secondId);
+                    var bannedByUser = users.First(p => p.Id == userId);
 
-                    bannedGuildMembers.Add(new BannedGuildMembersTable { Guild = guild, Reason = reason, User = user });
+                    bannedGuildMembers.Add(new BannedGuildMembersTable { Guild = guild, Reason = reason, BannedUser = bannedUser, BannedByUser = bannedByUser, BanDate = DateTime.Now });
                     dataContext.SaveChanges();
                     return Ok("Banned");
                 }
@@ -486,10 +454,10 @@ namespace VardoneApi.Controllers
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.User).Load();
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
-                    bannedGuildMembers.Include(p => p.User).Load();
+                    bannedGuildMembers.Include(p => p.BannedUser).Load();
                     bannedGuildMembers.Include(p => p.Guild).Load();
 
-                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
+                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId));
                     dataContext.SaveChanges();
                     return Ok("Unbanned");
                 }
@@ -521,6 +489,8 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var guildInvites = dataContext.GuildInvites;
+                    guildInvites.Include(p => p.Guild).Load();
+                    guildInvites.Include(p => p.Guild.Info).Load();
                     var guilds = dataContext.Guilds;
                     guilds.Include(p => p.Info).Load();
                     var users = dataContext.Users;
@@ -547,19 +517,9 @@ namespace VardoneApi.Controllers
                         InviteId = guildInvite.Id,
                         InviteCode = guildInvite.InviteCode,
                         CreatedAt = guildInvite.CreatedAt,
-                        CreatedBy = new User
-                        {
-                            UserId = createdByUser.Id,
-                            Username = createdByUser.Username,
-                            Description = createdByUser.Info?.Description,
-                            Base64Avatar = createdByUser.Info?.Avatar is not null ? Convert.ToBase64String(createdByUser.Info.Avatar) : null
-                        },
-                        Guild = new Guild
-                        {
-                            GuildId = guild.Id,
-                            Name = guild.Name,
-                            Base64Avatar = guild.Info?.Avatar is not null ? Convert.ToBase64String(guild.Info.Avatar) : null
-                        }
+                        CreatedBy = UserCreateHelper.GetUser(guildInvite.CreatedByUser),
+                        Guild = GuildCreateHelper.GetGuild(guildInvite.Guild),
+                        NumberOfUses = guildInvite.NumberOfUses
                     });
                 }
                 catch (Exception e)
@@ -590,18 +550,22 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     var guilds = dataContext.Guilds;
+
                     var guildInvites = dataContext.GuildInvites;
                     guildInvites.Include(p => p.Guild).Load();
-                    var invite = guildInvites.First(p => p.InviteCode == inviteCode);
-                    var guildId = invite.Guild.Id;
+
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
-                    bannedGuildMembers.Include(p => p.User).Load();
+                    bannedGuildMembers.Include(p => p.BannedUser).Load();
+
                     var members = dataContext.GuildMembers;
                     members.Include(p => p.User).Load();
                     members.Include(p => p.Guild).Load();
 
-                    foreach (var item in bannedGuildMembers.Where(p => p.Guild.Id == guildId)) if (item.User.Id == userId) return BadRequest("You are banned on this guild");
+                    var invite = guildInvites.First(p => p.InviteCode == inviteCode);
+                    var guildId = invite.Guild.Id;
+
+                    if (bannedGuildMembers.Any(p => p.Guild.Id == guildId && p.BannedUser.Id == userId)) return BadRequest("You are banned on this guild");
 
                     var guild = guilds.First(p => p.Id == guildId);
                     var user = users.First(p => p.Id == userId);
@@ -610,7 +574,8 @@ namespace VardoneApi.Controllers
                         if (table.User.Id == userId) return Ok();
                     }
 
-                    members.Add(new GuildMembersTable { User = user, Guild = guild });
+                    members.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
+                    members.First(p => p.User.Id == invite.CreatedByUser.Id).NumberOfInvitedMembers++;
                     invite.NumberOfUses++;
                     dataContext.SaveChanges();
                     return Ok("Joined");
@@ -645,8 +610,12 @@ namespace VardoneApi.Controllers
                     var guildMembers = dataContext.GuildMembers;
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.User).Load();
+                    var invites = dataContext.GuildInvites;
+                    invites.Include(p => p.CreatedByUser).Load();
 
                     guildMembers.RemoveRange(guildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
+                    invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
+
                     dataContext.SaveChanges();
                     return Ok("Kicked");
                 }
@@ -677,18 +646,16 @@ namespace VardoneApi.Controllers
                 var members = dataContext.GuildMembers;
                 members.Include(p => p.User).Load();
                 members.Include(p => p.Guild).Load();
+                var invites = dataContext.GuildInvites;
+                invites.Include(p=>p.CreatedByUser).Load();
 
-                try
-                {
-                    var first = members.First(p => p.User.Id == userId && p.Guild.Id == guildId);
-                    members.Remove(first);
-                    dataContext.SaveChanges();
-                    return Ok("Leaved");
-                }
-                catch
-                {
-                    return Ok("You are not member");
-                }
+                if (!members.Any(p => p.User.Id == userId && p.Guild.Id == guildId)) return Ok("You are not member");
+
+                var first = members.First(p => p.User.Id == userId && p.Guild.Id == guildId);
+                members.Remove(first);
+                invites.RemoveRange(invites.Where(p=>p.CreatedByUser.Id == userId && p.Guild.Id == guildId));
+                dataContext.SaveChanges();
+                return Ok("Leaved");
             }));
         }
 

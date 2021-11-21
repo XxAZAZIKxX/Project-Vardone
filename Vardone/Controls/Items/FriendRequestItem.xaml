@@ -19,7 +19,7 @@
                  Margin="52,22,0,0"
                  Fill="LimeGreen" x:FieldModifier="private"
                  x:Name="OnlineStatus" />
-        <Label x:Name="Username" Content="User" 
+        <Label x:Name="Username" Content="BannedUser" 
                Foreground="white" 
                Width="160"
                FontSize="14"

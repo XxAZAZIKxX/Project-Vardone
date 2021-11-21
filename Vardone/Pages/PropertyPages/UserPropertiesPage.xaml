@@ -51,7 +51,7 @@
                                                             Stretch="UniformToFill"  />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <Label x:Name="UsernameLabel" Content="User"
+                                        <Label x:Name="UsernameLabel" Content="BannedUser"
                                                Foreground="white"
                                                Width="160"
                                                FontSize="20"

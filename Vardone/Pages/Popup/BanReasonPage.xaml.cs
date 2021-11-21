@@ -1,28 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Notifications.Wpf;
+using Vardone.Pages.PropertyPages;
+using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Pages.Popup
 {
     /// <summary>
     /// Interaction logic for BanReasonPage.xaml
     /// </summary>
-    public partial class BanReasonPage : Page
+    public partial class BanReasonPage
     {
-        public BanReasonPage()
+        private static BanReasonPage _instance;
+        public static BanReasonPage GetInstance() => _instance ??= new BanReasonPage();
+
+        private string MainLabelText => "Забанить участника " + member?.User.Username;
+
+        public Member member;
+
+        private BanReasonPage() => InitializeComponent();
+
+        public BanReasonPage Load(Member member)
         {
-            InitializeComponent();
+            Reset();
+            this.member = member;
+            MainLabel.Content = MainLabelText;
+            return this;
+        }
+
+        private void BackToMainPage(object sender, MouseButtonEventArgs e)
+        {
+            GuildMembersPage.GetInstance().Frame.Navigate(null);
+            Reset();
+        }
+
+        private void Reset()
+        {
+            BanReasonTb.Text = string.Empty;
+            member = null;
+            MainLabel.Content = string.Empty;
+        }
+
+        private void BanButton(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MainPage.Client.BanGuildMember(member.User.UserId,
+                    member.Guild.GuildId, BanReasonTb.Text.Trim() == string.Empty
+                        ? null
+                        : BanReasonTb.Text.Trim());
+
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Success,
+                    Title = "Успех",
+                    Message = $"Пользователь {member.User.Username} был успешно забанен"
+                });
+            }
+            catch
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Type = NotificationType.Error,
+                    Title = "Ошибка",
+                    Message = "Что-то пошло не так"
+                });
+            }
+            GuildMembersPage.GetInstance().UpdateBannedMembers();
+            GuildMembersPage.GetInstance().UpdateMembers();
+            GuildMembersPage.GetInstance().Frame.Navigate(null);
+            Reset();
         }
     }
 }

@@ -5,6 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="40" d:DesignWidth="40">
+    <UserControl.Resources>
+        <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
+                         TargetType="{x:Type MenuItem}">
+            <Grid Name="Head" Margin="-1,0,0,0" Background="#404040">
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Head" Property="Background" Value="#353535" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Resources>
     <Viewbox Stretch="Uniform">
         <Grid MouseEnter="GuildButtonMouseEnter" MouseLeave="GuildButtonMouseLeave">
             <Ellipse Stroke="MediumPurple" Name="GuildHover"
@@ -18,6 +32,28 @@
                     <ImageBrush ImageSource="../../Resources/avatar.jpg" Stretch="UniformToFill" x:Name="Avatar" />
                 </Ellipse.Fill>
             </Ellipse>
+            <Grid.ContextMenu>
+                <ContextMenu Background="#404040" BorderThickness="0">
+                    <MenuItem
+                        BorderThickness="0" 
+                        Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                        Foreground="White" Width="200"
+                        Click="InviteMembersButtonClicked"
+                        Background="#404040" Header="Пригласить людей" />
+                    <MenuItem
+                        BorderThickness="0" x:Name="SettingsButton"
+                        Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                        Foreground="White" Width="200"
+                        Click="SettingsButtonClicked"
+                        Background="#404040" Header="Настройки сервера" />
+                    <MenuItem
+                        BorderThickness="0" x:Name="LeaveGuildButton"
+                        Click="LeaveGuildButtonClicked"
+                        Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                        Foreground="Red" Width="200"
+                        Background="#404040" Header="Покинуть сервер" />
+                </ContextMenu>
+            </Grid.ContextMenu>
         </Grid>
     </Viewbox>
 </UserControl>

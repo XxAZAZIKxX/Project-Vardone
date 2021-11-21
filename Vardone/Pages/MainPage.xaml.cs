@@ -82,7 +82,7 @@ namespace Vardone.Pages
             GuildPropertiesPage.ClearInstance();
             FriendsPropertiesPage.ClearInstance();
             UserProfilePage.ClearInstance();
-            InviteMemberPage.ClearInstance();
+            GuildMembersPage.ClearInstance();
             DeployImagePage.ClearInstance();
             AddGuildPage.ClearInstance();
             JoinGuildControl.ClearInstance();
@@ -306,7 +306,7 @@ namespace Vardone.Pages
                 foreach (var user in Client.GetOutgoingFriendRequests()) AvatarsWorker.UpdateAvatarUser(user.UserId);
                 foreach (var guildMember in Client.GetGuilds()
                     .SelectMany(guild => Client.GetGuildMembers(guild.GuildId)))
-                    AvatarsWorker.UpdateAvatarUser(guildMember.UserId);
+                    AvatarsWorker.UpdateAvatarUser(guildMember.User.UserId);
                 //Guilds
                 foreach (var guild in Client.GetGuilds()) AvatarsWorker.UpdateGuildAvatar(guild.GuildId);
             });

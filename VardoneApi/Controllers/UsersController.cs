@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
+using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
@@ -154,14 +155,7 @@ namespace VardoneApi.Controllers
                         (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
                     {
                         var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
-                        users.Add(new User
-                        {
-                            UserId = friend.Id,
-                            Username = friend.Username,
-                            Base64Avatar =
-                                friend.Info?.Avatar == null ? null : Convert.ToBase64String(friend.Info.Avatar),
-                            Description = friend.Info?.Description
-                        });
+                        users.Add(UserCreateHelper.GetUser(friend));
                     }
 
                     return Ok(users);
@@ -199,15 +193,7 @@ namespace VardoneApi.Controllers
                     {
                         foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                         {
-                            users.Add(new User
-                            {
-                                UserId = row.FromUser.Id,
-                                Username = row.FromUser.Username,
-                                Base64Avatar = row.FromUser.Info?.Avatar == null
-                                    ? null
-                                    : Convert.ToBase64String(row.FromUser.Info.Avatar),
-                                Description = row.FromUser.Info?.Description
-                            });
+                            users.Add(UserCreateHelper.GetUser(row.FromUser));
                         }
                     }
                     catch
@@ -250,16 +236,7 @@ namespace VardoneApi.Controllers
                     {
                         foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
                         {
-                            users.Add(new User
-                            {
-                                UserId = row.ToUser.Id,
-                                Username = row.ToUser.Username,
-                                Base64Avatar =
-                                    row.ToUser.Info?.Avatar == null
-                                        ? null
-                                        : Convert.ToBase64String(row.ToUser.Info.Avatar),
-                                Description = row.ToUser.Info?.Description
-                            });
+                            users.Add(UserCreateHelper.GetUser(row.ToUser));
                         }
                     }
                     catch
@@ -326,7 +303,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
 
-                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("BannedUser does not exist");
                 if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
                 try
                 {
@@ -334,13 +311,7 @@ namespace VardoneApi.Controllers
                     var users = dataContext.Users;
                     users.Include(p => p.Info).Load();
                     var user = users.First(p => p.Id == secondId);
-                    return Ok(new User
-                    {
-                        UserId = user.Id,
-                        Username = user.Username,
-                        Description = user.Info?.Description,
-                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
-                    });
+                    return Ok(UserCreateHelper.GetUser(user));
                 }
                 catch (Exception e)
                 {
@@ -363,7 +334,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
 
-                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User is not exists");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("BannedUser is not exists");
                 if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("No access");
                 try
                 {
@@ -373,8 +344,7 @@ namespace VardoneApi.Controllers
                     try
                     {
                         var user = usersOnline.First(p => p.User.Id == secondId);
-                        var span = TimeSpan.FromTicks(DateTime.Now.Ticks) -
-                                   TimeSpan.FromTicks(user.LastOnlineTime.Ticks);
+                        var span = TimeSpan.FromTicks(DateTime.Now.Ticks) - TimeSpan.FromTicks(user.LastOnlineTime.Ticks);
                         var res = span.Minutes < 1;
                         return Ok(res);
                     }
@@ -416,22 +386,7 @@ namespace VardoneApi.Controllers
                     var guilds = new List<Guild>();
                     foreach (var item in guildMembers.Where(p => p.User.Id == userId))
                     {
-                        guilds.Add(new Guild
-                        {
-                            GuildId = item.Guild.Id,
-                            Name = item.Guild.Name,
-                            Base64Avatar = item.Guild.Info?.Avatar is not null
-                                ? Convert.ToBase64String(item.Guild.Info.Avatar)
-                                : null,
-                            Owner = new User
-                            {
-                                UserId = item.Guild.Owner.Id,
-                                Username = item.Guild.Owner.Username,
-                                Description = item.Guild.Owner.Info?.Description,
-                                Base64Avatar = item.Guild.Owner.Info?.Avatar is not null ? Convert.ToBase64String(item.Guild.Owner.Info.Avatar) : null
-                            },
-                            Channels = GuildCreateHelper.GetGuildChannels(item.Guild.Id)
-                        });
+                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild));
                     }
 
                     return Ok(guilds);
@@ -464,8 +419,8 @@ namespace VardoneApi.Controllers
                     var privateMessages = dataContext.PrivateMessages;
                     privateMessages.Include(p => p.Author).Load();
                     chatsTable.Include(p => p.FromUser).Load();
-                    chatsTable.Include(p => p.ToUser).Load();
                     chatsTable.Include(p => p.FromUser.Info).Load();
+                    chatsTable.Include(p => p.ToUser).Load();
                     chatsTable.Include(p => p.ToUser.Info).Load();
                     var chats = new List<PrivateChat>();
                     var @where = chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).ToList();
@@ -473,30 +428,12 @@ namespace VardoneApi.Controllers
                     {
                         var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
                         var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
-                        var lastReadTime = user1 == chat.FromUser
-                            ? chat.FromLastReadTimeMessages
-                            : chat.ToLastReadTimeMessages;
+                        var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
                         var item = new PrivateChat
                         {
                             ChatId = chat.Id,
-                            FromUser = new User
-                            {
-                                UserId = user1.Id,
-                                Username = user1.Username,
-                                Base64Avatar = user1.Info?.Avatar == null
-                                    ? null
-                                    : Convert.ToBase64String(user1.Info.Avatar),
-                                Description = user1.Info?.Description
-                            },
-                            ToUser = new User
-                            {
-                                UserId = user2.Id,
-                                Username = user2.Username,
-                                Base64Avatar = user2.Info?.Avatar == null
-                                    ? null
-                                    : Convert.ToBase64String(user2.Info.Avatar),
-                                Description = user2.Info?.Description
-                            },
+                            FromUser = UserCreateHelper.GetUser(user1),
+                            ToUser = UserCreateHelper.GetUser(user2),
                             UnreadMessages = privateMessages.Count(p =>
                                 p.Chat.Id == chat.Id && p.Author != user1 &&
                                 DateTime.Compare(p.CreatedTime, lastReadTime) > 0)

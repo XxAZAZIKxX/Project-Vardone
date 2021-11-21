@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using Notifications.Wpf;
 using Vardone.Pages;
+using Vardone.Pages.Popup;
 using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Controls.Items
@@ -30,10 +31,7 @@ namespace Vardone.Controls.Items
 
         private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(channel);
 
-        private void MenuItemEditChannelButtonClicked(object sender, RoutedEventArgs e)
-        {
-            throw new System.NotImplementedException();
-        }
+        private void MenuItemEditChannelButtonClicked(object sender, RoutedEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(EditChannelNamePage.GetInstance().Load(channel, EditChannelNamePage.ActionType.Edit));
 
         private void MenuItemDeleteChannelButtonClicked(object sender, RoutedEventArgs e)
         {

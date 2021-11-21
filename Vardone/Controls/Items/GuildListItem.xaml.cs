@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Vardone.Core;
 using Vardone.Pages;
+using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Controls.Items
 {
-   
+
     /// <summary>
     /// Interaction logic for GuildListItem.xaml
     /// </summary>
@@ -30,12 +30,16 @@ namespace Vardone.Controls.Items
                 _isActive = value;
             }
         }
-        public GuildListItem([NotNull] Guild guild)
+        public GuildListItem(Guild guild)
         {
             InitializeComponent();
             this.guild = guild;
             Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(this.guild.GuildId);
             Items.Add(this);
+            var currentUserId = MainPage.Client.GetMe().UserId;
+
+            if (currentUserId != guild.Owner.User.UserId) SettingsButton.Visibility = Visibility.Collapsed;
+            else LeaveGuildButton.Visibility = Visibility.Collapsed;
         }
 
 
@@ -63,6 +67,27 @@ namespace Vardone.Controls.Items
         {
             if (Items is null) return;
             foreach (var item in Items) item.IsActive = false;
+        }
+
+        private void LeaveGuildButtonClicked(object sender, RoutedEventArgs e)
+        {
+            var messageBoxResult = MessageBox.Show($"Вы точно хотите покинуть сервер \"{guild.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (messageBoxResult != MessageBoxResult.Yes) return;
+
+            MainPage.Client.LeaveGuild(guild.GuildId);
+            MainPage.GetInstance().LoadGuilds();
+        }
+
+        private void SettingsButtonClicked(object sender, RoutedEventArgs e)
+        {
+            MainPage.GetInstance().MainFrame.Navigate(GuildPropertiesPage.GetInstance().LoadGuild(guild));
+            AvatarClicked(null, null);
+        }
+
+        private void InviteMembersButtonClicked(object sender, RoutedEventArgs e)
+        {
+            MainPage.GetInstance().MainFrame.Navigate(GuildMembersPage.GetInstance().Load(guild));
+            AvatarClicked(null, null);
         }
     }
 }
