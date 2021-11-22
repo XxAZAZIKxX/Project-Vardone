@@ -1,11 +1,10 @@
 ﻿using System;
-using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 
-namespace VardoneApi.Core
+namespace VardoneApi.Core.CreateHelpers
 {
     public abstract class UserCreateHelper
     {

@@ -61,7 +61,7 @@
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3"
-                         MaxLength="15"
+                         MaxLength="25"
                          TabIndex="1"
                          CaretBrush="White"
                          HorizontalContentAlignment="Center"
@@ -79,7 +79,7 @@
                          Foreground="Gray" />
                 <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5"
                          TabIndex="2"
-                         MaxLength="15"
+                         MaxLength="25"
                          CaretBrush="White"
                          HorizontalContentAlignment="Center"
                          GotFocus="TbEmail_OnGotFocus" LostFocus="TbEmail_OnLostFocus"

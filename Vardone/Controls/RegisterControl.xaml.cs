@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -61,6 +61,17 @@ namespace Vardone.Controls
                 return;
             }
 
+            if (!IsValidEmail(TbEmail.Text.Trim()))
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Проверьте введенные данные",
+                    Message = "Пожалуйста введите корректный email",
+                    Type = NotificationType.Warning
+                });
+                return;
+            }
+
             var tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password);
             if (tryRegister is false)
             {
@@ -105,5 +116,6 @@ namespace Vardone.Controls
         {
             if (e.Key == Key.Enter) RegisterBtnClick(null, null);
         }
+        private static bool IsValidEmail(string email) => new EmailAddressAttribute().IsValid(email);
     }
 }

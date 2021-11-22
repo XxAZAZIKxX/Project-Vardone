@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Notifications.Wpf;
@@ -131,60 +132,65 @@ namespace Vardone
                 // ignored
             }
         }
-        private void ThumbBottomRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbBottomRightCorner_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
-            if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
+            var dragDeltaEventArgs = new DragDeltaEventArgs(e.HorizontalChange, e.VerticalChange);
+            ThumbRight_DragDelta(null, dragDeltaEventArgs);
+            ThumbBottom_DragDelta(null, dragDeltaEventArgs);
         }
-        private void ThumbTopRightCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbTopRightCorner_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
-            if (!(Top + e.VerticalChange > 10)) return;
-            Top += e.VerticalChange;
-            Height -= e.VerticalChange;
+            var dragDeltaEventArgs = new DragDeltaEventArgs(e.HorizontalChange, e.VerticalChange);
+            ThumbTop_DragDelta(null, dragDeltaEventArgs);
+            ThumbRight_DragDelta(null, dragDeltaEventArgs);
         }
-        private void ThumbTopLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbTopLeftCorner_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if (Left + e.HorizontalChange > 10)
-            {
-                Left += e.HorizontalChange;
-                Width -= e.HorizontalChange;
-            }
-
-            if (!(Top + e.VerticalChange > 10)) return;
-            Top += e.VerticalChange;
-            Height -= e.VerticalChange;
+            var dragDeltaEventArgs = new DragDeltaEventArgs(e.HorizontalChange, e.VerticalChange);
+            ThumbTop_DragDelta(null, dragDeltaEventArgs);
+            ThumbLeft_DragDelta(null, dragDeltaEventArgs);
         }
-        private void ThumbBottomLeftCorner_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbBottomLeftCorner_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if (Left + e.HorizontalChange > 10)
-            {
-                Left += e.HorizontalChange;
-                Width -= e.HorizontalChange;
-            }
-
-            if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
+            var dragDeltaEventArgs = new DragDeltaEventArgs(e.HorizontalChange, e.VerticalChange);
+            ThumbBottom_DragDelta(null, dragDeltaEventArgs);
+            ThumbLeft_DragDelta(null, dragDeltaEventArgs);
         }
-        private void ThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbRight_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (Width + e.HorizontalChange > 10) Width += e.HorizontalChange;
         }
-        private void ThumbLeft_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbLeft_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (e.HorizontalChange > 0 && Math.Abs(Width - MinWidth) < 0.01) return;
             if (!(Left + e.HorizontalChange > 10)) return;
-            Left += e.HorizontalChange;
-            Width -= e.HorizontalChange;
+            try
+            {
+                Width -= e.HorizontalChange;
+                Left += e.HorizontalChange;
+            }
+            catch
+            {
+                // ignored
+            }
         }
-        private void ThumbBottom_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbBottom_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (Height + e.VerticalChange > 10) Height += e.VerticalChange;
         }
-        private void ThumbTop_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        private void ThumbTop_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (!(Top + e.VerticalChange > 10)) return;
-            Top += e.VerticalChange;
-            Height -= e.VerticalChange;
+            if (e.VerticalChange > 0 && Math.Abs(Height - MinHeight) < 0.01) return;
+            try
+            {
+                Height -= e.VerticalChange;
+                Top += e.VerticalChange;
+            }
+            catch
+            {
+                // ignored
+            }
         }
         private void Minimize(object sender, RoutedEventArgs e)
         {

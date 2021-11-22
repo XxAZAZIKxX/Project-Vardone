@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -97,6 +98,8 @@ namespace VardoneApi.Controllers
             return await Task.Run(new Func<IActionResult>(() =>
             {
                 if (registerRequestModel == null) return BadRequest();
+
+                if (!IsValidEmail(registerRequestModel.Email)) return BadRequest("Incorrect email");
 
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
@@ -237,5 +240,6 @@ namespace VardoneApi.Controllers
             foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
             return sb.ToString();
         }
+        private static bool IsValidEmail(string email) => new EmailAddressAttribute().IsValid(email);
     }
 }

@@ -98,10 +98,11 @@
         <Thumb x:Name="ThumbTopRightCorner" DragDelta="ThumbTopRightCorner_DragDelta" HorizontalAlignment="Right"
                Cursor="SizeNESW" Grid.Row="0" Grid.Column="3" Background="{x:Null}"
                Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
-        <Thumb x:Name="ThumbBottomRightCorner" DragDelta="ThumbBottomRightCorner_DragDelta" HorizontalAlignment="Right"
-               Cursor="SizeNWSE" Grid.Row="2" Grid.Column="3" Background="{x:Null}"
+        <Thumb x:Name="ThumbBottomRightCorner" DragDelta="ThumbBottomRightCorner_DragDelta" HorizontalAlignment="Right" 
+               VerticalAlignment="Bottom" Cursor="SizeNWSE" Grid.Row="2" Grid.Column="3" Background="{x:Null}"
                Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
         <Thumb x:Name="ThumbBottomLeftCorner" DragDelta="ThumbBottomLeftCorner_DragDelta" HorizontalAlignment="Left"
+               VerticalAlignment="Bottom" 
                Cursor="SizeNESW" Grid.Row="2" Grid.Column="0" Background="{x:Null}"
                Style="{Binding Mode=OneWay, Source={StaticResource BorderThumb}}" />
         <Thumb x:Name="ThumbTopLeftCorner" DragDelta="ThumbTopLeftCorner_DragDelta" HorizontalAlignment="Left"
