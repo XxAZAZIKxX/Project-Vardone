@@ -9,6 +9,7 @@ using Vardone.Pages;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 
 namespace Vardone.Controls.Items
 {

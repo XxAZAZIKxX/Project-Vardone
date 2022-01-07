@@ -34,6 +34,7 @@
                     <TextBox TextChanged="MessageTextBoxOnTextChanged" KeyDown="MessageBoxKeyDown"
                              GotFocus="MessageBoxGotFocus" LostFocus="MessageBoxLostFocus" Text=""
                              x:Name="MessageTextBox" BorderThickness="0" Height="30"
+                             MaxLength="255"
                              VerticalContentAlignment="Center" CaretBrush="White"
                              Foreground="LightGray" Background="Transparent" />
                     <Image MouseDown="ClipMouseDown" Opacity="0.6" Width="25" Source="../Resources/clip.png"

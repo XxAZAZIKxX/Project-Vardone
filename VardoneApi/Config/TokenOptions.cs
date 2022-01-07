@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace VardoneApi
+namespace VardoneApi.Config
 {
     public static class TokenOptions
     {

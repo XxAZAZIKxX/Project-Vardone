@@ -24,6 +24,7 @@ namespace VardoneApi.Entity
         public DbSet<BannedGuildMembersTable> BannedGuildMembers { get; set; }
         public DbSet<ChannelMessagesTable> ChannelMessages { get; set; }
         public DbSet<GuildInvitesTable> GuildInvites { get; set; }
+        public DbSet<PrivateUserSaltsTable> PrivateUserSalts { get; set; }
 
         public DataContext(string connectionString)
         {
@@ -36,6 +37,10 @@ namespace VardoneApi.Entity
             //Default Property
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Description).HasDefaultValue();
+            modelBuilder.Entity<UserInfosTable>().Property(p => p.FullName).HasDefaultValue();
+            modelBuilder.Entity<UserInfosTable>().Property(p => p.BirthDate).HasDefaultValue();
+            modelBuilder.Entity<UserInfosTable>().Property(p => p.Phone).HasDefaultValue();
+            //
             modelBuilder.Entity<GuildInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
             modelBuilder.Entity<BannedGuildMembersTable>().Property(p => p.Reason).HasDefaultValue();
@@ -50,6 +55,7 @@ namespace VardoneApi.Entity
             //Foreign
             modelBuilder.Entity<UsersTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<GuildsTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<PrivateUserSaltsTable>().HasOne(p => p.User).WithOne().OnDelete(DeleteBehavior.Restrict);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

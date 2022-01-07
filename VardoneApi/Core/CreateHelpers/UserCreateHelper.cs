@@ -3,10 +3,11 @@ using VardoneApi.Entity.Models.Guilds;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 
 namespace VardoneApi.Core.CreateHelpers
 {
-    public abstract class UserCreateHelper
+    public static class UserCreateHelper
     {
         public static User GetUser(UsersTable user)
         {

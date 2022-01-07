@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace VardoneApi.Core.Checks
 {
-    public abstract class ChannelChecks
+    public static class ChannelChecks
     {
         public static bool IsChannelExists(long channelId)
         {

@@ -73,7 +73,7 @@
                 <!--Password-->
                 <TextBox x:Name="PasswordPlaceholder" Grid.Column="1" Grid.Row="5"
                          Background="#FF1B1B1D" TabIndex="-1"
-                         Text="Password"
+                         Text="PasswordHash"
                          HorizontalContentAlignment="Center"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />

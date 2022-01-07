@@ -34,7 +34,7 @@ namespace Vardone.Pages
         }
         public bool TryRegister(string username, string email, string password)
         {
-            var registerUser = VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, Password = password, Username = username });
+            var registerUser = VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, PasswordHash = password, Username = username });
             if (registerUser is false) return false;
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;

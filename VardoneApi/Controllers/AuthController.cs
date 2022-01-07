@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using VardoneApi.Config;
+using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Models.ApiModels;
@@ -35,10 +37,15 @@ namespace VardoneApi.Controllers
                 var users = dataContext.Users;
                 var tokens = dataContext.Tokens;
                 tokens.Include(p => p.User).Load();
+                var puss = dataContext.PrivateUserSalts;
+                puss.Include(p => p.User).Load();
                 UsersTable user;
                 try
                 {
-                    user = users.First(usr => usr.Email == loginRequestModel.Email && usr.Password == loginRequestModel.Password);
+                    user = users.First(usr => usr.Email == loginRequestModel.Email);
+                    var pus = puss.First(p => p.User.Id == user.Id).Pus;
+                    var passwordHash = CryptographyTools.GetPasswordHash(pus, loginRequestModel.PasswordHash);
+                    if (user.PasswordHash != passwordHash) throw new Exception();
                 }
                 catch
                 {
@@ -101,38 +108,36 @@ namespace VardoneApi.Controllers
 
                 if (!IsValidEmail(registerRequestModel.Email)) return BadRequest("Incorrect email");
 
-                var dataContext = Program.DataContext;
-                var users = dataContext.Users;
                 try
                 {
-                    var _ = users.First(u => u.Email == registerRequestModel.Email);
-                    return BadRequest("Email is already booked");
-                }
-                catch
-                {
-                    // ignored
-                }
-                try
-                {
-                    var _ = users.First(u => u.Username == registerRequestModel.Username);
-                    return BadRequest("Username is already booked");
-                }
-                catch
-                {
-                    // ignored
-                }
+                    var dataContext = Program.DataContext;
+                    var users = dataContext.Users;
+                    var puss = dataContext.PrivateUserSalts;
 
-                var user = new UsersTable
-                {
-                    Username = registerRequestModel.Username,
-                    Email = registerRequestModel.Email,
-                    Password = registerRequestModel.Password
-                };
+                    if (users.Any(p => p.Email == registerRequestModel.Email)) return BadRequest("<#!> Email is already booked");
+                    if (users.Any(p => p.Username == registerRequestModel.Username)) return BadRequest("<#!> Username is already booked");
 
-                users.Add(user);
 
-                try
-                {
+                    var user = new UsersTable
+                    {
+                        Username = registerRequestModel.Username,
+                        Email = registerRequestModel.Email,
+                        PasswordHash = "<@>"
+                    };
+
+                    users.Add(user);
+                    dataContext.SaveChanges();
+                    var pus = CryptographyTools.GetSha512Hash(
+                        Encoding.ASCII.GetBytes(
+                        Convert.ToBase64String(
+                            Encoding.Default.GetBytes(user.Id + user.Email + user.Username))));
+                    puss.Add(new PrivateUserSaltsTable
+                    {
+                        User = user,
+                        Pus = pus
+                    });
+                    user.PasswordHash = CryptographyTools.GetPasswordHash(pus, registerRequestModel.PasswordHash);
+                    users.Update(user);
                     dataContext.SaveChanges();
                     return Ok();
                 }

@@ -10,6 +10,7 @@ using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -226,6 +227,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
                 if (message == null) return BadRequest("Empty message");
+                if (message.Text.Length > 255) return BadRequest("<#!> Сообщение больше чем 255 символов!");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest();
                 if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");

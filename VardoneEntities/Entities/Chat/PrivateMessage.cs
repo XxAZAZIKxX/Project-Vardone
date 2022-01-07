@@ -6,7 +6,7 @@ namespace VardoneEntities.Entities.Chat
     {
         public long MessageId { get; set; } = -1;
         public PrivateChat Chat { get; set; }
-        public User Author { get; set; }
+        public User.User Author { get; set; }
         public DateTime CreatedTime { get; set; }
         public string Text { get; set; }
         public string Base64Image { get; set; }

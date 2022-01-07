@@ -2,7 +2,7 @@
 {
     public class UpdatePasswordModel
     {
-        public string PreviousPassword { get; set; }
-        public string NewPassword { get; set; }
+        public string PreviousPasswordHash { get; set; }
+        public string NewPasswordHash { get; set; }
     }
 }

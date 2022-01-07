@@ -4,6 +4,7 @@ using System.Windows.Media;
 using Vardone.Core;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
+using VardoneEntities.Entities.User;
 
 namespace Vardone.Pages.Popup
 {

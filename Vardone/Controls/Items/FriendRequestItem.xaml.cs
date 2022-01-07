@@ -7,6 +7,7 @@ using Vardone.Core;
 using Vardone.Pages;
 using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities;
+using VardoneEntities.Entities.User;
 
 namespace Vardone.Controls.Items
 {

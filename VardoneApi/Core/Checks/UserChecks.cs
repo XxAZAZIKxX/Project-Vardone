@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Core.Checks
 {
-    public abstract class UserChecks
+    public static class UserChecks
     {
         public static bool CheckToken(UserTokenModel token)
         {

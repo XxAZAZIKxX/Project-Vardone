@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VardoneApi.Core.Checks
 {
-    public abstract class GuildChecks
+    public static class GuildChecks
     {
         public static bool IsGuildExists(long guildId)
         {

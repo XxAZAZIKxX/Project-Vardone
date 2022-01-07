@@ -14,6 +14,7 @@ using Vardone.Pages.PropertyPages;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneLibrary.Core.Client;
 using VardoneLibrary.VardoneEvents;
 using Application = System.Windows.Application;

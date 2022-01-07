@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Config;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Users;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -272,15 +273,45 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     dataContext.Users.Include(p => p.Info).Load();
+                    var puss = dataContext.PrivateUserSalts;
+                    puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
-                    return Ok(new User
+                    var pus = puss.First(p => p.User.Id == user.Id).Pus;
+
+
+                    var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                    var fullName = user.Info?.FullName is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
+
+                    var phone = user.Info?.Phone is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
+
+                    DateTime? birthDate = user.Info?.BirthDate is null
+                        ? null
+                        : DateTime.FromBinary(Convert.ToInt64(CryptographyTools.DecryptStringFromBytes_Aes(
+                            Convert.FromBase64String(user.Info?.BirthDate),
+                            byteKey,
+                            PasswordOptions.IV)));
+
+                    var returnUser = new User
                     {
                         UserId = user.Id,
                         Username = user.Username,
-                        Email = user.Email,
                         Description = user.Info?.Description,
-                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
-                    });
+                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar),
+                        AdditionalInformation = new AdditionalUserInformation
+                        {
+                            Email = user.Email,
+                            FullName = fullName,
+                            Phone = phone,
+                            BirthDate = birthDate
+                        }
+                    };
+                    
+                    return Ok(returnUser);
                 }
                 catch (Exception e)
                 {
@@ -605,12 +636,19 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var users = dataContext.Users;
+                    var puss = dataContext.PrivateUserSalts;
+                    puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
-                    if (updatePasswordModel.PreviousPassword != user.Password)
-                        return BadRequest("Incorrect previous password");
-                    if (string.IsNullOrWhiteSpace(updatePasswordModel.NewPassword))
-                        return BadRequest("Incorrect new password");
-                    user.Password = updatePasswordModel.NewPassword;
+
+                    var pus = puss.First(p => p.User.Id == user.Id).Pus;
+                    var prevPasswordHash = CryptographyTools.GetPasswordHash(pus, updatePasswordModel.PreviousPasswordHash);
+
+                    if (prevPasswordHash != user.PasswordHash) return BadRequest("Incorrect previous password");
+
+                    if (string.IsNullOrWhiteSpace(updatePasswordModel.NewPasswordHash)) return BadRequest("Incorrect new password");
+                    var newPasswordHash = CryptographyTools.GetPasswordHash(pus, updatePasswordModel.NewPasswordHash);
+
+                    user.PasswordHash = newPasswordHash;
                     users.Update(user);
                     dataContext.SaveChanges();
                     return Ok();
@@ -637,14 +675,19 @@ namespace VardoneApi.Controllers
                 }
 
                 if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email)) return BadRequest("Email is booked");
+
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
                 users.Include(p => p.Info).Load();
                 var usersInfos = dataContext.UserInfos;
                 usersInfos.Include(p => p.User).Load();
+                var puss = dataContext.PrivateUserSalts;
+                puss.Include(p => p.User).Load();
+
                 var user = users.First(p => p.Id == userId);
                 var userInfo = user.Info ?? new UserInfosTable();
                 userInfo.User = user;
+
                 if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
                 if (updateUserModel.Description is not null)
                     userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description)
@@ -660,6 +703,24 @@ namespace VardoneApi.Controllers
                             new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
                         if (res) userInfo.Avatar = Convert.FromBase64String(updateUserModel.Base64Image);
                     }
+                }
+
+                var pus = puss.First(p => p.User.Id == user.Id).Pus;
+
+                var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                if (updateUserModel.Phone is not null)
+                    userInfo.Phone = Convert.ToBase64String(
+                        CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.Phone, byteKey, PasswordOptions.IV));
+
+                if (updateUserModel.BirthDate is not null)
+                    userInfo.BirthDate = Convert.ToBase64String(
+                        CryptographyTools.EncryptStringToBytes_Aes(
+                            updateUserModel.BirthDate.Value.ToBinary().ToString(), byteKey, PasswordOptions.IV));
+
+                if (updateUserModel.FullName is not null)
+                {
+                    userInfo.FullName = Convert.ToBase64String(CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.FullName, byteKey, PasswordOptions.IV));
                 }
 
                 try

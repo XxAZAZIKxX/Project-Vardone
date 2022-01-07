@@ -29,7 +29,7 @@ namespace Vardone.Pages.PropertyPages
                 AvatarImage.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
                 UsernameLabel.Content = user.Username;
                 UsernameTb.Text = user.Username;
-                EmailTb.Text = user.Email;
+                EmailTb.Text = user.AdditionalInformation.Email;
                 DescTb.Text = user.Description ?? "Description";
             });
             return this;
@@ -55,8 +55,8 @@ namespace Vardone.Pages.PropertyPages
                 {
                     MainPage.Client.UpdatePassword(new UpdatePasswordModel
                     {
-                        PreviousPassword = PasswordBox1.Password,
-                        NewPassword = PasswordBox2.Password
+                        PreviousPasswordHash = PasswordBox1.Password,
+                        NewPasswordHash = PasswordBox2.Password
                     });
                     PasswordButton_CancelClick(null, null);
                     return;

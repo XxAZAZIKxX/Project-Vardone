@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition x:Name="ImageRow" Height="200" />
-            <RowDefinition Height="30" MaxHeight="60" />
+            <RowDefinition MinHeight="30" Height="Auto" MaxHeight="80" />
         </Grid.RowDefinitions>
         <Ellipse VerticalAlignment="Top"
                  Width="30" Height="30" Margin="10,0,0,0"
@@ -26,7 +26,7 @@
                  Margin="32,22,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
-        <Label Grid.Row="0" Grid.Column="1" x:Name="Username" Content="BannedUser"
+        <Label Grid.Row="0" Grid.Column="1" x:Name="Username" Content="User"
                Foreground="white"
                Width="160"
                FontSize="14"
@@ -51,6 +51,8 @@
                  Grid.Column="1"
                  Text="Text"
                  Background="Transparent"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Top"
                  Foreground="White">
             <TextBox.Style>
                 <Style TargetType="TextBox">

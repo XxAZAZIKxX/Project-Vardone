@@ -4,9 +4,9 @@ namespace VardoneEntities.Models.GeneralModels.Users
 {
     public class UpdateUserModel
     {
-        public string Username { get; set; } = null;
-        public string Email { get; set; } = null;
-        public string Description { get; set; } = null;
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string Description { get; set; }
         private string _base64Image;
         public string Base64Image
         {
@@ -17,5 +17,9 @@ namespace VardoneEntities.Models.GeneralModels.Users
                     _base64Image = value;
             }
         }
+
+        public string Phone { get; set; }
+        public string FullName { get; set; }
+        public DateTime? BirthDate { get; set; } = null;
     }
 }

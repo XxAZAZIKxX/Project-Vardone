@@ -8,8 +8,8 @@ namespace VardoneEntities.Entities.Chat
     public class PrivateChat
     {
         public long ChatId { get; set; } = -1;
-        public User FromUser { get; set; }
-        public User ToUser { get; set; }
+        public User.User FromUser { get; set; }
+        public User.User ToUser { get; set; }
         public int UnreadMessages { get; set; }
 
 #nullable enable
