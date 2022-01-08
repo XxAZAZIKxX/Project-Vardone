@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using RestSharp;
 using VardoneEntities.Models.ClientModels;
@@ -25,11 +27,24 @@ namespace VardoneLibrary.Core.Client.Base
         }
         public static string GetUserToken(string email, string password)
         {
-            var response = ExecutePost(@"/auth/authUser", JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, Password = password }));
+            var passwordHash = new StringBuilder();
+            using (var sha512 = SHA512.Create())
+            {
+                var computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(password));
+                foreach (var b in computeHash) passwordHash.Append(b.ToString("X"));
+            }
+            var response = ExecutePost(@"/auth/authUser", JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, PasswordHash = passwordHash.ToString() }));
             return response.StatusCode is not HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<string>(response.Content);
         }
         public static bool RegisterUser(RegisterUserModel register)
         {
+            using (var sha512 = SHA512.Create())
+            {
+                var sb = new StringBuilder();
+                var computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(register.PasswordHash));
+                foreach (var b in computeHash) sb.Append(b.ToString("X"));
+                register.PasswordHash = sb.ToString();
+            }
             var response = ExecutePost(@"/auth/registerUser", JsonConvert.SerializeObject(register));
             return response.StatusCode == HttpStatusCode.OK;
         }

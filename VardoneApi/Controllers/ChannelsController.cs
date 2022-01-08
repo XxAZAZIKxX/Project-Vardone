@@ -9,7 +9,6 @@ using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Channels;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;

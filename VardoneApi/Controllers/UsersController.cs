@@ -567,7 +567,8 @@ namespace VardoneApi.Controllers
                 }
                 catch (Exception e)
                 {
-                    return BadRequest(e);
+                    throw e;
+                    return Problem(e.Message);
                 }
             }));
         }

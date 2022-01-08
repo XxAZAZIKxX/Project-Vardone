@@ -12,6 +12,7 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
+using Clipboard = System.Windows.Clipboard;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
@@ -121,7 +122,7 @@ namespace Vardone.Controls
                     if (chat is null && channel is null) return;
                     if (ChatMessagesList.Children.Count == 0) return;
 
-                    var numberAdded = 0;
+                    int numberAdded;
 
                     if (chat is not null)
                     {
@@ -158,8 +159,7 @@ namespace Vardone.Controls
             if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
             MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
         }
-        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) =>
-            MessageBoxGotFocus(null, null);
+        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) => MessageBoxGotFocus(null, null);
         private void MessageBoxKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;

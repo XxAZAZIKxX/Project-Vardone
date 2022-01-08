@@ -55,7 +55,7 @@ namespace VardoneApi.Entity
             //Foreign
             modelBuilder.Entity<UsersTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<GuildsTable>().HasOne(p => p.Info).WithOne().OnDelete(DeleteBehavior.SetNull);
-            modelBuilder.Entity<PrivateUserSaltsTable>().HasOne(p => p.User).WithOne().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PrivateUserSaltsTable>().HasOne(p => p.User).WithOne().OnDelete(DeleteBehavior.Cascade);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

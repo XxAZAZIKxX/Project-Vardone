@@ -91,7 +91,7 @@
                 <TextBox x:Name="PbPasswordPlaceholder" Grid.Column="1" Grid.Row="7"
                          Background="#FF1B1B1D" TabIndex="-1"
                          HorizontalContentAlignment="Center"
-                         Text="PasswordHash"
+                         Text="Password"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <PasswordBox KeyDown="PbPassword_OnKeyDown" TabIndex="3" x:Name="PbPassword" Grid.Column="1"

@@ -5,20 +5,7 @@ namespace VardoneApi.Core.Checks
 {
     public static class GuildChecks
     {
-        public static bool IsGuildExists(long guildId)
-        {
-            try
-            {
-                var dataContext = Program.DataContext;
-                var guilds = dataContext.Guilds;
-                var _ = guilds.First(p => p.Id == guildId);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        public static bool IsGuildExists(long guildId) => Program.DataContext.Guilds.Any(p => p.Id == guildId);
 
         public static bool IsUserOwner(long userId, long guildId)
         {
@@ -40,16 +27,7 @@ namespace VardoneApi.Core.Checks
             var guildMembers = dataContext.GuildMembers;
             guildMembers.Include(p => p.Guild).Load();
             guildMembers.Include(p => p.User).Load();
-            try
-            {
-                var _ = guildMembers.First(p => p.User.Id == userId && p.Guild.Id == guildId);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-
+            return guildMembers.Any(p => p.User.Id == userId && p.Guild.Id == guildId);
         }
     }
 }

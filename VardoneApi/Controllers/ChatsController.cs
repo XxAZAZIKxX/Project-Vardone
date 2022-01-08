@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.PrivateChats;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;

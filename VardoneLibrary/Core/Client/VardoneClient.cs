@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using RestSharp;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Client.Base;

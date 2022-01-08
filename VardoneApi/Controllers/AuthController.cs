@@ -24,8 +24,6 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]")]
     public class AuthController : ControllerBase
     {
-        private static readonly Random Random = new();
-        //
         [HttpPost, Route("authUser")]
         public async Task<IActionResult> AuthUser([FromBody] GetUserTokenApiModel loginRequestModel)
         {
@@ -127,10 +125,7 @@ namespace VardoneApi.Controllers
 
                     users.Add(user);
                     dataContext.SaveChanges();
-                    var pus = CryptographyTools.GetSha512Hash(
-                        Encoding.ASCII.GetBytes(
-                        Convert.ToBase64String(
-                            Encoding.Default.GetBytes(user.Id + user.Email + user.Username))));
+                    var pus = CryptographyTools.GetSha512Hash(Encoding.ASCII.GetBytes(Convert.ToBase64String(Encoding.Default.GetBytes(user.Id + user.Email + user.Username))));
                     puss.Add(new PrivateUserSaltsTable
                     {
                         User = user,
@@ -214,37 +209,7 @@ namespace VardoneApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
-        private static string GenerateToken() => CreateMd5((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CreateRandomString());
-        private static string CreateRandomString()
-        {
-            var sb = new StringBuilder();
-            var n = Random.Next(1, 23);
-            for (var i = 0; i < n; i++)
-            {
-                switch (Random.Next(1, 3))
-                {
-                    case 1:
-                        sb.Append((char)Random.Next(65, 91));
-                        break;
-                    case 2:
-                        sb.Append((char)Random.Next(97, 123));
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
-        private static string CreateMd5(string input)
-        {
-            // Use input string to calculate MD5 hash
-            using var md5 = MD5.Create();
-            var inputBytes = Encoding.ASCII.GetBytes(input);
-            var hashBytes = md5.ComputeHash(inputBytes);
-
-            // Convert the byte array to hexadecimal string
-            var sb = new StringBuilder();
-            foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
-            return sb.ToString();
-        }
+        private static string GenerateToken() => CryptographyTools.GetMd5Hash((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CryptographyTools.CreateRandomString(0,0,12));
         private static bool IsValidEmail(string email) => new EmailAddressAttribute().IsValid(email);
     }
 }

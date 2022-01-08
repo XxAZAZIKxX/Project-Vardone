@@ -45,7 +45,7 @@
                     <RowDefinition Height="60*" />
                 </Grid.RowDefinitions>
                 <Viewbox Grid.Column="1" Grid.Row="1">
-                    <TextBlock Name="Title" Foreground="Azure"
+                    <TextBlock Foreground="Azure"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontWeight="UltraBlack"
                                Text="WELCOME" />
@@ -73,7 +73,7 @@
                 <!--Password-->
                 <TextBox x:Name="PasswordPlaceholder" Grid.Column="1" Grid.Row="5"
                          Background="#FF1B1B1D" TabIndex="-1"
-                         Text="PasswordHash"
+                         Text="Password"
                          HorizontalContentAlignment="Center"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
@@ -85,7 +85,7 @@
                              VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
-                <Button Click="LoginBtnClick" Name="Button" Content="Sign In" Foreground="azure"
+                <Button Click="LoginBtnClick" Content="Sign In" Foreground="azure"
                         Grid.Column="1" Grid.Row="7" FontWeight="Bold" Background="DimGray"
                         Template="{StaticResource ButtonGo}" />
                 <Viewbox Grid.Row="8" Grid.Column="1">

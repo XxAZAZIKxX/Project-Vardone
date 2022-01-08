@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Linq;
 using System.Net.NetworkInformation;
 
 namespace VardoneEntities.Models.ClientModels
@@ -9,7 +6,7 @@ namespace VardoneEntities.Models.ClientModels
     public class GetUserTokenClientModel
     {
         public string Email { get; set; }
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
         public string MacAddress => GetMacAddress();
 
         private static string GetMacAddress() =>

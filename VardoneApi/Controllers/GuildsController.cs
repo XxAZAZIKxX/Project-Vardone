@@ -19,8 +19,6 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]"), Authorize]
     public class GuildsController : ControllerBase
     {
-        private static readonly Random Random = new();
-        //
         [HttpPost, Route("getBannedGuildMembers")]
         public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId)
         {
@@ -407,11 +405,11 @@ namespace VardoneApi.Controllers
                     bannedGuildMembers.Include(p => p.BannedUser).Load();
                     bannedGuildMembers.Include(p => p.Guild).Load();
                     var invites = dataContext.GuildInvites;
-                    invites.Include(p=>p.CreatedByUser).Load();
+                    invites.Include(p => p.CreatedByUser).Load();
 
                     bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId));
                     guildMembers.RemoveRange(guildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
-                    invites.RemoveRange(invites.Where(p=>p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
+                    invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
 
                     dataContext.SaveChanges();
 
@@ -647,36 +645,19 @@ namespace VardoneApi.Controllers
                 members.Include(p => p.User).Load();
                 members.Include(p => p.Guild).Load();
                 var invites = dataContext.GuildInvites;
-                invites.Include(p=>p.CreatedByUser).Load();
+                invites.Include(p => p.CreatedByUser).Load();
 
                 if (!members.Any(p => p.User.Id == userId && p.Guild.Id == guildId)) return Ok("You are not member");
 
                 var first = members.First(p => p.User.Id == userId && p.Guild.Id == guildId);
                 members.Remove(first);
-                invites.RemoveRange(invites.Where(p=>p.CreatedByUser.Id == userId && p.Guild.Id == guildId));
+                invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == userId && p.Guild.Id == guildId));
                 dataContext.SaveChanges();
                 return Ok("Leaved");
             }));
         }
 
         //Methods
-        private static string CreateInviteCode()
-        {
-            var sb = new StringBuilder();
-            var n = Random.Next(6, 10);
-            for (var i = 0; i < n; i++)
-            {
-                switch (Random.Next(1, 3))
-                {
-                    case 1:
-                        sb.Append((char)Random.Next(65, 91));
-                        break;
-                    case 2:
-                        sb.Append((char)Random.Next(97, 123));
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
+        private static string CreateInviteCode() => CryptographyTools.CreateRandomString(6, 10);
     }
 }

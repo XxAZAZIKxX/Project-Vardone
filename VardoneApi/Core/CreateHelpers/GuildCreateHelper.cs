@@ -14,9 +14,8 @@ namespace VardoneApi.Core.CreateHelpers
         public static List<Channel> GetGuildChannels(long guildId)
         {
             if (!GuildChecks.IsGuildExists(guildId)) return null;
-
-            var dataContext = Program.DataContext;
-            var channels = dataContext.Channels;
+            
+            var channels = Program.DataContext.Channels;
             channels.Include(p=>p.Guild).Load();
             channels.Include(p=>p.Guild.Info).Load();
 
@@ -41,8 +40,7 @@ namespace VardoneApi.Core.CreateHelpers
 
         public static Guild GetGuild(GuildsTable guild)
         {
-            var dataContext = Program.DataContext;
-            var members = dataContext.GuildMembers;
+            var members = Program.DataContext.GuildMembers;
             members.Include(p=>p.Guild).Load();
             members.Include(p=>p.User).Load();
             var member = members.First(p => p.User.Id == guild.Owner.Id);

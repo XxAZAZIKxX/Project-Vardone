@@ -1,7 +1,6 @@
 ﻿using System;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneApi.Entity.Models.Users;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 
