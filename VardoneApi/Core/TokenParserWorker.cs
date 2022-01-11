@@ -5,7 +5,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Core
 {
-    public static class TokenParserWorker
+    internal static class TokenParserWorker
     {
         public static UserTokenModel GetUserToken(ClaimsPrincipal user)
         {

@@ -7,7 +7,7 @@ using VardoneEntities.Entities.User;
 
 namespace VardoneApi.Core.CreateHelpers
 {
-    public static class UserCreateHelper
+    internal static class UserCreateHelper
     {
         public static User GetUser(UsersTable user, bool onlyId = false)
         {

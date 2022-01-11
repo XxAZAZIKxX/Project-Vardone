@@ -9,7 +9,7 @@ using VardoneEntities.Entities.Guild;
 
 namespace VardoneApi.Core.CreateHelpers
 {
-    public static class GuildCreateHelper
+    internal static class GuildCreateHelper
     {
         public static List<Channel> GetGuildChannels(long guildId, bool onlyId = false)
         {

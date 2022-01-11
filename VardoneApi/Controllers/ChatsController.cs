@@ -258,7 +258,10 @@ namespace VardoneApi.Controllers
                         Chat = chat,
                         Author = user1,
                         Text = message.Text ?? "",
-                        Image = message.Base64Image == null ? null : Convert.FromBase64String(message.Base64Image),
+                        Image = message.Base64Image is null
+                            ? null
+                            : ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image),
+                                70),
                         CreatedTime = DateTime.Now
                     };
                     messages.Add(newMessage);

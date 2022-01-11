@@ -675,19 +675,19 @@ namespace VardoneApi.Controllers
                 userInfo.User = user;
 
                 if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
-                if (updateUserModel.Description is not null)
-                    userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description)
-                        ? null
-                        : updateUserModel.Description;
+                if (updateUserModel.Description is not null) userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description) ? null : updateUserModel.Description;
                 if (updateUserModel.Email is not null) user.Email = updateUserModel.Email;
                 if (updateUserModel.Base64Image is not null)
                 {
                     if (string.IsNullOrEmpty(updateUserModel.Base64Image)) userInfo.Avatar = null;
                     else
                     {
-                        var res = Convert.TryFromBase64String(updateUserModel.Base64Image,
-                            new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
-                        if (res) userInfo.Avatar = Convert.FromBase64String(updateUserModel.Base64Image);
+                        var res = Convert.TryFromBase64String(updateUserModel.Base64Image, new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
+                        if (res)
+                        {
+                            var bytes = Convert.FromBase64String(updateUserModel.Base64Image);
+                            userInfo.Avatar = ImageCompressionWorker.VaryQualityLevel(bytes, 50);
+                        }
                     }
                 }
 

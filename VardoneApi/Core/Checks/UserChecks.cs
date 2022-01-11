@@ -4,7 +4,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Core.Checks
 {
-    public static class UserChecks
+    internal static class UserChecks
     {
         public static bool CheckToken(UserTokenModel token)
         {

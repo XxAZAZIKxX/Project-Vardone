@@ -159,14 +159,17 @@ namespace VardoneApi.Controllers
 
                     if (!guildMembers.Any(p => p.User.Id == userId && p.Guild == guild)) return BadRequest("You are not member this guild");
 
-                    channelMessages.Add(new ChannelMessagesTable
+                    var messageTable = new ChannelMessagesTable
                     {
                         Author = users.First(p => p.Id == userId),
                         Channel = channel,
                         CreatedTime = DateTime.Now,
-                        Image = message.Base64Image is not null ? Convert.FromBase64String(message.Base64Image) : null,
+                        Image = message.Base64Image is not null
+                            ? ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image), 70)
+                            : null,
                         Text = message.Text ?? ""
-                    });
+                    };
+                    channelMessages.Add(messageTable);
 
                     dataContext.SaveChanges();
                     return Ok("Message was sent");
