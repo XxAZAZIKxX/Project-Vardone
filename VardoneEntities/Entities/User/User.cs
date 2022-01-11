@@ -1,11 +1,11 @@
 ﻿namespace VardoneEntities.Entities.User
 {
-    public class User
+    public record User
     {
-        public long UserId { get; init; }
-        public string Username { get; init; }
-        public string Base64Avatar { get; init; }
-        public string Description { get; init; }
-        public AdditionalUserInformation AdditionalInformation { get; init; }
+        public long UserId { get; set; }
+        public string Username { get; set; }
+        public string Base64Avatar { get; set; }
+        public string Description { get; set; }
+        public AdditionalUserInformation AdditionalInformation { get; set; }
     }
 }

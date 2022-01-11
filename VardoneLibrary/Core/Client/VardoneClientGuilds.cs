@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -12,157 +11,150 @@ namespace VardoneLibrary.Core.Client
 {
     public partial class VardoneClient
     {
-        //Get
-        public List<Guild> GetGuilds()
+        //===============================[GET]===============================
+        public List<Guild> GetGuilds() => GetGuilds(false);
+        internal List<Guild> GetGuilds(bool onlyId)
         {
-            var response = ExecutePostWithToken("users/getGuilds");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetGuilds();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<Guild>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-        public List<Channel> GetGuildChannels(long guildId)
-        {
-            var response = ExecutePostWithToken("guilds/getGuildChannels", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetGuildChannels(guildId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<Channel>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-        public List<BannedMember> GetBannedGuildMembers(long guildId)
-        {
-            var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetBannedGuildMembers(guildId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<BannedMember>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-        public List<Member> GetGuildMembers(long guildId)
-        {
-            var response = ExecutePostWithToken("guilds/GetGuildMembers", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetGuildMembers(guildId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<Member>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-        public List<GuildInvite> GetGuildInvites(long guildId)
-        {
-            var response = ExecutePostWithToken("guilds/getGuildInvites", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetGuildInvites(guildId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-        public List<ChannelMessage> GetChannelMessages(long channelId, int limit = 0, long startFrom = 0)
-        {
-            var response = ExecutePostWithToken("channels/getChannelMessages", null,
-                new Dictionary<string, string>
+                var response = ExecutePostWithToken("users/getGuilds", onlyId: onlyId);
+                switch (response.StatusCode)
                 {
-                    { "channelId", channelId.ToString() },
-                    { "limit", limit.ToString() },
-                    { "startFrom", startFrom.ToString() }
-                });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetChannelMessages(channelId, limit, startFrom);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<Guild>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
-        internal List<ChannelMessage> GetChannelMessages(long channelId, bool read = true, int limit = 0, long startFrom = 0)
+
+        public List<Channel> GetGuildChannels(long guildId) => GetGuildChannels(guildId, false);
+        internal List<Channel> GetGuildChannels(long guildId, bool onlyId)
         {
-            var response = ExecutePostWithToken("channels/getChannelMessages", null,
-                new Dictionary<string, string>
-                {
-                    { "channelId", channelId.ToString() },
-                    { "limit", limit.ToString() },
-                    { "startFrom", startFrom.ToString() },
-                    { "read", read.ToString() }
-                });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetChannelMessages(channelId, read, limit, startFrom);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("guilds/getGuildChannels", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<Channel>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
+
+        public List<BannedMember> GetBannedGuildMembers(long guildId) => GetBannedGuildMembers(guildId, false);
+        internal List<BannedMember> GetBannedGuildMembers(long guildId, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<BannedMember>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
+            }
+        }
+
+        public List<Member> GetGuildMembers(long guildId) => GetGuildMembers(guildId, false);
+        internal List<Member> GetGuildMembers(long guildId, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("guilds/GetGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<Member>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
+            }
+        }
+
+        public List<GuildInvite> GetGuildInvites(long guildId) => GetGuildInvites(guildId, false);
+        internal List<GuildInvite> GetGuildInvites(long guildId, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("guilds/getGuildInvites", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
+            }
+        }
+
+        public List<ChannelMessage> GetChannelMessages(long channelId, int limit = 0, long startFrom = 0) => GetChannelMessages(channelId, limit, startFrom, false);
+        internal List<ChannelMessage> GetChannelMessages(long channelId, int limit, long startFrom, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string> { { "channelId", channelId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
+            }
+        }
+
         public DateTime? GetLastDeleteMessageTimeOnChannel(long channelId)
         {
             var response = ExecutePostWithToken("channels/getLastDeleteMessageTime", null,
@@ -184,7 +176,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Create
+        //===============================[CREATE]===============================
         public void CreateGuild(string name = null)
         {
             var response = ExecutePostWithToken("guilds/createGuild", null,
@@ -248,7 +240,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Delete
+        //===============================[DELETE]===============================
         public void DeleteGuild(long guildId)
         {
             var response = ExecutePostWithToken("guilds/deleteGuild", null,
@@ -334,7 +326,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Update
+        //===============================[UPDATE]===============================
         public void UpdateGuild(UpdateGuildModel model)
         {
             var response = ExecutePostWithToken("guilds/updateGuild", JsonConvert.SerializeObject(model));
@@ -376,7 +368,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Other
+        //===============================[OTHER]===============================
         public void SendChannelMessage(long channelId, MessageModel message)
         {
             var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message),

@@ -2,7 +2,7 @@
 
 namespace VardoneEntities.Models.GeneralModels.Users
 {
-    public class UpdateUserModel
+    public record UpdateUserModel
     {
         public string Username { get; set; }
         public string Email { get; set; }

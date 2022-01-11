@@ -12,6 +12,7 @@ using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Guilds;
 
 namespace VardoneApi.Controllers
@@ -20,7 +21,7 @@ namespace VardoneApi.Controllers
     public class GuildsController : ControllerBase
     {
         [HttpPost, Route("getBannedGuildMembers")]
-        public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId)
+        public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -49,14 +50,18 @@ namespace VardoneApi.Controllers
                     var bannedUsers = new List<BannedMember>();
                     foreach (var item in bannedGuildMembers.Where(p => p.Guild.Id == guildId))
                     {
-                        bannedUsers.Add(new BannedMember
+                        var member = new BannedMember
                         {
-                            BannedUser = UserCreateHelper.GetUser(item.BannedUser),
-                            BannedByUser = UserCreateHelper.GetUser(item.BannedByUser),
-                            Reason = item.Reason,
-                            BanDateTime = item.BanDate,
-                            Guild = GuildCreateHelper.GetGuild(item.Guild)
-                        });
+                            BannedUser = UserCreateHelper.GetUser(item.BannedUser, onlyId),
+                            BannedByUser = UserCreateHelper.GetUser(item.BannedByUser, onlyId),
+                            Guild = GuildCreateHelper.GetGuild(item.Guild, false, onlyId: onlyId),
+                            BanDateTime = item.BanDate
+                        };
+                        if (!onlyId)
+                        {
+                            member.Reason = item.Reason;
+                        }
+                        bannedUsers.Add(member);
                     }
                     return Ok(bannedUsers);
                 }
@@ -68,7 +73,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildChannels")]
-        public async Task<IActionResult> GetGuildChannels([FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildChannels([FromQuery] long guildId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -82,34 +87,10 @@ namespace VardoneApi.Controllers
                 }
 
                 if (!GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
-
+                if (!GuildChecks.IsUserMember(userId, guildId)) return BadRequest("You are not a guild member");
                 try
                 {
-                    var dataContext = Program.DataContext;
-                    var channels = dataContext.Channels;
-                    channels.Include(p => p.Guild).Load();
-                    channels.Include(p => p.Guild.Info).Load();
-                    var guildMembers = dataContext.GuildMembers;
-                    guildMembers.Include(p => p.Guild).Load();
-                    guildMembers.Include(p => p.Guild.Owner).Load();
-                    guildMembers.Include(p => p.Guild.Owner.Info).Load();
-                    guildMembers.Include(p => p.User).Load();
-
-                    if (guildMembers.Count(p => p.User.Id == userId && p.Guild.Id == guildId) == 0) return BadRequest("You are not a guild member");
-
-                    var channelsList = new List<Channel>();
-
-                    foreach (var itemChannelsTable in channels.Where(p => p.Guild.Id == guildId))
-                    {
-                        channelsList.Add(new Channel
-                        {
-                            ChannelId = itemChannelsTable.Id,
-                            Name = itemChannelsTable.Name,
-                            Guild = GuildCreateHelper.GetGuild(itemChannelsTable.Guild)
-                        });
-                    }
-
-                    return Ok(channelsList);
+                    return Ok(GuildCreateHelper.GetGuildChannels(guildId, onlyId));
                 }
                 catch (Exception e)
                 {
@@ -119,7 +100,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildInvites")]
-        public async Task<IActionResult> GetGuildInvites([FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildInvites([FromQuery] long guildId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -154,8 +135,8 @@ namespace VardoneApi.Controllers
                             InviteId = item.Id,
                             CreatedAt = item.CreatedAt,
                             InviteCode = item.InviteCode,
-                            CreatedBy = UserCreateHelper.GetUser(item.CreatedByUser),
-                            Guild = GuildCreateHelper.GetGuild(item.Guild),
+                            CreatedBy = UserCreateHelper.GetUser(item.CreatedByUser, onlyId),
+                            Guild = GuildCreateHelper.GetGuild(item.Guild, false, onlyId: onlyId),
                             NumberOfUses = item.NumberOfUses
                         });
                     }
@@ -170,7 +151,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildMembers")]
-        public async Task<IActionResult> GetGuildMembers([FromQuery] long guildId)
+        public async Task<IActionResult> GetGuildMembers([FromQuery] long guildId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -184,7 +165,7 @@ namespace VardoneApi.Controllers
                 }
 
                 if (!GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
-
+                if(!GuildChecks.IsUserMember(userId,guildId)) return BadRequest("You not member that guild");
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -192,10 +173,9 @@ namespace VardoneApi.Controllers
                     members.Include(p => p.Guild).Load();
                     members.Include(p => p.User).Load();
                     members.Include(p => p.User.Info).Load();
+                    
 
                     var returnMembers = new List<Member>();
-                    if (!members.Any(p => p.Guild.Id == guildId && p.User.Id == userId)) return BadRequest("You not member that guild");
-
                     foreach (var member in members.Where(p => p.Guild.Id == guildId))
                     {
                         returnMembers.Add(UserCreateHelper.GetMember(member));
@@ -516,7 +496,7 @@ namespace VardoneApi.Controllers
                         InviteCode = guildInvite.InviteCode,
                         CreatedAt = guildInvite.CreatedAt,
                         CreatedBy = UserCreateHelper.GetUser(guildInvite.CreatedByUser),
-                        Guild = GuildCreateHelper.GetGuild(guildInvite.Guild),
+                        Guild = GuildCreateHelper.GetGuild(guildInvite.Guild, false),
                         NumberOfUses = guildInvite.NumberOfUses
                     });
                 }

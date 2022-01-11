@@ -2,9 +2,9 @@
 
 namespace VardoneEntities.Models.GeneralModels.Users
 {
-    public class MessageModel
+    public record MessageModel
     {
-        public string Text { get; set; } = null;
+        public string Text { get; set; }
         private string _base64Image;
         public string Base64Image
         {

@@ -2,7 +2,7 @@
 
 namespace VardoneEntities.Entities.Guild
 {
-    public class BannedMember
+    public record BannedMember
     {
         public User.User BannedUser { get; set; }
         public User.User BannedByUser { get; set; }

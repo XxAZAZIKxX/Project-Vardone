@@ -1,39 +1,41 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Exceptions;
-using static VardoneLibrary.VardoneEvents.VardoneEvents;
 
 namespace VardoneLibrary.Core.Client
 {
     public partial class VardoneClient
     {
-        //Get
+        //===============================[GET]===============================
         /// <summary>
         /// Получить список приватных чатов текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<PrivateChat> GetPrivateChats()
+        public List<PrivateChat> GetPrivateChats() => GetPrivateChats(false);
+        internal List<PrivateChat> GetPrivateChats(bool onlyId)
         {
-            var response = ExecutePostWithToken("users/GetPrivateChats");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetPrivateChats();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("users/GetPrivateChats", onlyId:onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<PrivateChat>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
 
@@ -42,25 +44,29 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         /// <param name="userId">Id пользователя</param>
         /// <returns></returns>
-        public PrivateChat GetPrivateChatWithUser(long userId)
+        public PrivateChat GetPrivateChatWithUser(long userId) => GetPrivateChatWithUser(userId, false);
+        internal PrivateChat GetPrivateChatWithUser(long userId, bool onlyId)
         {
-            var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
-                new Dictionary<string, string> { { "secondId", userId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetPrivateChatWithUser(userId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    onUpdateChatList?.Invoke();
-                    return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
+                    new Dictionary<string, string> { { "secondId", userId.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        UpdateChatList();
+                        return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
 
@@ -71,68 +77,51 @@ namespace VardoneLibrary.Core.Client
         /// <param name="limit">Количество сообщений</param>
         /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
-        public List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0)
+        public List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0) => GetPrivateMessagesFromChat(chatId, limit, startFrom, false);
+        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, int limit, long startFrom, bool onlyId)
         {
-            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
-                new Dictionary<string, string>
+            while (true)
+            {
+                var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string> { { "chatId", chatId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
+                switch (response.StatusCode)
                 {
-                    { "chatId", chatId.ToString() },
-                    { "limit", limit.ToString() },
-                    { "startFrom", startFrom.ToString() }
-                });
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content));
+                    default:
+                        throw new Exception(response.Content);
+                }
+            }
+        }
+
+        public DateTime? GetLastDeleteTimeOnChat(long chatId)
+        {
+            var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string>
+            {
+                { "chatId", chatId.ToString() }
+            });
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
                     if (IsTokenExpired(response))
                     {
                         UpdateToken();
-                        return GetPrivateMessagesFromChat(chatId, limit, startFrom);
+                        return GetLastDeleteTimeOnChat(chatId);
                     }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<PrivateMessage>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                    else throw new UnauthorizedException();
+                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<DateTime?>(response.Content);
+                default: throw new Exception(response.Content);
             }
         }
 
-        /// <summary>
-        /// Получить список сообщений с приватного чата
-        /// </summary>
-        /// <param name="chatId">Id чата</param>
-        /// <param name="read">Обновить ли счетчик прочитанных сообщений</param>
-        /// <param name="limit">Количество сообщений для получения. По умолчанию 0 (получаются все)</param>
-        /// <param name="startFrom">Начинать с [n] id сообщения</param>
-        /// <returns></returns>
-        internal List<PrivateMessage> GetPrivateMessagesFromChat(long chatId, bool read = true, int limit = 0, long startFrom = 0)
-        {
-            var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null,
-                new Dictionary<string, string>
-                {
-                    { "chatId", chatId.ToString() },
-                    { "limit", limit.ToString() },
-                    { "startFrom", startFrom.ToString() },
-                    { "read", read.ToString() }
-                });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetPrivateMessagesFromChat(chatId, read, limit, startFrom);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<PrivateMessage>>((response.Content));
-                default:
-                    throw new Exception(response.Content);
-            }
-        }
-
-        //Other
+        //===============================[OTHER]===============================
         /// <summary>
         /// Удалить сообщение
         /// </summary>
@@ -207,31 +196,11 @@ namespace VardoneLibrary.Core.Client
                         throw new UnauthorizedException();
                 case HttpStatusCode.OK:
                     {
-                        onUpdateChatList?.Invoke();
+                        UpdateChatList();
                         return;
                     }
                 default:
                     throw new Exception(response.Content);
-            }
-        }
-
-        public DateTime? GetLastDeleteTimeOnChat(long chatId)
-        {
-            var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string>
-            {
-                { "chatId", chatId.ToString() }
-            });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetLastDeleteTimeOnChat(chatId);
-                    }
-                    else throw new UnauthorizedException();
-                case HttpStatusCode.OK: return JsonConvert.DeserializeObject<DateTime?>(response.Content);
-                default: throw new Exception(response.Content);
             }
         }
     }

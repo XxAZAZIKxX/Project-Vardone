@@ -12,7 +12,6 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
-using Clipboard = System.Windows.Clipboard;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
@@ -111,6 +110,7 @@ namespace Vardone.Controls
                 PrivateChatHeader.Children.Clear();
                 ChatMessagesList.Children.Clear();
             });
+            GC.Collect();
         }
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {

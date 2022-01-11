@@ -8,7 +8,6 @@ using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Client.Base;
 using VardoneLibrary.Exceptions;
-using static VardoneLibrary.VardoneEvents.VardoneEvents;
 
 namespace VardoneLibrary.Core.Client
 {
@@ -18,14 +17,12 @@ namespace VardoneLibrary.Core.Client
         public bool SetOnline => _clientBackground.setOnline;
 
         public VardoneClient(string token) : base(token) => _clientBackground = new VardoneClientBackground(this);
-
         private void StopClient()
         {
             _clientBackground?.StopThreads();
             _clientBackground = null;
             Token = null;
         }
-
         ~VardoneClient() => StopClient();
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         private static bool IsTokenExpired(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Expired" && (string)p.Value == "true");
 
-        //Get
+        //===============================[GET]===============================
         /// <summary>
         /// Получить объект текущего пользователя
         /// </summary>
@@ -91,47 +88,55 @@ namespace VardoneLibrary.Core.Client
         /// Получить список друзей текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetFriends()
+        public List<User> GetFriends() => GetFriends(false);
+        internal List<User> GetFriends(bool onlyId)
         {
-            var response = ExecutePostWithToken("users/getFriends");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetFriends();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("users/getFriends", onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
+
 
         /// <summary>
         /// Получить входящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetIncomingFriendRequests()
+        public List<User> GetIncomingFriendRequests() => GetIncomingFriendRequests(false);
+        internal List<User> GetIncomingFriendRequests(bool onlyId)
         {
-            var response = ExecutePostWithToken("users/getIncomingFriendRequests");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetIncomingFriendRequests();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("users/getIncomingFriendRequests", onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
 
@@ -139,23 +144,27 @@ namespace VardoneLibrary.Core.Client
         /// Получить исходящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetOutgoingFriendRequests()
+        public List<User> GetOutgoingFriendRequests() => GetOutgoingFriendRequests(false);
+        internal List<User> GetOutgoingFriendRequests(bool onlyId)
         {
-            var response = ExecutePostWithToken("users/getOutgoingFriendRequests");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        return GetOutgoingFriendRequests();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<List<User>>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                var response = ExecutePostWithToken("users/getOutgoingFriendRequests", onlyId: onlyId);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.Unauthorized:
+                        if (IsTokenExpired(response))
+                        {
+                            UpdateToken();
+                            continue;
+                        }
+                        else
+                            throw new UnauthorizedException();
+                    case HttpStatusCode.OK:
+                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    default:
+                        throw new Exception(response.Content);
+                }
             }
         }
 
@@ -185,7 +194,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Delete
+        //===============================[DELETE]===============================
         /// <summary>
         /// Удалить пользователя с друзей
         /// </summary>
@@ -206,12 +215,12 @@ namespace VardoneLibrary.Core.Client
                     else
                         throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                {
-                    onUpdateFriendList?.Invoke();
-                    onUpdateIncomingFriendRequestList?.Invoke(true);
-                    onUpdateOutgoingFriendRequestList?.Invoke();
-                    return;
-                }
+                    {
+                        UpdateFriendList();
+                        UpdateIncomingFriendRequestList(true);
+                        UpdateOutgoingFriendRequestList();
+                        return;
+                    }
                 default:
                     throw new Exception(response.Content);
             }
@@ -242,7 +251,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Update
+        //===============================[UPDATE]===============================
         /// <summary>
         /// Обновить текущего пользователя
         /// </summary>
@@ -262,10 +271,10 @@ namespace VardoneLibrary.Core.Client
                     else
                         throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                {
-                    onUpdateUser?.Invoke(GetMe());
-                    return;
-                }
+                    {
+                        UpdateUser(GetMe());
+                        return;
+                    }
                 default:
                     throw new Exception(response.Content);
             }
@@ -320,7 +329,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Close
+        //===============================[CLOSE]===============================
         /// <summary>
         /// Закрыть текущую сессию
         /// </summary>
@@ -363,7 +372,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        //Other
+        //===============================[OTHER]===============================
         /// <summary>
         /// Добавить друга
         /// </summary>
@@ -384,12 +393,12 @@ namespace VardoneLibrary.Core.Client
                     else
                         throw new UnauthorizedException();
                 case HttpStatusCode.OK:
-                {
-                    onUpdateFriendList?.Invoke();
-                    onUpdateIncomingFriendRequestList?.Invoke(true);
-                    onUpdateOutgoingFriendRequestList?.Invoke();
-                    return;
-                }
+                    {
+                        UpdateFriendList();
+                        UpdateIncomingFriendRequestList(true);
+                        UpdateOutgoingFriendRequestList();
+                        return;
+                    }
                 default:
                     throw new Exception(response.Content);
             }

@@ -11,12 +11,10 @@ using Vardone.Controls.Items;
 using Vardone.Core;
 using Vardone.Pages.Popup;
 using Vardone.Pages.PropertyPages;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 using VardoneLibrary.Core.Client;
-using VardoneLibrary.VardoneEvents;
 using Application = System.Windows.Application;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
@@ -47,19 +45,22 @@ namespace Vardone.Pages
             ChatListGrid.Children.Add(guildPanel);
             ChatGrid.Children.Add(chatControl);
             PrivateChatButtonClicked(null, null);
+        }
 
-            VardoneEvents.onUpdateUser += OnUpdateUser;
-            VardoneEvents.onNewPrivateMessage += OnNewPrivateMessage;
-            VardoneEvents.onUpdateChatList += OnUpdateChatList;
-            VardoneEvents.onUpdateOnline += OnUpdateOnline;
-            VardoneEvents.onUpdateIncomingFriendRequestList += OnUpdateIncomingFriendRequestList;
-            VardoneEvents.onUpdateOutgoingFriendRequestList += OnUpdateOutgoingFriendRequestList;
-            VardoneEvents.onUpdateFriendList += OnUpdateFriendList;
-            VardoneEvents.onUpdateGuildList += LoadGuilds;
-            VardoneEvents.onUpdateChannelList += OnUpdateChannelList;
-            VardoneEvents.onNewChannelMessage += OnNewChannelMessage;
-            VardoneEvents.onDeleteChannelMessage += OnDeleteChannelMessage;
-            VardoneEvents.onDeletePrivateChatMessage += OnDeletePrivateChatMessage;
+        private void SetEventHandlers()
+        {
+            Client.OnUpdateUser += OnUpdateUser;
+            Client.OnNewPrivateMessage += OnNewPrivateMessage;
+            Client.OnUpdateChatList += OnUpdateChatList;
+            Client.OnUpdateOnline += OnUpdateOnline;
+            Client.OnUpdateIncomingFriendRequestList += OnUpdateIncomingFriendRequestList;
+            Client.OnUpdateOutgoingFriendRequestList += OnUpdateOutgoingFriendRequestList;
+            Client.OnUpdateFriendList += OnUpdateFriendList;
+            Client.OnUpdateGuildList += LoadGuilds;
+            Client.OnUpdateChannelList += OnUpdateChannelList;
+            Client.OnNewChannelMessage += OnNewChannelMessage;
+            Client.OnDeleteChannelMessage += OnDeleteChannelMessage;
+            Client.OnDeletePrivateChatMessage += OnDeletePrivateChatMessage;
         }
 
 
@@ -100,11 +101,11 @@ namespace Vardone.Pages
         }
 
         //Events
-        private void OnUpdateFriendList() => LoadFriendList();
-        private void OnUpdateOutgoingFriendRequestList() => FriendsPropertiesPage.GetInstance().LoadOutgoingRequests();
-        private void OnUpdateIncomingFriendRequestList(bool becameLess)
+        private Task OnUpdateFriendList() => Task.Run(LoadFriendList);
+        private Task OnUpdateOutgoingFriendRequestList() => Task.Run(FriendsPropertiesPage.GetInstance().LoadOutgoingRequests);
+        private Task OnUpdateIncomingFriendRequestList(bool becameLess)
         {
-            Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (!becameLess)
                 {
@@ -120,10 +121,10 @@ namespace Vardone.Pages
                 FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
             });
         }
-        private void OnUpdateOnline(User user)
+        private Task OnUpdateOnline(User user)
         {
-            if (Equals(user, Client.GetMe())) return;
-            Task.Run(() =>
+            if (Equals(user, Client.GetMe())) return Task.CompletedTask;
+            return Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -167,10 +168,10 @@ namespace Vardone.Pages
                 });
             });
         }
-        private void OnUpdateChatList() => LoadChatList();
-        private void OnNewPrivateMessage(PrivateMessage message)
+        private Task OnUpdateChatList() => Task.Run(LoadChatList);
+        private Task OnNewPrivateMessage(PrivateMessage message)
         {
-            Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (Equals(message.Author, Client.GetMe())) return;
                 MainWindow.GetInstance()
@@ -184,8 +185,7 @@ namespace Vardone.Pages
                 {
                     if (chatControl.Visibility is Visibility.Hidden or Visibility.Collapsed) return;
                     var userId = chatControl.chat?.ToUser.UserId;
-                    if (userId == message.Author.UserId)
-                        chatControl.LoadChat(Client.GetPrivateChatWithUser(userId.Value));
+                    if (userId == message.Author.UserId) chatControl.LoadChat(Client.GetPrivateChatWithUser(userId.Value));
                     foreach (var userItem in friendListPanel.ChatListGrid.Children.Cast<UserItem>())
                     {
                         if (userItem.User.UserId != message.Author.UserId) continue;
@@ -195,32 +195,36 @@ namespace Vardone.Pages
                 });
             });
         }
-        private void OnUpdateUser(User user)
+        private Task OnUpdateUser(User user)
         {
-            Task.Run(() =>
+            return Task.Run(() =>
             {
                 AvatarsWorker.UpdateAvatarUser(user.UserId);
                 if (Equals(user, Client.GetMe())) LoadMe();
             });
         }
-        private void OnDeletePrivateChatMessage(PrivateChat chat)
+        private Task OnDeletePrivateChatMessage(PrivateChat chat)
         {
-            if (chatControl.chat is null || chatControl.chat.ChatId != chat.ChatId) return;
+            if (chatControl.chat is null || chatControl.chat.ChatId != chat.ChatId) return Task.CompletedTask;
             chatControl.LoadChat(chat);
+            return Task.CompletedTask;
         }
-        private void OnDeleteChannelMessage(Channel channel)
+        private Task OnDeleteChannelMessage(Channel channel)
         {
-            if (chatControl.channel is null || chatControl.channel.ChannelId != channel.ChannelId) return;
+            if (chatControl.channel is null || chatControl.channel.ChannelId != channel.ChannelId) return Task.CompletedTask;
             chatControl.LoadChat(channel);
+            return Task.CompletedTask;
         }
-        private void OnNewChannelMessage(ChannelMessage message)
+        private Task OnNewChannelMessage(ChannelMessage message)
         {
-            if (chatControl.channel is null || message is null) return;
+            if (chatControl.channel is null || message is null) return Task.CompletedTask; 
             if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
+            return Task.CompletedTask;
         }
-        private void OnUpdateChannelList(Guild guild)
+        private Task OnUpdateChannelList(Guild guild)
         {
             if (guildPanel.currentGuild?.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
+            return Task.CompletedTask;
         }
 
         //Loads
@@ -232,21 +236,25 @@ namespace Vardone.Pages
             LoadGuilds();
             LoadMe();
             LoadAvatars();
+            SetEventHandlers();
             return this;
         }
-        public void LoadGuilds()
+        public Task LoadGuilds()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            return Task.Run(() =>
             {
-                GuildList.Children.Clear();
-                foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildListItem(guild));
-                if (guildPanel.Visibility == Visibility.Visible)
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
+                    GuildList.Children.Clear();
+                    foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildListItem(guild));
+                    if (guildPanel.Visibility == Visibility.Visible)
                     {
-                        if (guildItem.guild.GuildId == guildPanel.currentGuild.GuildId) guildItem.IsActive = true;
+                        foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
+                        {
+                            if (guildItem.guild.GuildId == guildPanel.currentGuild.GuildId) guildItem.IsActive = true;
+                        }
                     }
-                }
+                });
             });
         }
         public void LoadMe()

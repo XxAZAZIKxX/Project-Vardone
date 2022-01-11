@@ -23,6 +23,7 @@ namespace VardoneApi.Core.Checks
         {
             if (!UserChecks.IsUserExists(userId)) return false;
             if (!IsGuildExists(guildId)) return false;
+
             var dataContext = Program.DataContext;
             var guildMembers = dataContext.GuildMembers;
             guildMembers.Include(p => p.Guild).Load();

@@ -2,7 +2,7 @@
 
 namespace VardoneEntities.Entities.User
 {
-    public class AdditionalUserInformation
+    public record AdditionalUserInformation
     {
         public string Email { get; init; }
         public string Phone { get; init; }

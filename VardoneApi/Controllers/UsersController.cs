@@ -130,7 +130,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getFriends")]
-        public async Task<IActionResult> GetFriends()
+        public async Task<IActionResult> GetFriends([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -152,11 +152,10 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.FromUser.Info).Load();
                     friendsList.Include(p => p.ToUser.Info).Load();
                     var users = new List<User>();
-                    foreach (var row in friendsList.Where(p =>
-                        (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
+                    foreach (var row in friendsList.Where(p => (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
                     {
                         var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
-                        users.Add(UserCreateHelper.GetUser(friend));
+                        users.Add(UserCreateHelper.GetUser(friend, onlyId));
                     }
 
                     return Ok(users);
@@ -169,7 +168,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getIncomingFriendRequests")]
-        public async Task<IActionResult> GetIncomingFriendRequests()
+        public async Task<IActionResult> GetIncomingFriendRequests([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -190,17 +189,11 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.ToUser).Load();
                     friendsList.Include(p => p.FromUser.Info).Load();
                     var users = new List<User>();
-                    try
+                    foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                     {
-                        foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
-                        {
-                            users.Add(UserCreateHelper.GetUser(row.FromUser));
-                        }
+                        users.Add(UserCreateHelper.GetUser(row.FromUser, onlyId));
                     }
-                    catch
-                    {
-                        // ignored
-                    }
+
 
                     return Ok(users);
                 }
@@ -212,7 +205,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getOutgoingFriendRequests")]
-        public async Task<IActionResult> GetOutgoingFriendRequests()
+        public async Task<IActionResult> GetOutgoingFriendRequests([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -233,16 +226,9 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.ToUser).Load();
                     friendsList.Include(p => p.ToUser.Info).Load();
                     var users = new List<User>();
-                    try
+                    foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
                     {
-                        foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
-                        {
-                            users.Add(UserCreateHelper.GetUser(row.ToUser));
-                        }
-                    }
-                    catch
-                    {
-                        // ignored
+                        users.Add(UserCreateHelper.GetUser(row.ToUser, onlyId));
                     }
 
                     return Ok(users);
@@ -310,7 +296,7 @@ namespace VardoneApi.Controllers
                             BirthDate = birthDate
                         }
                     };
-                    
+
                     return Ok(returnUser);
                 }
                 catch (Exception e)
@@ -392,7 +378,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuilds")]
-        public async Task<IActionResult> GetGuilds()
+        public async Task<IActionResult> GetGuilds([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -409,15 +395,15 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.Guild.Info).Load();
                     guildMembers.Include(p => p.Guild.Owner).Load();
                     guildMembers.Include(p => p.Guild.Owner.Info).Load();
-                    guildMembers.Include(p => p.User).Load();
                     var guilds = new List<Guild>();
                     foreach (var item in guildMembers.Where(p => p.User.Id == userId))
                     {
-                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild));
+                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild, true, true, onlyId: onlyId));
                     }
 
                     return Ok(guilds);
@@ -567,7 +553,6 @@ namespace VardoneApi.Controllers
                 }
                 catch (Exception e)
                 {
-                    throw e;
                     return Problem(e.Message);
                 }
             }));

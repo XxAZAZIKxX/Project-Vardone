@@ -10,6 +10,7 @@ using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -178,7 +179,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessages")]
-        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] bool read = true, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
+        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -222,15 +223,15 @@ namespace VardoneApi.Controllers
                         var item = new ChannelMessage
                         {
                             MessageId = m.Id,
-                            CreatedTime = m.CreatedTime,
-                            Author = UserCreateHelper.GetUser(m.Author),
-                            Channel = GuildCreateHelper.GetChannel(m.Channel)
+                            Author = UserCreateHelper.GetUser(m.Author, true),
+                            Channel = GuildCreateHelper.GetChannel(m.Channel, true)
                         };
-                        if (read)
+                        if (!onlyId)
                         {
                             item.Text = m.Text;
                             item.Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null;
                         }
+
                         returnMessages.Add(item);
                     }
                     return Ok(returnMessages);

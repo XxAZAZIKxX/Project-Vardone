@@ -2,10 +2,10 @@
 
 namespace VardoneEntities.Models.GeneralModels.Guilds
 {
-    public class UpdateGuildModel
+    public record UpdateGuildModel
     {
         public long GuildId { get; set; }
-        public string Name { get; set; } = null;
+        public string Name { get; set; }
         private string _base64Image;
         public string Base64Image
         {
