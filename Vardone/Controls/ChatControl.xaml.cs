@@ -111,6 +111,7 @@ namespace Vardone.Controls
                 ChatMessagesList.Children.Clear();
             });
             GC.Collect();
+            MainWindow.FlushMemory();
         }
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {

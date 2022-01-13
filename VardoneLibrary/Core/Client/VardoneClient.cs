@@ -33,11 +33,12 @@ namespace VardoneLibrary.Core.Client
         /// Получить объект текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public User GetMe()
+        public User GetMe() => GetMe(false);
+        internal User GetMe(bool onlyId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getMe");
+                var response = ExecutePostWithToken("users/getMe", onlyId: onlyId);
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -194,8 +195,6 @@ namespace VardoneLibrary.Core.Client
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-
-                break;
             }
         }
 

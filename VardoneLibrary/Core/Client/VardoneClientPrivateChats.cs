@@ -37,18 +37,18 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        /// <summary>
-        /// Получить приватный чат с пользователем
-        /// </summary>
-        /// <param name="userId">Id пользователя</param>
-        /// <returns></returns>
-        public PrivateChat GetPrivateChatWithUser(long userId) => GetPrivateChatWithUser(userId, false);
-        internal PrivateChat GetPrivateChatWithUser(long userId, bool onlyId)
+        public PrivateChat GetPrivateChat(long chatId) => GetPrivateChat(chatId, false);
+
+        internal PrivateChat GetPrivateChat(long chatId, bool onlyId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
-                    new Dictionary<string, string> { { "secondId", userId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken(@"chats/getPrivateChat",
+                    queryParameters: new Dictionary<string, string>
+                    {
+                        { "chatId", chatId.ToString() }
+                    }
+                    , onlyId: onlyId);
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -60,7 +60,7 @@ namespace VardoneLibrary.Core.Client
                         EventDisconnectInvoke();
                         return null;
                     case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
+                        throw new Exception(response.Content);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -68,169 +68,198 @@ namespace VardoneLibrary.Core.Client
         }
 
         /// <summary>
-        /// Получить список сообщений с приватного чата
-        /// </summary>
-        /// <param name="chatId">Id чата</param>
-        /// <param name="limit">Количество сообщений</param>
-        /// <param name="startFrom">Начинать с [n] id сообщения</param>
-        /// <returns></returns>
-        public PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0) => GetPrivateMessagesFromChat(chatId, limit, startFrom, false);
-        internal PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit, long startFrom, bool onlyId)
-        {
-            while (true)
+            /// Получить приватный чат с пользователем
+            /// </summary>
+            /// <param name="userId">Id пользователя</param>
+            /// <returns></returns>
+            public PrivateChat GetPrivateChatWithUser(long userId) => GetPrivateChatWithUser(userId, false);
+            internal PrivateChat GetPrivateChatWithUser(long userId, bool onlyId)
             {
-                var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string> { { "chatId", chatId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
-                switch (ResponseHandler.GetResponseStatus(response))
+                while (true)
                 {
-                    case ResponseStatus.Ok:
-                        return JsonConvert.DeserializeObject<PrivateMessage[]>(response.Content);
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return null;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        public PrivateMessage GetPrivateMessage(long messageId) => GetPrivateMessage(messageId, false);
-        internal PrivateMessage GetPrivateMessage(long messageId, bool onlyId)
-        {
-            while (true)
-            {
-                var response = ExecutePostWithToken(@"chats/getPrivateMessage",
-                    queryParameters: new Dictionary<string, string>
+                    var response = ExecutePostWithToken("chats/getPrivateChatWithUser", null,
+                        new Dictionary<string, string> { { "secondId", userId.ToString() } }, onlyId: onlyId);
+                    switch (ResponseHandler.GetResponseStatus(response))
                     {
+                        case ResponseStatus.Ok:
+                            return JsonConvert.DeserializeObject<PrivateChat>(response.Content);
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return null;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Получить список сообщений с приватного чата
+            /// </summary>
+            /// <param name="chatId">Id чата</param>
+            /// <param name="limit">Количество сообщений</param>
+            /// <param name="startFrom">Начинать с [n] id сообщения</param>
+            /// <returns></returns>
+            public PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0) => GetPrivateMessagesFromChat(chatId, limit, startFrom, false);
+            internal PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit, long startFrom, bool onlyId)
+            {
+                while (true)
+                {
+                    var response = ExecutePostWithToken("chats/GetPrivateChatMessages", null, new Dictionary<string, string> { { "chatId", chatId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return JsonConvert.DeserializeObject<PrivateMessage[]>(response.Content);
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return null;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            public PrivateMessage GetPrivateChatMessage(long messageId) => GetPrivateChatMessage(messageId, false);
+            internal PrivateMessage GetPrivateChatMessage(long messageId, bool onlyId)
+            {
+                while (true)
+                {
+                    var response = ExecutePostWithToken(@"chats/getPrivateChatMessage",
+                        queryParameters: new Dictionary<string, string>
+                        {
                         { "messageId", messageId.ToString() }
-                    }, onlyId: onlyId);
-                switch (ResponseHandler.GetResponseStatus(response))
-                {
-                    case ResponseStatus.Ok:
-                        return JsonConvert.DeserializeObject<PrivateMessage>(response.Content);
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return null;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                        }, onlyId: onlyId);
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return JsonConvert.DeserializeObject<PrivateMessage>(response.Content);
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return null;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
 
-        }
-
-        public DateTime? GetLastDeleteTimeOnChat(long chatId)
-        {
-            while (true)
+            public DateTime? GetLastDeleteTimeOnChat(long chatId)
             {
-                var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
-                switch (ResponseHandler.GetResponseStatus(response))
+                while (true)
                 {
-                    case ResponseStatus.Ok:
-                        return JsonConvert.DeserializeObject<DateTime?>(response.Content);
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return null;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return JsonConvert.DeserializeObject<DateTime?>(response.Content);
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return null;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
-        }
 
-        //===============================[OTHER]===============================
-        /// <summary>
-        /// Удалить сообщение
-        /// </summary>
-        /// <param name="messageId">Id сообщения</param>
-        public void DeletePrivateMessage(long messageId)
-        {
-            while (true)
+            //===============================[OTHER]===============================
+            /// <summary>
+            /// Удалить сообщение
+            /// </summary>
+            /// <param name="messageId">Id сообщения</param>
+            public void DeletePrivateMessage(long messageId)
             {
-                var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null, new Dictionary<string, string> { { "messageId", messageId.ToString() } });
-                switch (ResponseHandler.GetResponseStatus(response))
+                while (true)
                 {
-                    case ResponseStatus.Ok:
-                        return;
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    var response = ExecutePostWithToken("chats/deletePrivateChatMessage", null, new Dictionary<string, string> { { "messageId", messageId.ToString() } });
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return;
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
-        }
 
-        /// <summary>
-        /// Отправить сообщение пользователю
-        /// </summary>
-        /// <param name="userId">Id пользователя</param>
-        /// <param name="message">Сообщение</param>
-        public void SendPrivateMessage(long userId, MessageModel message)
-        {
-            while (true)
+            /// <summary>
+            /// Отправить сообщение пользователю
+            /// </summary>
+            /// <param name="userId">Id пользователя</param>
+            /// <param name="message">Сообщение</param>
+            public void SendPrivateMessage(long userId, MessageModel message)
             {
-                var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "secondId", userId.ToString() } });
-                switch (ResponseHandler.GetResponseStatus(response))
+                while (true)
                 {
-                    case ResponseStatus.Ok:
-                        return;
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    var response = ExecutePostWithToken("chats/SendPrivateChatMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "secondId", userId.ToString() } });
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return;
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
-        }
 
-        /// <summary>
-        /// Удалить чат
-        /// </summary>
-        /// <param name="chatId">Id чата</param>
-        public void DeleteChat(long chatId)
-        {
-            while (true)
+            /// <summary>
+            /// Удалить чат
+            /// </summary>
+            /// <param name="chatId">Id чата</param>
+            public void DeleteChat(long chatId)
             {
-                var response = ExecutePostWithToken("chats/deletePrivateChat", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
-                switch (ResponseHandler.GetResponseStatus(response))
+                while (true)
                 {
-                    case ResponseStatus.Ok:
-                        return;
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    var response = ExecutePostWithToken("chats/deletePrivateChat", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
+                    switch (ResponseHandler.GetResponseStatus(response))
+                    {
+                        case ResponseStatus.Ok:
+                            return;
+                        case ResponseStatus.UpdateToken:
+                            UpdateToken();
+                            continue;
+                        case ResponseStatus.InvalidToken:
+                            EventDisconnectInvoke();
+                            return;
+                        case ResponseStatus.Error:
+                            throw new Exception(response.ErrorMessage);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
             }
         }
     }
-}

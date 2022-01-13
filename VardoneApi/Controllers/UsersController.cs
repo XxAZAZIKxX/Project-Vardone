@@ -241,7 +241,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getMe")]
-        public async Task<IActionResult> GetMe()
+        public async Task<IActionResult> GetMe([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -263,39 +263,40 @@ namespace VardoneApi.Controllers
                     puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
                     var pus = puss.First(p => p.User.Id == user.Id).Pus;
-
-
-                    var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
-
-                    var fullName = user.Info?.FullName is null
-                        ? null
-                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
-
-                    var phone = user.Info?.Phone is null
-                        ? null
-                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
-
-                    DateTime? birthDate = user.Info?.BirthDate is null
-                        ? null
-                        : DateTime.FromBinary(Convert.ToInt64(CryptographyTools.DecryptStringFromBytes_Aes(
-                            Convert.FromBase64String(user.Info?.BirthDate),
-                            byteKey,
-                            PasswordOptions.IV)));
-
+                    
                     var returnUser = new User
                     {
                         UserId = user.Id,
-                        Username = user.Username,
-                        Description = user.Info?.Description,
-                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar),
-                        AdditionalInformation = new AdditionalUserInformation
+                        Username = user.Username
+                    };
+                    if (!onlyId)
+                    {
+                        var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                        var fullName = user.Info?.FullName is null
+                            ? null
+                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
+
+                        var phone = user.Info?.Phone is null
+                            ? null
+                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
+
+                        DateTime? birthDate = user.Info?.BirthDate is null
+                            ? null
+                            : DateTime.FromBinary(Convert.ToInt64(CryptographyTools.DecryptStringFromBytes_Aes(
+                                Convert.FromBase64String(user.Info?.BirthDate),
+                                byteKey,
+                                PasswordOptions.IV)));
+                        returnUser.Description = user.Info?.Description;
+                        returnUser.Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar);
+                        returnUser.AdditionalInformation = new AdditionalUserInformation
                         {
                             Email = user.Email,
                             FullName = fullName,
                             Phone = phone,
                             BirthDate = birthDate
-                        }
-                    };
+                        };
+                    }
 
                     return Ok(returnUser);
                 }
@@ -416,7 +417,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChats")]
-        public async Task<IActionResult> GetPrivateChats()
+        public async Task<IActionResult> GetPrivateChats([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -449,8 +450,8 @@ namespace VardoneApi.Controllers
                         var item = new PrivateChat
                         {
                             ChatId = chat.Id,
-                            FromUser = UserCreateHelper.GetUser(user1),
-                            ToUser = UserCreateHelper.GetUser(user2),
+                            FromUser = UserCreateHelper.GetUser(user1, onlyId),
+                            ToUser = UserCreateHelper.GetUser(user2, onlyId),
                             UnreadMessages = privateMessages.Count(p =>
                                 p.Chat.Id == chat.Id && p.Author != user1 &&
                                 DateTime.Compare(p.CreatedTime, lastReadTime) > 0)

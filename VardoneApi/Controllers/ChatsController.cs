@@ -10,7 +10,6 @@ using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities.Chat;
-using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -18,6 +17,56 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]"), Authorize]
     public class ChatsController : ControllerBase
     {
+        [HttpPost, Route("getPrivateChat")]
+        public async Task<IActionResult> GetPrivateChat([FromQuery] long chatId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanManageChat(token.UserId, chatId))
+                    return BadRequest("You are not allowed to get this");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateChats = dataContext.PrivateChats;
+                    privateChats.Include(p => p.FromUser).Load();
+                    privateChats.Include(p => p.ToUser).Load();
+                    var messages = dataContext.PrivateMessages;
+                    messages.Include(p => p.Chat).Load();
+                    messages.Include(p => p.Author).Load();
+
+                    var chat = privateChats.FirstOrDefault(p => p.Id == chatId);
+                    if (chat is null) return BadRequest("Chat is not exists");
+
+                    var user1 = chat.FromUser.Id == token.UserId ? chat.FromUser : chat.ToUser;
+                    var user2 = chat.FromUser.Id != token.UserId ? chat.FromUser : chat.ToUser;
+                    var lastReadTime = chat.FromUser.Id == user1.Id ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
+
+                    var chatReturn = new PrivateChat
+                    {
+                        ChatId = chatId,
+                        FromUser = UserCreateHelper.GetUser(user1, onlyId),
+                        ToUser = UserCreateHelper.GetUser(user2, onlyId),
+                        UnreadMessages = messages.Count(p => p.Chat.Id == chat.Id && p.Author.Id != user1.Id && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
+                    };
+                    return Ok(chatReturn);
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
         [HttpPost, Route("getPrivateChatWithUser")]
         public async Task<IActionResult> GetPrivateChatWithUser([FromQuery] long secondId, [FromHeader] bool onlyId = false)
         {
@@ -138,9 +187,6 @@ namespace VardoneApi.Controllers
                         if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
                         foreach (var message in selectedMessages)
                         {
-                            var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;
-                            var user2 = message.Chat.FromUser.Id != userId ? message.Chat.FromUser : message.Chat.ToUser;
-
                             var item = new PrivateMessage
                             {
                                 MessageId = message.Id,
@@ -170,7 +216,7 @@ namespace VardoneApi.Controllers
             }));
         }
         //
-        [HttpPost, Route("getPrivateMessage")]
+        [HttpPost, Route("getPrivateChatMessage")]
         public async Task<IActionResult> GetPrivateMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
