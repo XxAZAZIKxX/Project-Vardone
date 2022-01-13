@@ -5,7 +5,6 @@ using RestSharp;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
-using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Client.Base
 {
@@ -17,7 +16,7 @@ namespace VardoneLibrary.Core.Client.Base
         {
             if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
             Token = token;
-            if (!CheckToken(Token)) throw new UnauthorizedException("Invalid token");
+            if (!CheckToken(Token)) throw new Exception("Invalid token");
         }
 
         protected IRestResponse ExecutePostWithToken(string resource, string json = null, Dictionary<string, string> queryParameters = null, bool onlyId = false)
@@ -45,18 +44,20 @@ namespace VardoneLibrary.Core.Client.Base
         public event Func<Guild,Task> OnUpdateChannelList;
         public event Func<Channel,Task> OnDeleteChannelMessage;
         public event Func<PrivateChat,Task> OnDeletePrivateChatMessage;
+        public event Func<Task> OnDisconnect; 
 
-        internal void NewPrivateMessage(PrivateMessage arg) => OnNewPrivateMessage?.Invoke(arg);
-        internal void NewChannelMessage(ChannelMessage arg) => OnNewChannelMessage?.Invoke(arg);
-        internal void UpdateUser(User arg) => OnUpdateUser?.Invoke(arg);
-        internal void UpdateChatList() => OnUpdateChatList?.Invoke();
-        internal void UpdateFriendList() => OnUpdateFriendList?.Invoke();
-        internal void UpdateIncomingFriendRequestList(bool arg) => OnUpdateIncomingFriendRequestList?.Invoke(arg);
-        internal void UpdateOutgoingFriendRequestList() => OnUpdateOutgoingFriendRequestList?.Invoke();
-        internal void UpdateOnline(User arg) => OnUpdateOnline?.Invoke(arg);
-        internal void UpdateGuildList() => OnUpdateGuildList?.Invoke();
-        internal void UpdateChannelList(Guild arg) => OnUpdateChannelList?.Invoke(arg);
-        internal void DeleteChannelMessage(Channel arg) => OnDeleteChannelMessage?.Invoke(arg);
-        internal void DeletePrivateChatMessage(PrivateChat arg) => OnDeletePrivateChatMessage?.Invoke(arg);
+        internal void EventNewPrivateMessageInvoke(PrivateMessage arg) => OnNewPrivateMessage?.Invoke(arg);
+        internal void EventNewChannelMessageInvoke(ChannelMessage arg) => OnNewChannelMessage?.Invoke(arg);
+        internal void EventUpdateUserInvoke(User arg) => OnUpdateUser?.Invoke(arg);
+        internal void EventUpdateChatListInvoke() => OnUpdateChatList?.Invoke();
+        internal void EventUpdateFriendListInvoke() => OnUpdateFriendList?.Invoke();
+        internal void EventUpdateIncomingFriendRequestListInvoke(bool arg) => OnUpdateIncomingFriendRequestList?.Invoke(arg);
+        internal void EventUpdateOutgoingFriendRequestListInvoke() => OnUpdateOutgoingFriendRequestList?.Invoke();
+        internal void EventUpdateOnlineInvoke(User arg) => OnUpdateOnline?.Invoke(arg);
+        internal void EventUpdateGuildListInvoke() => OnUpdateGuildList?.Invoke();
+        internal void EventUpdateChannelListInvoke(Guild arg) => OnUpdateChannelList?.Invoke(arg);
+        internal void EventDeleteChannelMessageInvoke(Channel arg) => OnDeleteChannelMessage?.Invoke(arg);
+        internal void EventDeletePrivateChatMessageInvoke(PrivateChat arg) => OnDeletePrivateChatMessage?.Invoke(arg);
+        internal void EventDisconnectInvoke() => OnDisconnect?.Invoke();
     }
 }

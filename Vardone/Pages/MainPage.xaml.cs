@@ -67,7 +67,7 @@ namespace Vardone.Pages
         public void ExitFromAccount()
         {
             Client = null;
-            JsonTokenWorker.SetToken(null);
+            ConfigWorker.SetToken(null);
             AvatarsWorker.ClearAll();
             //
             ChatListGrid.Children.Clear();

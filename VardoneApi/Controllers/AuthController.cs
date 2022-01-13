@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -58,16 +57,10 @@ namespace VardoneApi.Controllers
                     Token = GenerateToken()
                 };
 
-                try
-                {
-                    var remove = tokens.First(t =>
-                        t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress);
-                    tokens.RemoveRange(remove);
-                }
-                catch
-                {
-                    // ignored
-                }
+
+                var remove = tokens.FirstOrDefault(t => t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress);
+                if (remove is not null) tokens.RemoveRange(remove);
+
 
                 tokens.Add(newToken);
                 dataContext.SaveChanges();
@@ -80,20 +73,9 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                try
-                {
-                    var request = new UserTokenModel
-                    {
-                        UserId = Convert.ToInt64((User.Claims.First(p => p.Type == "id")).Value),
-                        Token = User.Claims.First(p => p.Type == "token").Value
-                    };
-                    if (UserChecks.CheckToken(request)) return Ok(true);
-                    return BadRequest();
-                }
-                catch
-                {
-                    return BadRequest("Incorrect token");
-                }
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token is null");
+                return Ok(UserChecks.CheckToken(token));
             }));
         }
         //
@@ -102,7 +84,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                if (registerRequestModel == null) return BadRequest();
+                if (registerRequestModel is null) return BadRequest();
 
                 if (!IsValidEmail(registerRequestModel.Email)) return BadRequest("Incorrect email");
 
@@ -131,6 +113,7 @@ namespace VardoneApi.Controllers
                         User = user,
                         Pus = pus
                     });
+
                     user.PasswordHash = CryptographyTools.GetPasswordHash(pus, registerRequestModel.PasswordHash);
                     users.Update(user);
                     dataContext.SaveChanges();
@@ -209,7 +192,7 @@ namespace VardoneApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
-        private static string GenerateToken() => CryptographyTools.GetMd5Hash((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CryptographyTools.CreateRandomString(0,0,12));
+        private static string GenerateToken() => CryptographyTools.GetMd5Hash((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CryptographyTools.CreateRandomString(0, 0, 12));
         private static bool IsValidEmail(string email) => new EmailAddressAttribute().IsValid(email);
     }
 }

@@ -34,7 +34,7 @@ namespace VardoneApi.Core.CreateHelpers
             {
                 User = GetUser(member.User, onlyId),
                 JoinDate = member.JoinDate,
-                Guild = GuildCreateHelper.GetGuild(member.Guild, false,false , onlyId),
+                Guild = GuildCreateHelper.GetGuild(member.Guild, false,false , true),
                 NumberInvitedMembers = member.NumberOfInvitedMembers
             };
         }

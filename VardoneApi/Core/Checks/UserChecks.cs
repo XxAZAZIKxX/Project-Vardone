@@ -8,12 +8,13 @@ namespace VardoneApi.Core.Checks
     {
         public static bool CheckToken(UserTokenModel token)
         {
+            if (token == null) return false;
             var tokens = Program.DataContext.Tokens;
             tokens.Include(p => p.User).Load();
             return tokens.Any(t => t.Token == token.Token && t.User.Id == token.UserId);
         }
 
-        public static bool IsUserExists(string username) => Program.DataContext.Users.Any(p => p.Username == username);
+        public static bool IsUserExists(string username) => username is not null && Program.DataContext.Users.Any(p => p.Username == username);
 
         public static bool IsUserExists(long id) => Program.DataContext.Users.Any(p => p.Id == id);
 
@@ -27,10 +28,11 @@ namespace VardoneApi.Core.Checks
 
         public static bool IsFriends(long idFirstUser, string usernameSecondUser)
         {
+            if (usernameSecondUser == null) return false;
             var friends = Program.DataContext.FriendsList;
             friends.Include(p => p.FromUser).Load();
             friends.Include(p => p.ToUser).Load();
-            return friends.Any(p => p.FromUser.Id == idFirstUser && p.ToUser.Username == usernameSecondUser || p.FromUser.Username == usernameSecondUser && p.ToUser.Id == idFirstUser);
+            return friends.Any(p => (p.FromUser.Id == idFirstUser && p.ToUser.Username == usernameSecondUser || p.FromUser.Username == usernameSecondUser && p.ToUser.Id == idFirstUser) && p.Confirmed);
         }
 
         public static bool IsFriendRequestExists(long idFirstUser, long idSecondUser)
@@ -66,12 +68,12 @@ namespace VardoneApi.Core.Checks
             return count > 0;
         }
 
-        public static bool CanGetUser(long idFirstUser, long idSecondUser)
-        {
-            if (!IsUserExists(idFirstUser) || !IsUserExists(idSecondUser)) return false;
-            return idFirstUser == idSecondUser || IsFriendRequestExists(idFirstUser, idSecondUser) || DoUsersHaveSharedGuilds(idFirstUser, idSecondUser);
-        }
+        public static bool CanGetUser(long idFirstUser, long idSecondUser) => idFirstUser == idSecondUser || IsFriendRequestExists(idFirstUser, idSecondUser) || DoUsersHaveSharedGuilds(idFirstUser, idSecondUser);
 
-        public static bool IsEmailAvailable(string email) => !Program.DataContext.Users.Any(p => p.Email == email);
+        public static bool IsEmailAvailable(string email)
+        {
+            if (email is null) return false;
+            return !Program.DataContext.Users.Any(p => p.Email == email);
+        }
     }
 }

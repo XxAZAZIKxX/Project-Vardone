@@ -8,6 +8,6 @@ namespace VardoneEntities.Entities.Guild
         public string Name { get; set; }
         public string Base64Avatar { get; set; }
         public Member Owner { get; set; }
-        public List<Channel> Channels { get; set; }
+        public Channel[] Channels { get; set; }
     }
 }

@@ -1,13 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using RestSharp;
+using System.Threading.Tasks;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneLibrary.Core.Client.Base;
-using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Client
 {
@@ -16,7 +13,12 @@ namespace VardoneLibrary.Core.Client
         private VardoneClientBackground _clientBackground;
         public bool SetOnline => _clientBackground.setOnline;
 
-        public VardoneClient(string token) : base(token) => _clientBackground = new VardoneClientBackground(this);
+        public VardoneClient(string token) : base(token)
+        {
+            _clientBackground = new VardoneClientBackground(this);
+            OnDisconnect += () => Task.Run(StopClient);
+        }
+
         private void StopClient()
         {
             _clientBackground?.StopThreads();
@@ -25,12 +27,6 @@ namespace VardoneLibrary.Core.Client
         }
         ~VardoneClient() => StopClient();
 
-        /// <summary>
-        /// Просрочен ли токен
-        /// </summary>
-        /// <param name="response"></param>
-        /// <returns></returns>
-        private static bool IsTokenExpired(IRestResponse response) => response.Headers.ToList().Exists(p => p.Name == "Token-Expired" && (string)p.Value == "true");
 
         //===============================[GET]===============================
         /// <summary>
@@ -39,22 +35,24 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public User GetMe()
         {
-            var response = ExecutePostWithToken("users/getMe");
-
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/getMe");
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<User>(response.Content);
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetMe();
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<User>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -65,22 +63,24 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public User GetUser(long id)
         {
-            var response = ExecutePostWithToken("users/getUser", null,
-                new Dictionary<string, string> { { "secondId", id.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/getUser", null, new Dictionary<string, string> { { "secondId", id.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<User>(response.Content);
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetUser(id);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<User>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -88,25 +88,26 @@ namespace VardoneLibrary.Core.Client
         /// Получить список друзей текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetFriends() => GetFriends(false);
-        internal List<User> GetFriends(bool onlyId)
+        public User[] GetFriends() => GetFriends(false);
+        internal User[] GetFriends(bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("users/getFriends", onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<User[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        return GetFriends(onlyId);
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -116,26 +117,26 @@ namespace VardoneLibrary.Core.Client
         /// Получить входящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetIncomingFriendRequests() => GetIncomingFriendRequests(false);
-        internal List<User> GetIncomingFriendRequests(bool onlyId)
+        public User[] GetIncomingFriendRequests() => GetIncomingFriendRequests(false);
+        internal User[] GetIncomingFriendRequests(bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("users/getIncomingFriendRequests", onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<User[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        return GetIncomingFriendRequests(onlyId);
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -144,26 +145,26 @@ namespace VardoneLibrary.Core.Client
         /// Получить исходящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public List<User> GetOutgoingFriendRequests() => GetOutgoingFriendRequests(false);
-        internal List<User> GetOutgoingFriendRequests(bool onlyId)
+        public User[] GetOutgoingFriendRequests() => GetOutgoingFriendRequests(false);
+        internal User[] GetOutgoingFriendRequests(bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("users/getOutgoingFriendRequests", onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<User>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<User[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        return GetOutgoingFriendRequests(onlyId);
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -175,22 +176,26 @@ namespace VardoneLibrary.Core.Client
         /// <returns></returns>
         public bool GetOnlineUser(long userId)
         {
-            var response = ExecutePostWithToken("users/getUserOnline",
-                queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/getUserOnline", queryParameters: new Dictionary<string, string> { { "secondId", userId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<bool>(response.Content);
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetOnlineUser(userId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<bool>((response.Content));
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return false;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                break;
             }
         }
 
@@ -201,28 +206,24 @@ namespace VardoneLibrary.Core.Client
         /// <param name="idUser">Id пользователя</param>
         public void DeleteFriend(long idUser)
         {
-            var response = ExecutePostWithToken("users/deleteFriend",
-                queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        DeleteFriend(idUser);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    {
-                        UpdateFriendList();
-                        UpdateIncomingFriendRequestList(true);
-                        UpdateOutgoingFriendRequestList();
+                var response = ExecutePostWithToken("users/deleteFriend", queryParameters: new Dictionary<string, string> { { "secondId", idUser.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
                         return;
-                    }
-                default:
-                    throw new Exception(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -231,23 +232,25 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         public void DeleteMe()
         {
-            var response = ExecutePostWithToken("users/deleteMe");
-            StopClient();
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/deleteMe");
+                StopClient();
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        DeleteMe();
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -258,25 +261,24 @@ namespace VardoneLibrary.Core.Client
         /// <param name="update"></param>
         public void UpdateMe(UpdateUserModel update)
         {
-            var response = ExecutePostWithToken("users/updateUser", JsonConvert.SerializeObject(update));
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        UpdateMe(update);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    {
-                        UpdateUser(GetMe());
+                var response = ExecutePostWithToken("users/updateUser", JsonConvert.SerializeObject(update));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
                         return;
-                    }
-                default:
-                    throw new Exception(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -286,22 +288,24 @@ namespace VardoneLibrary.Core.Client
         /// <param name="updatePassword"></param>
         public void UpdatePassword(UpdatePasswordModel updatePassword)
         {
-            var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/updatePassword", JsonConvert.SerializeObject(updatePassword));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        UpdatePassword(updatePassword);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -310,22 +314,24 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         public void UpdateLastOnline()
         {
-            var response = ExecutePostWithToken("users/setOnline");
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/setOnline");
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        UpdateLastOnline();
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -335,19 +341,25 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         public void CloseCurrentSession()
         {
-            var response = ExecutePostWithToken("users/closeCurrentSession");
-            StopClient();
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/closeCurrentSession");
+                StopClient();
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        CloseCurrentSession();
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -356,19 +368,25 @@ namespace VardoneLibrary.Core.Client
         /// </summary>
         public void CloseAllSessions()
         {
-            var response = ExecutePostWithToken("users/CloseAllSessions");
-            StopClient();
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("users/CloseAllSessions");
+                StopClient();
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        CloseAllSessions();
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -379,28 +397,24 @@ namespace VardoneLibrary.Core.Client
         /// <param name="secondUsername">Username пользователя</param>
         public void AddFriend(string secondUsername)
         {
-            var response = ExecutePostWithToken("users/addFriend", null,
-                new Dictionary<string, string> { { "secondUsername", secondUsername } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        AddFriend(secondUsername);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    {
-                        UpdateFriendList();
-                        UpdateIncomingFriendRequestList(true);
-                        UpdateOutgoingFriendRequestList();
+                var response = ExecutePostWithToken("users/addFriend", null, new Dictionary<string, string> { { "secondUsername", secondUsername } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
                         return;
-                    }
-                default:
-                    throw new Exception(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -411,15 +425,16 @@ namespace VardoneLibrary.Core.Client
         {
             var response = ExecutePost(@"auth/updateToken",
                 headers: new Dictionary<string, string> { { "token", Token } });
-            switch (response.StatusCode)
+            switch (ResponseHandler.GetResponseStatus(response))
             {
-                case HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    Token = JsonConvert.DeserializeObject<string>(response.Content);
-                    break;
-                default:
-                    throw new Exception(response.Content);
+                case ResponseStatus.Ok: return;
+
+                case ResponseStatus.UpdateToken:
+                case ResponseStatus.InvalidToken:
+                    EventDisconnectInvoke();
+                    return;
+                case ResponseStatus.Error: throw new Exception(response.ErrorMessage);
+                default: throw new ArgumentOutOfRangeException();
             }
         }
     }

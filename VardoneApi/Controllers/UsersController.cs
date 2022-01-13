@@ -320,7 +320,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
 
-                if (!UserChecks.IsUserExists(secondId)) return BadRequest("BannedUser does not exist");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
                 if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
                 try
                 {
@@ -406,7 +406,7 @@ namespace VardoneApi.Controllers
                         guilds.Add(GuildCreateHelper.GetGuild(item.Guild, true, true, onlyId: onlyId));
                     }
 
-                    return Ok(guilds);
+                    return Ok(guilds.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -458,7 +458,7 @@ namespace VardoneApi.Controllers
                         chats.Add(item);
                     }
 
-                    return Ok(chats);
+                    return Ok(chats.ToArray());
                 }
                 catch (Exception e)
                 {

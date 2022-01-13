@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +9,7 @@ using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Guilds;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
-using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Guilds;
 
 namespace VardoneApi.Controllers
@@ -20,6 +17,37 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]"), Authorize]
     public class GuildsController : ControllerBase
     {
+        [HttpPost, Route("getGuild")]
+        public async Task<IActionResult> GetGuild([FromQuery] long guildId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (!GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
+                if (!GuildChecks.IsUserMember(token.UserId, guildId)) return BadRequest("You are not a member");
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var guilds = dataContext.Guilds;
+                    guilds.Include(p => p.Info).Load();
+                    guilds.Include(p => p.Owner).Load();
+                    var guild = guilds.FirstOrDefault(p => p.Id == guildId);
+                    return Ok(GuildCreateHelper.GetGuild(guild, true, true, onlyId));
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
         [HttpPost, Route("getBannedGuildMembers")]
         public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId, [FromHeader] bool onlyId = false)
         {
@@ -63,7 +91,7 @@ namespace VardoneApi.Controllers
                         }
                         bannedUsers.Add(member);
                     }
-                    return Ok(bannedUsers);
+                    return Ok(bannedUsers.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -90,7 +118,7 @@ namespace VardoneApi.Controllers
                 if (!GuildChecks.IsUserMember(userId, guildId)) return BadRequest("You are not a guild member");
                 try
                 {
-                    return Ok(GuildCreateHelper.GetGuildChannels(guildId, onlyId));
+                    return Ok(GuildCreateHelper.GetGuildChannels(guildId, onlyId).ToArray());
                 }
                 catch (Exception e)
                 {
@@ -140,7 +168,7 @@ namespace VardoneApi.Controllers
                             NumberOfUses = item.NumberOfUses
                         });
                     }
-                    return Ok(invites);
+                    return Ok(invites.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -181,7 +209,7 @@ namespace VardoneApi.Controllers
                         returnMembers.Add(UserCreateHelper.GetMember(member));
                     }
 
-                    return Ok(returnMembers);
+                    return Ok(returnMembers.ToArray());
                 }
                 catch (Exception e)
                 {

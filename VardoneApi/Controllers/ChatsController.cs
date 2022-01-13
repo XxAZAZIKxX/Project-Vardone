@@ -49,7 +49,7 @@ namespace VardoneApi.Controllers
                     var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
                     var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
                     var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
-                    
+
 
                     var privateChat = new PrivateChat
                     {
@@ -140,16 +140,11 @@ namespace VardoneApi.Controllers
                         {
                             var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;
                             var user2 = message.Chat.FromUser.Id != userId ? message.Chat.FromUser : message.Chat.ToUser;
-                            
+
                             var item = new PrivateMessage
                             {
                                 MessageId = message.Id,
-                                Chat = new PrivateChat
-                                {
-                                    ChatId = chat.Id,
-                                    FromUser = UserCreateHelper.GetUser(user1, onlyId),
-                                    ToUser = UserCreateHelper.GetUser(user2, onlyId)
-                                },
+                                Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, userId),
                                 Author = UserCreateHelper.GetUser(message.Author, onlyId),
                                 CreatedTime = message.CreatedTime
                             };
@@ -161,12 +156,59 @@ namespace VardoneApi.Controllers
 
                             messages.Add(item);
                         }
-                        return Ok(messages);
+                        return Ok(messages.ToArray());
                     }
                     catch
                     {
-                        return Ok(new List<PrivateMessage>(0));
+                        return Ok(new List<PrivateMessage>(0).ToArray());
                     }
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getPrivateMessage")]
+        public async Task<IActionResult> GetPrivateMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Token invalid");
+                }
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateMessages = dataContext.PrivateMessages;
+                    privateMessages.Include(p => p.Author).Load();
+                    privateMessages.Include(p => p.Chat).Load();
+
+                    var message = privateMessages.FirstOrDefault(p => p.Id == messageId);
+                    if (message is null) return BadRequest("Message is not exists");
+
+                    if (!PrivateChatChecks.IsCanManageChat(token.UserId, message.Chat.Id))
+                        return BadRequest("You are not allowed to do this");
+
+                    var returnMessage = new PrivateMessage
+                    {
+                        MessageId = message.Id,
+                        Author = UserCreateHelper.GetUser(message.Author, onlyId),
+                        Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, token.UserId),
+                        CreatedTime = message.CreatedTime
+                    };
+                    if (!onlyId)
+                    {
+                        returnMessage.Text = message.Text;
+                        returnMessage.Base64Image = message.Image is null ? null : Convert.ToBase64String(message.Image);
+                    }
+
+                    return Ok(returnMessage);
                 }
                 catch (Exception e)
                 {

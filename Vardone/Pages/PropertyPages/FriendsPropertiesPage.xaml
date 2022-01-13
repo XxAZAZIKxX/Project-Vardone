@@ -28,7 +28,7 @@
             <TabControl TabStripPlacement="Top"
                         Background="#202020"
                         BorderThickness="0">
-                <TabItem Foreground="Gray"
+                <TabItem Foreground="Gray" x:Name="AddFriendTab"
                          Header="Добавить друга">
                     <Border Background="#303030">
                         <Grid MinWidth="760" MinHeight="400">

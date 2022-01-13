@@ -3,502 +3,608 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
-using VardoneLibrary.Exceptions;
 
 namespace VardoneLibrary.Core.Client
 {
     public partial class VardoneClient
     {
         //===============================[GET]===============================
-        public List<Guild> GetGuilds() => GetGuilds(false);
-        internal List<Guild> GetGuilds(bool onlyId)
+        public Guild GetGuild(long guildId) => GetGuild(guildId, false);
+
+        internal Guild GetGuild(long guildId, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken(@"guilds/getGuild", queryParameters: new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<Guild>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        public Guild[] GetGuilds() => GetGuilds(false);
+        internal Guild[] GetGuilds(bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("users/getGuilds", onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<Guild>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<Guild[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public List<Channel> GetGuildChannels(long guildId) => GetGuildChannels(guildId, false);
-        internal List<Channel> GetGuildChannels(long guildId, bool onlyId)
+        public Channel[] GetGuildChannels(long guildId) => GetGuildChannels(guildId, false);
+        internal Channel[] GetGuildChannels(long guildId, bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("guilds/getGuildChannels", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<Channel>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<Channel[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public List<BannedMember> GetBannedGuildMembers(long guildId) => GetBannedGuildMembers(guildId, false);
-        internal List<BannedMember> GetBannedGuildMembers(long guildId, bool onlyId)
+        public Channel GetGuildChannel(long channelId) => GetGuildChannel(channelId, false);
+        internal Channel GetGuildChannel(long channelId, bool onlyId)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken(@"channels/getChannel",
+                    queryParameters: new Dictionary<string, string>
+                    {
+                        { "channelId", channelId.ToString() }
+                    }, onlyId: onlyId);
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<Channel>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+
+        public BannedMember[] GetBannedGuildMembers(long guildId) => GetBannedGuildMembers(guildId, false);
+        internal BannedMember[] GetBannedGuildMembers(long guildId, bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<BannedMember>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<BannedMember[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public List<Member> GetGuildMembers(long guildId) => GetGuildMembers(guildId, false);
-        internal List<Member> GetGuildMembers(long guildId, bool onlyId)
+        public Member[] GetGuildMembers(long guildId) => GetGuildMembers(guildId, false);
+        internal Member[] GetGuildMembers(long guildId, bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("guilds/GetGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<Member>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<Member[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public List<GuildInvite> GetGuildInvites(long guildId) => GetGuildInvites(guildId, false);
-        internal List<GuildInvite> GetGuildInvites(long guildId, bool onlyId)
+        public GuildInvite[] GetGuildInvites(long guildId) => GetGuildInvites(guildId, false);
+        internal GuildInvite[] GetGuildInvites(long guildId, bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("guilds/getGuildInvites", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<GuildInvite>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<GuildInvite[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
-        public List<ChannelMessage> GetChannelMessages(long channelId, int limit = 0, long startFrom = 0) => GetChannelMessages(channelId, limit, startFrom, false);
-        internal List<ChannelMessage> GetChannelMessages(long channelId, int limit, long startFrom, bool onlyId)
+        public ChannelMessage[] GetChannelMessages(long channelId, int limit = 0, long startFrom = 0) => GetChannelMessages(channelId, limit, startFrom, false);
+        internal ChannelMessage[] GetChannelMessages(long channelId, int limit, long startFrom, bool onlyId)
         {
             while (true)
             {
                 var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string> { { "channelId", channelId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
-                switch (response.StatusCode)
+                switch (ResponseHandler.GetResponseStatus(response))
                 {
-                    case HttpStatusCode.Unauthorized:
-                        if (IsTokenExpired(response))
-                        {
-                            UpdateToken();
-                            continue;
-                        }
-                        else
-                            throw new UnauthorizedException();
-                    case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<List<ChannelMessage>>(response.Content);
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<ChannelMessage[]>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
                     default:
-                        throw new Exception(response.Content);
+                        throw new ArgumentOutOfRangeException();
                 }
+            }
+        }
+
+        public ChannelMessage GetChannelMessage(long messageId) => GetChannelMessage(messageId, false);
+
+        internal ChannelMessage GetChannelMessage(long messageId, bool onlyId)
+        {
+            var response = ExecutePostWithToken(@"channels/getChannelMessage",
+                queryParameters: new Dictionary<string, string>
+                {
+                    { "messageId", messageId.ToString() }
+                }, onlyId: onlyId);
+            switch (ResponseHandler.GetResponseStatus(response))
+            {
+                case ResponseStatus.Ok:
+                    return JsonConvert.DeserializeObject<ChannelMessage>(response.Content);
+                case ResponseStatus.UpdateToken:
+                    UpdateToken();
+                    return GetChannelMessage(messageId, onlyId);
+                case ResponseStatus.InvalidToken:
+                    EventDisconnectInvoke();
+                    return null;
+                case ResponseStatus.Error:
+                    throw new Exception(response.Content);
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         public DateTime? GetLastDeleteMessageTimeOnChannel(long channelId)
         {
-            var response = ExecutePostWithToken("channels/getLastDeleteMessageTime", null,
-                new Dictionary<string, string> { { "channelId", channelId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/getLastDeleteMessageTime", null, new Dictionary<string, string> { { "channelId", channelId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<DateTime?>(response.Content);
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetLastDeleteMessageTimeOnChannel(channelId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<DateTime?>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
         //===============================[CREATE]===============================
         public void CreateGuild(string name = null)
         {
-            var response = ExecutePostWithToken("guilds/createGuild", null,
-                new Dictionary<string, string> { { "name", name } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/createGuild", null, new Dictionary<string, string> { { "name", name } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        CreateGuild(name);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void CreateChannel(long guildId, string name = null)
         {
-            var response = ExecutePostWithToken("channels/createChannel", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() }, { "name", name } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/createChannel", null, new Dictionary<string, string> { { "guildId", guildId.ToString() }, { "name", name } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        CreateChannel(guildId, name);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public GuildInvite CreateGuildInvite(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/createGuildInvite", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/createGuildInvite", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<GuildInvite>(response.Content);
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return CreateGuildInvite(guildId);
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return JsonConvert.DeserializeObject<GuildInvite>(response.Content);
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
         //===============================[DELETE]===============================
         public void DeleteGuild(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/deleteGuild", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/deleteGuild", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        DeleteGuild(guildId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void DeleteChannel(long channelId)
         {
-            var response = ExecutePostWithToken("channels/deleteChannel", null,
-                new Dictionary<string, string> { { "channelId", channelId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/deleteChannel", null, new Dictionary<string, string> { { "channelId", channelId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        DeleteChannel(channelId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void DeleteGuildInvite(long inviteId)
         {
-            var response = ExecutePostWithToken("guilds/deleteGuildInvite", null,
-                new Dictionary<string, string> { { "inviteId", inviteId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/deleteGuildInvite", null, new Dictionary<string, string> { { "inviteId", inviteId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        DeleteGuildInvite(inviteId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void DeleteChannelMessage(long messageId)
         {
-            var response = ExecutePostWithToken("channels/deleteChannelMessage", null,
-                new Dictionary<string, string> { { "messageId", messageId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/deleteChannelMessage", null, new Dictionary<string, string> { { "messageId", messageId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        DeleteChannelMessage(messageId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
         //===============================[UPDATE]===============================
         public void UpdateGuild(UpdateGuildModel model)
         {
-            var response = ExecutePostWithToken("guilds/updateGuild", JsonConvert.SerializeObject(model));
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/updateGuild", JsonConvert.SerializeObject(model));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        UpdateGuild(model);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void UpdateChannel(UpdateChannelModel model)
         {
-            var response = ExecutePostWithToken("channels/updateChannel", JsonConvert.SerializeObject(model));
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/updateChannel", JsonConvert.SerializeObject(model));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        UpdateChannel(model);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
         //===============================[OTHER]===============================
         public void SendChannelMessage(long channelId, MessageModel message)
         {
-            var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message),
-                new Dictionary<string, string> { { "channelId", channelId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("channels/sendChannelMessage", JsonConvert.SerializeObject(message), new Dictionary<string, string> { { "channelId", channelId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        SendChannelMessage(channelId, message);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void JoinGuild(string inviteCode)
         {
-            var response = ExecutePostWithToken("guilds/joinGuild", null,
-                new Dictionary<string, string> { { "inviteCode", inviteCode } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/joinGuild", null, new Dictionary<string, string> { { "inviteCode", inviteCode } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        JoinGuild(inviteCode);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void LeaveGuild(long guildId)
         {
-            var response = ExecutePostWithToken("guilds/leaveGuild", null,
-                new Dictionary<string, string> { { "guildId", guildId.ToString() } });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/leaveGuild", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        LeaveGuild(guildId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void KickGuildMember(long userId, long guildId)
         {
-            var response = ExecutePostWithToken("guilds/kickGuildMember", null,
-                new Dictionary<string, string>
-                {
-                    { "guildId", guildId.ToString() }, { "secondId", userId.ToString() }
-                });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/kickGuildMember", null, new Dictionary<string, string> { { "guildId", guildId.ToString() }, { "secondId", userId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        KickGuildMember(userId, guildId);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void BanGuildMember(long userId, long guildId, string reason = null)
         {
-            var response = ExecutePostWithToken("guilds/banGuildMember", null,
-                new Dictionary<string, string>
-                {
-                    { "guildId", guildId.ToString() }, { "secondId", userId.ToString() }, { "reason", reason }
-                });
-            switch (response.StatusCode)
+            while (true)
             {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
+                var response = ExecutePostWithToken("guilds/banGuildMember", null, new Dictionary<string, string> { { "guildId", guildId.ToString() }, { "secondId", userId.ToString() }, { "reason", reason } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return;
+                    case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        BanGuildMember(userId, guildId, reason);
-                        break;
-                    }
-                    else
-                        throw new UnauthorizedException();
-                case HttpStatusCode.OK:
-                    return;
-                default:
-                    throw new Exception(response.Content);
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
+
         public void UnbanMember(long userId, long guildId)
         {
-            var response = ExecutePostWithToken("guilds/unbanGuildMember", null, new Dictionary<string, string>
+            while (true)
             {
-                {"secondId", userId.ToString()},
-                {"guildId", guildId.ToString()}
-            });
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.Unauthorized:
-                    if (IsTokenExpired(response))
-                    {
-                        UpdateToken();
-                        UnbanMember(userId, guildId);
+                var response = ExecutePostWithToken("guilds/unbanGuildMember", null, new Dictionary<string, string> { { "secondId", userId.ToString() }, { "guildId", guildId.ToString() } });
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
                         return;
-                    }
-                    else throw new UnauthorizedException();
-                case HttpStatusCode.OK: return;
-                default: throw new Exception(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
     }

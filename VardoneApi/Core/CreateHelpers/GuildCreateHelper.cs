@@ -11,7 +11,7 @@ namespace VardoneApi.Core.CreateHelpers
 {
     internal static class GuildCreateHelper
     {
-        public static List<Channel> GetGuildChannels(long guildId, bool onlyId = false)
+        public static Channel[] GetGuildChannels(long guildId, bool onlyId = false)
         {
             if (!GuildChecks.IsGuildExists(guildId)) return null;
 
@@ -25,7 +25,7 @@ namespace VardoneApi.Core.CreateHelpers
             {
                 channelsList.Add(GetChannel(channel, onlyId));
             }
-            return channelsList;
+            return channelsList.ToArray();
         }
 
         public static Guild GetGuild(GuildsTable guild, bool withChannels = true, bool withOwner = true, bool onlyId = false)

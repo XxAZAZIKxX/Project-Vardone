@@ -49,6 +49,7 @@ namespace Vardone.Controls.Items
 
         private void Accept_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            MessageBox.Show("тык");
             MainPage.Client.AddFriend(User.Username);
             FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
         }

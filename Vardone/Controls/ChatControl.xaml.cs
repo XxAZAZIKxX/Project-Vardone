@@ -127,7 +127,7 @@ namespace Vardone.Controls
                     if (chat is not null)
                     {
                         var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
-                        numberAdded = list.Count;
+                        numberAdded = list.Length;
                         foreach (var message in list)
                         {
                             var messageItem = new MessageItem(message);
@@ -138,7 +138,7 @@ namespace Vardone.Controls
                     else
                     {
                         var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
-                        numberAdded = list.Count;
+                        numberAdded = list.Length;
                         foreach (var message in list)
                         {
                             var messageItem = new MessageItem(message);
