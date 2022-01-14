@@ -16,7 +16,7 @@ namespace Vardone.Controls.Items
     public partial class GuildListItem
     {
         private static readonly List<GuildListItem> Items = new();
-        public readonly Guild guild;
+        public Guild guild;
         private bool _isActive;
 
         public bool IsActive

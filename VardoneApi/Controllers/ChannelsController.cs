@@ -38,7 +38,7 @@ namespace VardoneApi.Controllers
                     var guilds = dataContext.Guilds;
                     var channels = dataContext.Channels;
                     var guild = guilds.First(p => p.Id == guildId);
-                    channels.Add(new ChannelsTable { Name = string.IsNullOrWhiteSpace(name) ? name : "New channel", Guild = guild });
+                    channels.Add(new ChannelsTable { Name = string.IsNullOrWhiteSpace(name) ? "New channel" : name, Guild = guild });
                     dataContext.SaveChanges();
                 }
                 catch (Exception e)
@@ -111,7 +111,7 @@ namespace VardoneApi.Controllers
                     var channel = channels.First(p => p.Id == updateChannelModel.ChannelId);
                     if (channel.Guild.Owner.Id != userId) return BadRequest("You are not owner");
 
-                    channel.Name = string.IsNullOrWhiteSpace(updateChannelModel.Name) ? updateChannelModel.Name : channel.Name;
+                    channel.Name = string.IsNullOrWhiteSpace(updateChannelModel.Name) ? channel.Name : updateChannelModel.Name;
                     channels.Update(channel);
 
                     dataContext.SaveChanges();

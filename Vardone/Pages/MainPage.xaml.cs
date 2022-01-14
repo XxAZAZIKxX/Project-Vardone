@@ -61,6 +61,7 @@ namespace Vardone.Pages
             Client.OnNewChannelMessage += OnNewChannelMessage;
             Client.OnDeleteChannelMessage += OnDeleteChannelMessage;
             Client.OnDeletePrivateChatMessage += OnDeletePrivateChatMessage;
+            Client.OnDisconnect += () => Task.Run(ExitFromAccount);
         }
 
 
@@ -217,12 +218,16 @@ namespace Vardone.Pages
         }
         private Task OnNewChannelMessage(ChannelMessage message)
         {
-            if (chatControl.channel is null || message is null) return Task.CompletedTask; 
+            if (chatControl.channel is null || message is null) return Task.CompletedTask;
             if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
             return Task.CompletedTask;
         }
         private Task OnUpdateChannelList(Guild guild)
         {
+            foreach (var item in GuildList.Children.Cast<GuildListItem>())
+            {
+                if (item.guild.GuildId == guild.GuildId) item.guild = Client.GetGuild(guild.GuildId);
+            }
             if (guildPanel.currentGuild?.GuildId == guild.GuildId) guildPanel.UpdateChannelsList();
             return Task.CompletedTask;
         }
@@ -337,6 +342,7 @@ namespace Vardone.Pages
         {
             friendListPanel.Visibility = Visibility.Collapsed;
             guildPanel.Visibility = Visibility.Visible;
+            guild = Client.GetGuild(guild.GuildId);
             guildPanel.ChangeGuild(guild);
             chatControl.CloseChat();
             chatControl.LoadChat(guild.Channels?.FirstOr(null!));
