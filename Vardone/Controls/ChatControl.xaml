@@ -30,13 +30,14 @@
                     <TextBox BorderBrush="Transparent" VerticalContentAlignment="Center" Background="Transparent"
                              VerticalAlignment="Center" Height="30" Foreground="Gray"
                              x:Name="MessageTextBoxPlaceholder"
-                             Text="Enter message..." />
+                             Text="Написать сообщение..." />
                     <TextBox TextChanged="MessageTextBoxOnTextChanged" KeyDown="MessageBoxKeyDown"
                              GotFocus="MessageBoxGotFocus" LostFocus="MessageBoxLostFocus" Text=""
                              x:Name="MessageTextBox" BorderThickness="0" Height="30"
                              MaxLength="255"
                              VerticalContentAlignment="Center" CaretBrush="White"
-                             Foreground="LightGray" Background="Transparent" />
+                             Foreground="LightGray" Background="Transparent">
+                    </TextBox>
                     <Image MouseDown="ClipMouseDown" Opacity="0.6" Width="25" Source="../Resources/clip.png"
                            VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
