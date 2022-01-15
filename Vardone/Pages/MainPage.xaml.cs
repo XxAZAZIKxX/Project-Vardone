@@ -206,14 +206,14 @@ namespace Vardone.Pages
         }
         private Task OnDeletePrivateChatMessage(PrivateChat chat)
         {
-            if (chatControl.chat is null || chatControl.chat.ChatId != chat.ChatId) return Task.CompletedTask;
-            chatControl.LoadChat(chat);
+            if (chatControl?.chat?.ChatId != chat.ChatId) return Task.CompletedTask;
+            chatControl.UpdateMessages();
             return Task.CompletedTask;
         }
         private Task OnDeleteChannelMessage(Channel channel)
         {
-            if (chatControl.channel is null || chatControl.channel.ChannelId != channel.ChannelId) return Task.CompletedTask;
-            chatControl.LoadChat(channel);
+            if (chatControl?.channel?.ChannelId != channel.ChannelId) return Task.CompletedTask;
+            chatControl.UpdateMessages();
             return Task.CompletedTask;
         }
         private Task OnNewChannelMessage(ChannelMessage message)

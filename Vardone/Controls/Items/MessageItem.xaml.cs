@@ -6,7 +6,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Vardone.Core;
 using Vardone.Pages;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
@@ -21,9 +20,16 @@ namespace Vardone.Controls.Items
         public PrivateMessage PrivateMessage { get; }
         public ChannelMessage ChannelMessage { get; }
         public User Author { get; }
-        public MessageItem([NotNull] PrivateMessage message)
+
+        public enum DeleteMode
+        {
+            CanDelete, CannotDelete
+        }
+
+        public MessageItem([NotNull] PrivateMessage message, DeleteMode mode = DeleteMode.CannotDelete)
         {
             InitializeComponent();
+            SetDeleteButton(mode);
 
             PrivateMessage = message;
             Author = message.Author;
@@ -39,10 +45,11 @@ namespace Vardone.Controls.Items
             else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
         }
 
-        public MessageItem([NotNull] ChannelMessage channelMessage)
+        public MessageItem([NotNull] ChannelMessage channelMessage, DeleteMode mode = DeleteMode.CannotDelete)
         {
             InitializeComponent();
 
+            SetDeleteButton(mode);
             ChannelMessage = channelMessage;
             Author = channelMessage.Author;
 
@@ -57,6 +64,15 @@ namespace Vardone.Controls.Items
             else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(channelMessage.Base64Image));
         }
 
+        private void SetDeleteButton(DeleteMode mode)
+        {
+            if (mode is DeleteMode.CannotDelete)
+            {
+                ContextMenu.IsEnabled = false;
+                ContextMenu.Visibility = Visibility.Hidden;
+            }
+        }
+
         private void ImageOnClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().DeployImage(Image.Source as BitmapImage);
 
         public void SetStatus(bool online)
@@ -66,6 +82,18 @@ namespace Vardone.Controls.Items
                 true => new SolidColorBrush(Colors.LimeGreen),
                 false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
             };
+        }
+
+        private void DeleteMessageButtonClicked(object sender, RoutedEventArgs e)
+        {
+            if (ChannelMessage is not null)
+            {
+                MainPage.Client.DeleteChannelMessage(ChannelMessage.MessageId);
+            }
+            if (PrivateMessage is not null)
+            {
+                MainPage.Client.DeletePrivateMessage(PrivateMessage.MessageId);
+            }
         }
     }
 }
