@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Vardone.Controls.Items;
+using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
@@ -14,6 +15,7 @@ using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Vardone.Controls
 {

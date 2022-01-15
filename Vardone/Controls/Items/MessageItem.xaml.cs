@@ -69,7 +69,7 @@ namespace Vardone.Controls.Items
             if (mode is DeleteMode.CannotDelete)
             {
                 ContextMenu.IsEnabled = false;
-                ContextMenu.Visibility = Visibility.Hidden;
+                ContextMenu.Visibility = Visibility.Collapsed;
             }
         }
 

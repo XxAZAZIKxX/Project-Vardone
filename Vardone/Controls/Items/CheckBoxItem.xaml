@@ -10,7 +10,7 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Label  x:Name="NameItem" Grid.Column="0" Height="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" />
-        <Grid x:Name="Button" Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Label  x:Name="NameItem" Margin="20,0,0,0" Foreground="White" FontWeight="SemiBold" Grid.Column="0" Height="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" />
+        <Grid x:Name="Button" Column="1" Margin="0,0,20,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid>
 </UserControl>

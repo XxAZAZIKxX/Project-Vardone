@@ -17,13 +17,20 @@ namespace Vardone.Core
         public static bool GetStartMinimized()
         {
             var read = IniFile.Read("StartMinimized", "Preferences");
-            return !string.IsNullOrWhiteSpace(read) && bool.Parse(read);
+            return bool.TryParse(read, out var value) && value;
         }
 
         public static void SetStartMinimized(bool value) => IniFile.Write("StartMinimized", value.ToString(), "Preferences");
 
+
+        public static bool GetAutostart()
+        {
+            var read = IniFile.Read("Autostart", "Preferences");
+            return bool.TryParse(read, out var value) && value;
+        }
         public static void SetAutostart(bool value)
         {
+            IniFile.Write("Autostart", value.ToString(), "Preferences");
             using var subKey = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
             if (subKey is null) return;
             try

@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Vardone.Controls.Items.Buttons
 {
@@ -33,12 +34,14 @@ namespace Vardone.Controls.Items.Buttons
             if (active)
             {
                 CircleActive.Visibility = Visibility.Visible;
-                CircleUnActive.Visibility = Visibility.Collapsed;
+                CircleUnActive.Visibility = Visibility.Hidden;
+                Border.Background = Brushes.LimeGreen;
             }
             else
             {
                 CircleActive.Visibility = Visibility.Hidden;
                 CircleUnActive.Visibility = Visibility.Visible;
+                Border.Background = Brushes.DarkGray;
             }
             _change?.Invoke(IsActive);
         }

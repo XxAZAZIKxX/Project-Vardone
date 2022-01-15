@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Notifications.Wpf;
+using Vardone.Controls.Items;
 using Vardone.Core;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
@@ -31,6 +32,8 @@ namespace Vardone.Pages.PropertyPages
                 UsernameTb.Text = user.Username;
                 EmailTb.Text = user.AdditionalInformation.Email;
                 DescTb.Text = user.Description ?? "Description";
+                StartPreferencesSP.Children.Add(new CheckBoxItem("Автозапуск", ConfigWorker.GetAutostart(), ConfigWorker.SetAutostart));
+                StartPreferencesSP.Children.Add(new CheckBoxItem("Запускать свернутым", ConfigWorker.GetStartMinimized(), ConfigWorker.SetStartMinimized));
             });
             return this;
         }
