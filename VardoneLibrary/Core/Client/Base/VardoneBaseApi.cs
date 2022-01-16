@@ -48,17 +48,30 @@ namespace VardoneLibrary.Core.Client.Base
             var response = ExecutePost(@"/auth/registerUser", JsonConvert.SerializeObject(register));
             return response.StatusCode == HttpStatusCode.OK;
         }
-        public static bool CheckToken(string token)
+        public static bool CheckToken(ref string token)
         {
             var response = ExecutePost(@"/auth/checkUserToken", headers: new Dictionary<string, string>
             {
                 {"Authorization", $"Bearer {token}"}
             });
-            return response.StatusCode switch
+            var res= response.StatusCode switch
             {
                 HttpStatusCode.OK => JsonConvert.DeserializeObject<bool>(response.Content),
                 _ => false
             };
+            if (res) return true;
+
+            response = ExecutePost(@"auth/updateToken", headers: new Dictionary<string, string>
+            {
+                { "token", token }
+            });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    token = JsonConvert.DeserializeObject<string>(response.Content);
+                    return true;
+                default: return false;
+            }
         }
     }
 }

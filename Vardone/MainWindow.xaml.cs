@@ -75,7 +75,7 @@ namespace Vardone
             if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
             else
             {
-                if (VardoneBaseApi.CheckToken(token)) LoadApp(new VardoneClient(token));
+                if (VardoneBaseApi.CheckToken(ref token)) LoadApp(new VardoneClient(token));
                 else MainFrame.Navigate(AuthorizationPage.GetInstance());
             }
         }

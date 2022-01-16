@@ -15,8 +15,8 @@ namespace VardoneLibrary.Core.Client.Base
         protected VardoneBaseClient(string token)
         {
             if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
+            if (!CheckToken(ref token)) throw new Exception("Invalid token");
             Token = token;
-            if (!CheckToken(Token)) throw new Exception("Invalid token");
         }
 
         protected IRestResponse ExecutePostWithToken(string resource, string json = null, Dictionary<string, string> queryParameters = null, bool onlyId = false)
