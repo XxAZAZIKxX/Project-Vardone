@@ -39,7 +39,7 @@
                HorizontalAlignment="Right"
                VerticalAlignment="Top" />
         <Image MouseDown="ImageOnClick"
-               Stretch="Uniform"
+               Stretch="Uniform" Cursor="Hand"
                x:Name="Image"
                Grid.Row="1"
                Grid.Column="1"

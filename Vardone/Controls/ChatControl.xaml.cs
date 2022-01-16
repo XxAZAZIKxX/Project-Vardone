@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,14 +7,20 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Vardone.Controls.Items;
+using Vardone.Core;
 using Vardone.Pages;
+using Vardone.Pages.Popup;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
+using DataFormats = System.Windows.DataFormats;
+using DataObject = System.Windows.DataObject;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Vardone.Controls
 {
@@ -22,11 +29,44 @@ namespace Vardone.Controls
     /// </summary>
     public partial class ChatControl
     {
+
         private static ChatControl _instance;
         public static ChatControl GetInstance() => _instance ??= new ChatControl();
         public static void ClearInstance() => _instance = null;
-        public ChatControl() => InitializeComponent();
+        public ChatControl()
+        {
+            InitializeComponent();
+            MessageTextBox.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, OnPaste));
 
+        }
+
+        public void OnPaste(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (chat is null && channel is null) return;
+            if (System.Windows.Clipboard.ContainsText())
+            {
+                MessageTextBox.Text = System.Windows.Clipboard.GetText();
+                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
+            }
+            if (System.Windows.Clipboard.ContainsImage())
+            {
+
+                BitmapSource image = System.Windows.Clipboard.GetImage();
+
+                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+                encoder.QualityLevel = 100;
+                byte[] bytes = new byte[0];
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(stream);
+                    bytes = stream.ToArray();
+                    stream.Close();
+                }
+
+                MainPage.GetInstance().MainFrame.Navigate(ImageMessagePreview.GetInstance().Load(ImageWorker.BytesToBitmapImage(bytes), MessageTextBox.Text));
+            }
+        }
         ~ChatControl()
         {
             CloseChat();
@@ -97,7 +137,7 @@ namespace Vardone.Controls
                     var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
                     foreach (var message in messages) ChatMessagesList.Children.Add(new MessageItem(message));
                     ChatScrollViewer.ScrollToEnd();
-                    
+
                 });
             });
         }
@@ -158,24 +198,13 @@ namespace Vardone.Controls
             if (!string.IsNullOrEmpty(MessageTextBox.Text)) return;
             MessageTextBoxPlaceholder.Visibility = Visibility.Visible;
         }
-        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) =>
-            MessageBoxGotFocus(null, null);
+        private void MessageTextBoxOnTextChanged(object sender, TextChangedEventArgs e) => MessageBoxGotFocus(null, null);
         private void MessageBoxKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
             if (channel is null && chat is null) return;
             if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
-            if (chat is not null)
-            {
-                MainPage.Client.SendPrivateMessage(chat.ToUser.UserId, new MessageModel { Text = MessageTextBox.Text });
-                LoadChat(chat);
-            }
-            else
-            {
-                MainPage.Client.SendChannelMessage(channel.ChannelId, new MessageModel { Text = MessageTextBox.Text });
-                LoadChat(channel);
-            }
-
+            SendMessage(MessageTextBox.Text);
             MessageTextBox.Text = "";
             MessageBoxLostFocus(null, null);
         }
@@ -190,28 +219,36 @@ namespace Vardone.Controls
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
+            SendMessage(MessageTextBox.Text, File.ReadAllBytes(openFileDialog.FileName));
+
+            MessageTextBox.Clear();
+        }
+        public void SendMessage(string text, byte[] bytes = null)
+        {
             if (chat is not null)
             {
+                var message = new MessageModel
+                {
+                    Text = text,
+                };
+
+                if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
                 MainPage.Client.SendPrivateMessage(chat.ToUser.UserId,
-                    new MessageModel
-                    {
-                        Text = MessageTextBox.Text,
-                        Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
-                    });
+                  message);
                 LoadChat(chat);
             }
             else
             {
-                MainPage.Client.SendChannelMessage(channel.ChannelId,
-                    new MessageModel
-                    {
-                        Text = MessageTextBox.Text,
-                        Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
-                    });
+
+                var message = new MessageModel
+                {
+                    Text = text,
+                };
+
+                if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
+                MainPage.Client.SendChannelMessage(channel.ChannelId, message);
                 LoadChat(channel);
             }
-
-            MessageTextBox.Clear();
         }
     }
 }
