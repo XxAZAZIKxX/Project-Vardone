@@ -174,8 +174,10 @@ namespace VardoneApi.Controllers
                 }
                 if (!ChannelChecks.IsChannelExists(channelId)) return BadRequest("Channel is not exists");
                 if (message is null) return BadRequest("Message is null");
-                if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image)) return BadRequest("Empty message");
-
+                if (string.IsNullOrWhiteSpace(message.Text) &&
+                    (string.IsNullOrWhiteSpace(message.Base64Image) ||
+                     !ImageWorker.IsImage(Convert.FromBase64String(message.Base64Image))))
+                    return BadRequest("Empty message");
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -198,7 +200,7 @@ namespace VardoneApi.Controllers
                         Channel = channel,
                         CreatedTime = DateTime.Now,
                         Image = message.Base64Image is not null
-                            ? ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image), 70)
+                            ? ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image), 70)
                             : null,
                         Text = message.Text ?? ""
                     };

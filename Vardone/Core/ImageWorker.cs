@@ -1,9 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace Vardone.Core
 {
-    public abstract class ImageWorker
+    public static class ImageWorker
     {
         /// <summary>
         /// Перевести массив байтов в BitmapImage
@@ -13,6 +16,7 @@ namespace Vardone.Core
         public static BitmapImage BytesToBitmapImage(byte[] array)
         {
             if (array is null) return null;
+            if (!IsImage(array)) return null;
             using var ms = new MemoryStream(array);
             var image = new BitmapImage();
             image.BeginInit();
@@ -34,6 +38,23 @@ namespace Vardone.Core
             using var ms = new MemoryStream();
             encoder.Save(ms);
             return ms.ToArray();
+        }
+
+        public static bool IsImage(byte[] bytes)
+        {
+            if (bytes is null) return false;
+            using var stream = new MemoryStream(bytes);
+            try
+            {
+                Image image = new Bitmap(stream);
+                if (!image.RawFormat.Equals(ImageFormat.Jpeg) && !image.RawFormat.Equals(ImageFormat.Png))
+                    throw new Exception();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

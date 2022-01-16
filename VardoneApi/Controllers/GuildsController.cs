@@ -373,7 +373,7 @@ namespace VardoneApi.Controllers
                     if (updateModel.Base64Image is not null)
                     {
                         var fromBase64String = Convert.FromBase64String(updateModel.Base64Image);
-                        info.Avatar = updateModel.Base64Image is "" ? null : ImageCompressionWorker.VaryQualityLevel(fromBase64String, 50);
+                        if (ImageWorker.IsImage(fromBase64String)) info.Avatar = updateModel.Base64Image is "" ? null : ImageWorker.CompressImageQualityLevel(fromBase64String, 50);
                     }
 
                     guilds.Update(guild);

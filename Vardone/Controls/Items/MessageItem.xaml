@@ -18,7 +18,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="45" />
+            <ColumnDefinition Width="50" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -39,7 +39,7 @@
                  Width="10" Height="10"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Top"
-                 Margin="27,17,0,0"
+                 Margin="30,17,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
         <Label Grid.Row="0" Grid.Column="1" 
@@ -57,7 +57,7 @@
                FontSize="10"
                HorizontalAlignment="Right"
                VerticalAlignment="Top" />
-        <Image MouseDown="ImageOnClick"
+        <Image MouseLeftButtonDown="ImageOnClick"
                Stretch="Uniform"
                MaxHeight="200" Cursor="Hand"
                x:Name="Image"

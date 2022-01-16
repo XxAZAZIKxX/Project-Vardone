@@ -263,7 +263,7 @@ namespace VardoneApi.Controllers
                     puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
                     var pus = puss.First(p => p.User.Id == user.Id).Pus;
-                    
+
                     var returnUser = new User
                     {
                         UserId = user.Id,
@@ -687,7 +687,7 @@ namespace VardoneApi.Controllers
                         if (res)
                         {
                             var bytes = Convert.FromBase64String(updateUserModel.Base64Image);
-                            userInfo.Avatar = ImageCompressionWorker.VaryQualityLevel(bytes, 50);
+                            if (ImageWorker.IsImage(bytes)) userInfo.Avatar = ImageWorker.CompressImageQualityLevel(bytes, 50);
                         }
                     }
                 }

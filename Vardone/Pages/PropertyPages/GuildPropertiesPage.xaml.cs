@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using Microsoft.EntityFrameworkCore.Internal;
 using Notifications.Wpf;
 using Vardone.Core;
 using VardoneEntities.Entities.Guild;
@@ -25,7 +25,13 @@ namespace Vardone.Pages.PropertyPages
         private Guild _guild;
         private void Change_Avatar(object sender, MouseButtonEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog { Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg", Multiselect = false };
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
+                Multiselect = false,
+                CheckFileExists = true,
+                Title = "Сменить аватар"
+            };
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
@@ -96,7 +102,7 @@ namespace Vardone.Pages.PropertyPages
                     GuildId = _guild.GuildId,
                     Name = GuildNameTb.Text
                 });
-                var guild = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == _guild.GuildId, null!);
+                var guild = MainPage.Client.GetGuilds().FirstOrDefault(p => p.GuildId == _guild.GuildId);
                 if (guild is null) CloseMouseDown(null, null);
                 else
                 {

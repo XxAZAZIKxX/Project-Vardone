@@ -307,12 +307,15 @@ namespace VardoneApi.Controllers
                     Response.Headers.Add("Token-Invalid", "true");
                     return Unauthorized("Invalid token");
                 }
-                if (message == null) return BadRequest("Empty message");
-                if (message.Text.Length > 255) return BadRequest("<#!> Сообщение больше чем 255 символов!");
+                if (message is null) return BadRequest("Empty message");
+                if (message.Text.Length > 255) return BadRequest("Text length is upper then 255 symbols");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest();
                 if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
-                if (string.IsNullOrWhiteSpace(message.Text) && string.IsNullOrWhiteSpace(message.Base64Image)) return BadRequest("Empty message");
+                if (string.IsNullOrWhiteSpace(message.Text) &&
+                    (string.IsNullOrWhiteSpace(message.Base64Image) ||
+                     !ImageWorker.IsImage(Convert.FromBase64String(message.Base64Image))))
+                    return BadRequest("Empty message");
 
                 try
                 {
@@ -348,7 +351,7 @@ namespace VardoneApi.Controllers
                         Text = message.Text ?? "",
                         Image = message.Base64Image is null
                             ? null
-                            : ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image),
+                            : ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image),
                                 70),
                         CreatedTime = DateTime.Now
                     };

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Notifications.Wpf;
 using Vardone.Controls.Items;
 using Vardone.Core;
 using Vardone.Pages;
@@ -15,7 +18,11 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
+using DataFormats = System.Windows.DataFormats;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Image = System.Drawing.Image;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Vardone.Controls
@@ -57,10 +64,7 @@ namespace Vardone.Controls
             {
                 var image = System.Windows.Clipboard.GetImage();
                 if (image is null) return;
-                var encoder = new JpegBitmapEncoder
-                {
-                    QualityLevel = 100
-                };
+                var encoder = new PngBitmapEncoder();
                 byte[] bytes;
                 using (var stream = new MemoryStream())
                 {
@@ -239,10 +243,21 @@ namespace Vardone.Controls
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
+            var bitmapImage = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(openFileDialog.FileName));
+            if (bitmapImage is null)
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Оповещение",
+                    Message = "Выберите действительное изображение!",
+                    Type = NotificationType.Warning
+                });
+                return;
+            }
 
             MainPage.GetInstance()
                 .MainFrame.Navigate(ImageMessagePreview.GetInstance()
-                    .Load(ImageWorker.BytesToBitmapImage(File.ReadAllBytes(openFileDialog.FileName)),
+                    .Load(bitmapImage,
                         MessageTextBox.Text));
 
             MessageTextBox.Clear();
@@ -253,11 +268,43 @@ namespace Vardone.Controls
             {
                 Text = text,
             };
-            if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
+            if (bytes != null && ImageWorker.IsImage(bytes)) message.Base64Image = Convert.ToBase64String(bytes);
 
             if (Chat is not null) MainPage.Client.SendPrivateMessage(Chat.ToUser.UserId, message);
             else if (Channel is not null) MainPage.Client.SendChannelMessage(Channel.ChannelId, message);
             UpdateMessages();
+        }
+
+        private void TextBoxDragEnter(object sender, DragEventArgs e)
+        {
+            if (Chat is null && Channel is null) return;
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop) && !e.Data.GetDataPresent(DataFormats.Text)) return;
+
+            e.Effects = DragDropEffects.Copy;
+            MessageTextBox.Focus();
+            e.Handled = true;
+        }
+
+        private void TextBoxDragDrop(object sender, DragEventArgs e)
+        {
+            if (Chat is null && Channel is null) return;
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+            var file = (e.Data.GetData(DataFormats.FileDrop) as string[])?.FirstOrDefault();
+            if (file is null) return;
+            var bytes = File.ReadAllBytes(file);
+
+            var bitmapImage = ImageWorker.BytesToBitmapImage(bytes);
+            if (bitmapImage is null)
+            {
+                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                {
+                    Title = "Оповещение",
+                    Type = NotificationType.Warning,
+                    Message = "Данный тип файла не поддерживается!"
+                });
+                return;
+            }
+            MainPage.GetInstance().MainFrame.Navigate(ImageMessagePreview.GetInstance().Load(bitmapImage, MessageTextBox.Text));
         }
     }
 }
