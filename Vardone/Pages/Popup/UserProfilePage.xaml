@@ -33,19 +33,19 @@
                 </Ellipse>
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="Username" Text="Julie Lynx" FontSize="20"
                            Margin="100,45,0,0" Foreground="White" />
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Text="online" FontSize="15"
+                <TextBlock x:Name="OnlineText" HorizontalAlignment="Left" VerticalAlignment="Top" Text="в сети" FontSize="15"
                            Margin="100,75,0,0"
                            Foreground="LightGray" />
 
                 <Ellipse x:Name="OnlineStatus" x:FieldModifier="private"
                          Width="10" Height="10" Cursor="Hand"
                          HorizontalAlignment="Center" VerticalAlignment="Top"
-                         Margin="50,82,0,0" Fill="LimeGreen">
+                         Margin="85,82,0,0" Fill="LimeGreen">
 
                 </Ellipse>
                 <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
                            Margin="0,-100,0,0" />
-                <TextBlock Text="Description:" VerticalAlignment="Center"
+                <TextBlock Text="Описание" VerticalAlignment="Center"
                            HorizontalAlignment="Center" FontWeight="Bold"
                            Foreground="white" Margin="0,0,0,40" />
 
@@ -61,7 +61,7 @@
                        Cursor="Hand"
                        x:Name="Message"
                        MouseDown="Message_OnMouseDown"
-                       Margin="0,79,74,0"
+                       Margin="0,79,60,0"
                        Source="../../Resources/message.png" 
                        VerticalAlignment="Top" 
                        HorizontalAlignment="Right"/>

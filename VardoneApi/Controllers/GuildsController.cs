@@ -193,7 +193,7 @@ namespace VardoneApi.Controllers
                 }
 
                 if (!GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
-                if(!GuildChecks.IsUserMember(userId,guildId)) return BadRequest("You not member that guild");
+                if (!GuildChecks.IsUserMember(userId, guildId)) return BadRequest("You not member that guild");
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -201,7 +201,7 @@ namespace VardoneApi.Controllers
                     members.Include(p => p.Guild).Load();
                     members.Include(p => p.User).Load();
                     members.Include(p => p.User.Info).Load();
-                    
+
 
                     var returnMembers = new List<Member>();
                     foreach (var member in members.Where(p => p.Guild.Id == guildId))
@@ -370,7 +370,11 @@ namespace VardoneApi.Controllers
                     else info = guild.Info;
 
                     guild.Name = updateModel.Name ?? guild.Name;
-                    if (updateModel.Base64Image is not null) info.Avatar = updateModel.Base64Image is "" ? null : Convert.FromBase64String(updateModel.Base64Image);
+                    if (updateModel.Base64Image is not null)
+                    {
+                        var fromBase64String = Convert.FromBase64String(updateModel.Base64Image);
+                        info.Avatar = updateModel.Base64Image is "" ? null : ImageCompressionWorker.VaryQualityLevel(fromBase64String, 50);
+                    }
 
                     guilds.Update(guild);
                     guildInfos.Update(info);

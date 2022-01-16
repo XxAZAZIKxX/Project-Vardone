@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.User;
 
@@ -31,6 +30,11 @@ namespace Vardone.Pages.Popup
             {
                 true => new SolidColorBrush(Colors.LimeGreen),
                 false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
+            };
+            OnlineText.Text = online switch
+            {
+                true => "в сети",
+                false => "не в сети"
             };
             return this;
         }

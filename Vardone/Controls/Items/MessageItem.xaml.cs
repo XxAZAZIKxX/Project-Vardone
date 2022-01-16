@@ -41,8 +41,7 @@ namespace Vardone.Controls.Items
             CreatedTime.Content = message.CreatedTime.ToShortDateString() + " " + message.CreatedTime.ToShortTimeString();
             Username.Content = Author.Username;
             Text.Text = message.Text;
-            if (message.Base64Image is null) ImageRow.Height = new GridLength(0d);
-            else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
+            if (message.Base64Image is not null) Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
         }
 
         public MessageItem([NotNull] ChannelMessage channelMessage, DeleteMode mode = DeleteMode.CannotDelete)
@@ -60,8 +59,7 @@ namespace Vardone.Controls.Items
             CreatedTime.Content = channelMessage.CreatedTime.ToShortDateString() + " " + channelMessage.CreatedTime.ToShortTimeString();
             Username.Content = Author.Username;
             Text.Text = channelMessage.Text;
-            if (channelMessage.Base64Image is null) ImageRow.Height = new GridLength(0d);
-            else Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(channelMessage.Base64Image));
+            if (channelMessage.Base64Image is not null) Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(channelMessage.Base64Image));
         }
 
         private void SetDeleteButton(DeleteMode mode)

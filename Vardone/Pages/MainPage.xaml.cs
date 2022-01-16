@@ -158,9 +158,9 @@ namespace Vardone.Pages
                         friendRequestItem.SetStatus(onlineUser);
                     }
 
-                    if (chatControl.chat is not null || chatControl.channel is not null)
+                    if (chatControl.Chat is not null || chatControl.Channel is not null)
                     {
-                        if (chatControl.chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
+                        if (chatControl.Chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
                         foreach (var privateMessage in chatControl.ChatMessagesList.Children.Cast<MessageItem>())
                         {
                             if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
@@ -185,7 +185,7 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     if (chatControl.Visibility is Visibility.Hidden or Visibility.Collapsed) return;
-                    var userId = chatControl.chat?.ToUser.UserId;
+                    var userId = chatControl.Chat?.ToUser.UserId;
                     if (userId == message.Author.UserId) chatControl.LoadChat(Client.GetPrivateChatWithUser(userId.Value));
                     foreach (var userItem in friendListPanel.ChatListGrid.Children.Cast<UserItem>())
                     {
@@ -206,20 +206,20 @@ namespace Vardone.Pages
         }
         private Task OnDeletePrivateChatMessage(PrivateChat chat)
         {
-            if (chatControl?.chat?.ChatId != chat.ChatId) return Task.CompletedTask;
+            if (chatControl?.Chat?.ChatId != chat.ChatId) return Task.CompletedTask;
             chatControl.UpdateMessages();
             return Task.CompletedTask;
         }
         private Task OnDeleteChannelMessage(Channel channel)
         {
-            if (chatControl?.channel?.ChannelId != channel.ChannelId) return Task.CompletedTask;
+            if (chatControl?.Channel?.ChannelId != channel.ChannelId) return Task.CompletedTask;
             chatControl.UpdateMessages();
             return Task.CompletedTask;
         }
         private Task OnNewChannelMessage(ChannelMessage message)
         {
-            if (chatControl.channel is null || message is null) return Task.CompletedTask;
-            if (chatControl.channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
+            if (chatControl.Channel is null || message is null) return Task.CompletedTask;
+            if (chatControl.Channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
             return Task.CompletedTask;
         }
         private Task OnUpdateChannelList(Guild guild)

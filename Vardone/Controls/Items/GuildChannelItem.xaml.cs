@@ -57,7 +57,7 @@ namespace Vardone.Controls.Items
                 });
             }
             GuildPanelControl.GetInstance().UpdateChannelsList();
-            if (ChatControl.GetInstance().channel?.ChannelId == channel.ChannelId) ChatControl.GetInstance().CloseChat();
+            if (ChatControl.GetInstance().Channel?.ChannelId == channel.ChannelId) ChatControl.GetInstance().CloseChat();
         }
     }
 }

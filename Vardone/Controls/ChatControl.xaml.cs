@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +15,8 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
-using DataFormats = System.Windows.DataFormats;
-using DataObject = System.Windows.DataObject;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MessageBox = System.Windows.MessageBox;
 
 namespace Vardone.Controls
 {
@@ -29,43 +25,17 @@ namespace Vardone.Controls
     /// </summary>
     public partial class ChatControl
     {
-
         private static ChatControl _instance;
         public static ChatControl GetInstance() => _instance ??= new ChatControl();
         public static void ClearInstance() => _instance = null;
+
+        public PrivateChat Chat { get; private set; }
+        public Channel Channel { get; private set; }
+
         public ChatControl()
         {
             InitializeComponent();
             MessageTextBox.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, OnPaste));
-
-        }
-
-        public void OnPaste(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (chat is null && channel is null) return;
-            if (System.Windows.Clipboard.ContainsText())
-            {
-                MessageTextBox.Text = System.Windows.Clipboard.GetText();
-                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
-            }
-            if (System.Windows.Clipboard.ContainsImage())
-            {
-
-                BitmapSource image = System.Windows.Clipboard.GetImage();
-
-                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                encoder.QualityLevel = 100;
-                byte[] bytes = new byte[0];
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    encoder.Frames.Add(BitmapFrame.Create(image));
-                    encoder.Save(stream);
-                    bytes = stream.ToArray();
-                    stream.Close();
-                }
-
-                MainPage.GetInstance().MainFrame.Navigate(ImageMessagePreview.GetInstance().Load(ImageWorker.BytesToBitmapImage(bytes), MessageTextBox.Text));
-            }
         }
         ~ChatControl()
         {
@@ -73,9 +43,35 @@ namespace Vardone.Controls
             GC.Collect();
         }
 
-        public PrivateChat chat;
-        public Channel channel;
-
+        private void OnPaste(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (Chat is null && Channel is null) return;
+            if (System.Windows.Clipboard.ContainsText())
+            {
+                var text = System.Windows.Clipboard.GetText();
+                var caretIndex = MessageTextBox.CaretIndex;
+                MessageTextBox.Text = MessageTextBox.Text.Insert(caretIndex, text);
+                MessageTextBox.CaretIndex = caretIndex + text.Length;
+            }
+            if (System.Windows.Clipboard.ContainsImage())
+            {
+                var image = System.Windows.Clipboard.GetImage();
+                if (image is null) return;
+                var encoder = new JpegBitmapEncoder
+                {
+                    QualityLevel = 100
+                };
+                byte[] bytes;
+                using (var stream = new MemoryStream())
+                {
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(stream);
+                    bytes = stream.ToArray();
+                    stream.Close();
+                }
+                MainPage.GetInstance().MainFrame.Navigate(ImageMessagePreview.GetInstance().Load(ImageWorker.BytesToBitmapImage(bytes), MessageTextBox.Text));
+            }
+        }
         public void LoadChat(PrivateChat privateChat)
         {
             if (privateChat is null)
@@ -85,8 +81,8 @@ namespace Vardone.Controls
             }
 
             CloseChat();
-            this.chat = privateChat;
-            if (this.chat.ChatId == -1) this.chat.ChatId = MainPage.Client.GetPrivateChatWithUser(privateChat.ToUser.UserId).ChatId;
+            Chat = privateChat;
+            if (Chat.ChatId == -1) Chat.ChatId = MainPage.Client.GetPrivateChatWithUser(privateChat.ToUser.UserId).ChatId;
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -132,7 +128,7 @@ namespace Vardone.Controls
             }
 
             CloseChat();
-            this.channel = openChannel;
+            Channel = openChannel;
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -140,7 +136,8 @@ namespace Vardone.Controls
                     PrivateChatHeader.Children.Add(new HeaderChannelNameItem(openChannel));
                     var me = MainPage.Client.GetMe().UserId;
                     var owner = MainPage.Client.GetGuilds()
-                        .FirstOrDefault(p => p.Channels.Any(p => p.ChannelId == openChannel.ChannelId))?.Owner?.User?.UserId;
+                        .FirstOrDefault(p => p.Channels.Any(channel1 => channel1.ChannelId == openChannel.ChannelId))
+                        ?.Owner?.User?.UserId;
                     var messages = MainPage.Client.GetChannelMessages(openChannel.ChannelId, 15).OrderBy(p => p.MessageId);
                     foreach (var message in messages)
                     {
@@ -157,8 +154,8 @@ namespace Vardone.Controls
         }
         public void CloseChat()
         {
-            chat = null;
-            channel = null;
+            Chat = null;
+            Channel = null;
             Application.Current.Dispatcher.Invoke(() =>
             {
                 PrivateChatHeader.Children.Clear();
@@ -167,13 +164,11 @@ namespace Vardone.Controls
             GC.Collect();
             MainWindow.FlushMemory();
         }
-
         public void UpdateMessages()
         {
-            if (chat is not null) LoadChat(chat);
-            if (channel is not null) LoadChat(channel);
+            if (Chat is not null) LoadChat(Chat);
+            if (Channel is not null) LoadChat(Channel);
         }
-
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Task.Run(() =>
@@ -181,14 +176,14 @@ namespace Vardone.Controls
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     if (ChatScrollViewer.VerticalOffset != 0) return;
-                    if (chat is null && channel is null) return;
+                    if (Chat is null && Channel is null) return;
                     if (ChatMessagesList.Children.Count == 0) return;
 
                     int numberAdded;
 
-                    if (chat is not null)
+                    if (Chat is not null)
                     {
-                        var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
+                        var list = MainPage.Client.GetPrivateMessagesFromChat(Chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
                         numberAdded = list.Length;
                         foreach (var message in list)
                         {
@@ -199,7 +194,7 @@ namespace Vardone.Controls
                     }
                     else
                     {
-                        var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
+                        var list = MainPage.Client.GetChannelMessages(Channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
                         numberAdded = list.Length;
                         foreach (var message in list)
                         {
@@ -225,7 +220,7 @@ namespace Vardone.Controls
         private void MessageBoxKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
-            if (channel is null && chat is null) return;
+            if (Channel is null && Chat is null) return;
             if (string.IsNullOrWhiteSpace(MessageTextBox.Text)) return;
             SendMessage(MessageTextBox.Text);
             MessageTextBox.Text = "";
@@ -233,7 +228,7 @@ namespace Vardone.Controls
         }
         private void ClipMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (chat is null && channel is null) return;
+            if (Chat is null && Channel is null) return;
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
@@ -244,36 +239,25 @@ namespace Vardone.Controls
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;
-            SendMessage(MessageTextBox.Text, File.ReadAllBytes(openFileDialog.FileName));
+
+            MainPage.GetInstance()
+                .MainFrame.Navigate(ImageMessagePreview.GetInstance()
+                    .Load(ImageWorker.BytesToBitmapImage(File.ReadAllBytes(openFileDialog.FileName)),
+                        MessageTextBox.Text));
 
             MessageTextBox.Clear();
         }
         public void SendMessage(string text, byte[] bytes = null)
         {
-            if (chat is not null)
+            var message = new MessageModel
             {
-                var message = new MessageModel
-                {
-                    Text = text,
-                };
+                Text = text,
+            };
+            if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
 
-                if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
-                MainPage.Client.SendPrivateMessage(chat.ToUser.UserId,
-                  message);
-                LoadChat(chat);
-            }
-            else
-            {
-
-                var message = new MessageModel
-                {
-                    Text = text,
-                };
-
-                if (bytes != null) message.Base64Image = Convert.ToBase64String(bytes);
-                MainPage.Client.SendChannelMessage(channel.ChannelId, message);
-                LoadChat(channel);
-            }
+            if (Chat is not null) MainPage.Client.SendPrivateMessage(Chat.ToUser.UserId, message);
+            else if (Channel is not null) MainPage.Client.SendChannelMessage(Channel.ChannelId, message);
+            UpdateMessages();
         }
     }
 }

@@ -14,8 +14,8 @@ namespace VardoneApi.Core
             {
                 using (var bmp1 = new Bitmap(stream))
                 {
-                    var jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-
+                    var encoder = GetEncoder(ImageFormat.Png.Equals(bmp1.RawFormat) ? ImageFormat.Png : ImageFormat.Jpeg);
+                   
                     var myEncoderParameters = new EncoderParameters(1);
 
                     var myEncoderParameter = new EncoderParameter(Encoder.Quality, quality);
@@ -23,13 +23,13 @@ namespace VardoneApi.Core
 
                     using (var s = new MemoryStream())
                     {
-                        bmp1.Save(s, jpgEncoder, myEncoderParameters);
+                        bmp1.Save(s, encoder, myEncoderParameters);
                         return s.ToArray();
                     }
                 }
             }
         }
-
+        
         private static ImageCodecInfo GetEncoder(ImageFormat format) => ImageCodecInfo.GetImageEncoders().FirstOrDefault(codec => codec.FormatID == format.Guid);
     }
 }
