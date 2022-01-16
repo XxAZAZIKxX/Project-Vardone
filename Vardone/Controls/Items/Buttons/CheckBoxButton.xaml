@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Vardone.Controls.Items.Buttons.CheckBoxButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             Height="20" Width="40">
+    <Grid MouseLeftButtonDown="ChangeCheckBoxClick">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border x:Name="Border" Grid.ColumnSpan="2" Width="35" Height="7" Background="DarkGray" CornerRadius="3"/>
+        <Ellipse x:Name="CircleUnActive" Grid.Column="0" Height="15" Width="15" Fill="Gray" />
+        <Ellipse x:Name="CircleActive" Visibility="Collapsed" Grid.Column="1" Height="15" Width="15" Fill="Gray" />
+    </Grid>
+</UserControl>

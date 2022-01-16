@@ -51,13 +51,13 @@
                     <TextBlock Foreground="Azure"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontWeight="UltraBlack"
-                               Text="WELCOME" />
+                               Text="Добро пожаловать" />
                 </Viewbox>
                 <!--Username-->
                 <TextBox x:Name="TbLoginPlaceholder" Grid.Column="1" Grid.Row="3"
                          Background="#FF1B1B1D" TabIndex="-1"
                          HorizontalContentAlignment="Center"
-                         Text="Username"
+                         Text="Имя пользователя"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TbLogin" Grid.Column="1" Grid.Row="3"
@@ -74,7 +74,7 @@
                 <TextBox x:Name="TbEmailPlaceholder" Grid.Column="1" Grid.Row="5"
                          Background="#FF1B1B1D" TabIndex="-1"
                          HorizontalContentAlignment="Center"
-                         Text="Email"
+                         Text="Почта"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <TextBox x:Name="TbEmail" Grid.Column="1" Grid.Row="5"
@@ -91,7 +91,7 @@
                 <TextBox x:Name="PbPasswordPlaceholder" Grid.Column="1" Grid.Row="7"
                          Background="#FF1B1B1D" TabIndex="-1"
                          HorizontalContentAlignment="Center"
-                         Text="Password"
+                         Text="Пароль"
                          VerticalContentAlignment="Center"
                          Foreground="Gray" />
                 <PasswordBox KeyDown="PbPassword_OnKeyDown" TabIndex="3" x:Name="PbPassword" Grid.Column="1"
@@ -104,15 +104,14 @@
                              VerticalContentAlignment="Center"
                              Foreground="Azure" />
 
-                <Button Content="Sign Up" Foreground="azure"
+                <Button Content="Зарегистрироваться" Foreground="azure"
                         Grid.Column="1" Grid.Row="9" FontWeight="Bold" Click="RegisterBtnClick"
                         Background="DimGray" Template="{StaticResource ButtonGo}" />
                 <Viewbox Grid.Row="10" Grid.Column="1">
                     <Label VerticalAlignment="Center" FontSize="2">
                         <Hyperlink Name="Hyplin" Click="Hlmd" MouseEnter="Hlme" MouseLeave="Hlml"
                                    FontWeight="Bold" Foreground="#34ebe5">
-
-                            Sign in
+                            Войти
                         </Hyperlink>
                     </Label>
                 </Viewbox>

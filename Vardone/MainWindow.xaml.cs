@@ -71,7 +71,7 @@ namespace Vardone
         }
         private void TryLogin()
         {
-            var token = JsonTokenWorker.GetToken();
+            var token = ConfigWorker.GetToken();
             if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
             else
             {
@@ -81,7 +81,7 @@ namespace Vardone
         }
         public void LoadApp(VardoneClient client)
         {
-            JsonTokenWorker.SetToken(client.Token);
+            ConfigWorker.SetToken(client.Token);
             MainFrame.Navigate(MainPage.GetInstance().Load(client));
         }
         private void CloseApp()
@@ -98,8 +98,10 @@ namespace Vardone
         }
         private void TrayOpenClick(object sender, EventArgs e)
         {
-            Focus();
             Show();
+            Focus();
+            Topmost = true;
+            Topmost = false;
             ShowInTaskbar = true;
         }
         private void TrayCloseClick(object sender, EventArgs e)
@@ -109,8 +111,7 @@ namespace Vardone
         }
         private void CloseBtnClick(object sender, RoutedEventArgs e)
         {
-            ShowInTaskbar = false;
-            Hide();
+            HideAppInTaskbar();
             notificationManager.Show(new NotificationContent
             {
                 Title = "Vardone был свернут в трей",
@@ -118,6 +119,12 @@ namespace Vardone
                 Type = NotificationType.Information
             }, "", TimeSpan.FromSeconds(5), () => TrayOpenClick(null, null));
             FlushMemory();
+        }
+
+        public void HideAppInTaskbar()
+        {
+            ShowInTaskbar = false;
+            Hide();
         }
 
         //Resize controls
@@ -225,28 +232,15 @@ namespace Vardone
         }
         private void Thumbs()
         {
-            if (_maximized)
-            {
-                ThumbBottom.Visibility = Visibility.Collapsed;
-                ThumbLeft.Visibility = Visibility.Collapsed;
-                ThumbTop.Visibility = Visibility.Collapsed;
-                ThumbRight.Visibility = Visibility.Collapsed;
-                ThumbTopLeftCorner.Visibility = Visibility.Collapsed;
-                ThumbTopRightCorner.Visibility = Visibility.Collapsed;
-                ThumbBottomLeftCorner.Visibility = Visibility.Collapsed;
-                ThumbBottomRightCorner.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                ThumbBottom.Visibility = Visibility.Visible;
-                ThumbLeft.Visibility = Visibility.Visible;
-                ThumbTop.Visibility = Visibility.Visible;
-                ThumbRight.Visibility = Visibility.Visible;
-                ThumbTopLeftCorner.Visibility = Visibility.Visible;
-                ThumbTopRightCorner.Visibility = Visibility.Visible;
-                ThumbBottomLeftCorner.Visibility = Visibility.Visible;
-                ThumbBottomRightCorner.Visibility = Visibility.Visible;
-            }
+            var visibility = _maximized ? Visibility.Collapsed : Visibility.Visible;
+            ThumbBottom.Visibility = visibility;
+            ThumbLeft.Visibility = visibility;
+            ThumbTop.Visibility = visibility;
+            ThumbRight.Visibility = visibility;
+            ThumbTopLeftCorner.Visibility = visibility;
+            ThumbTopRightCorner.Visibility = visibility;
+            ThumbBottomLeftCorner.Visibility = visibility;
+            ThumbBottomRightCorner.Visibility = visibility;
         }
     }
 }

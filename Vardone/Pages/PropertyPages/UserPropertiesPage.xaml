@@ -171,6 +171,13 @@
                                          VerticalAlignment="Top"  />
                         </Grid>
                     </StackPanel>
+                    <!--Start Preferences-->
+                    <StackPanel>
+                        <Label Foreground="WhiteSmoke"
+                               FontWeight="Light" Opacity="0.7"
+                               FontSize="20" Content="Настройки запуска" />
+                        <StackPanel x:Name="StartPreferencesSp"/>
+                    </StackPanel>
                     <!--Addition-->
                     <StackPanel>
                         <Label Foreground="WhiteSmoke"

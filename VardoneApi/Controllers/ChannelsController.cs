@@ -9,7 +9,6 @@ using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Channels;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
@@ -39,7 +38,7 @@ namespace VardoneApi.Controllers
                     var guilds = dataContext.Guilds;
                     var channels = dataContext.Channels;
                     var guild = guilds.First(p => p.Id == guildId);
-                    channels.Add(new ChannelsTable { Name = name ?? "New channel", Guild = guild });
+                    channels.Add(new ChannelsTable { Name = string.IsNullOrWhiteSpace(name) ? "New channel" : name, Guild = guild });
                     dataContext.SaveChanges();
                 }
                 catch (Exception e)
@@ -65,7 +64,6 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
                 if (!ChannelChecks.IsChannelExists(channelId)) return BadRequest("Channel is not exists");
-
                 try
                 {
                     var dataContext = Program.DataContext;
@@ -74,7 +72,7 @@ namespace VardoneApi.Controllers
                     channels.Include(p => p.Guild.Owner).Load();
 
                     var channel = channels.First(p => p.Id == channelId);
-                    if (channel.Guild.Owner.Id != userId) return BadRequest();
+                    if (channel.Guild.Owner.Id != userId) return BadRequest("You are not the guild owner");
 
                     channels.Remove(channel);
                     dataContext.SaveChanges();
@@ -113,11 +111,46 @@ namespace VardoneApi.Controllers
                     var channel = channels.First(p => p.Id == updateChannelModel.ChannelId);
                     if (channel.Guild.Owner.Id != userId) return BadRequest("You are not owner");
 
-                    channel.Name = updateChannelModel.Name ?? channel.Name;
+                    channel.Name = string.IsNullOrWhiteSpace(updateChannelModel.Name) ? channel.Name : updateChannelModel.Name;
                     channels.Update(channel);
 
                     dataContext.SaveChanges();
                     return Ok("Updated");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getChannel")]
+        public async Task<IActionResult> GetChannel([FromQuery] long channelId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Token invalid");
+                }
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var channels = dataContext.Channels;
+                    channels.Include(p => p.Guild).Load();
+                    channels.Include(p => p.Guild.Info).Load();
+                    channels.Include(p => p.Guild.Owner).Load();
+                    channels.Include(p => p.Guild.Owner.Info).Load();
+
+                    var channel = channels.FirstOrDefault(p => p.Id == channelId);
+                    if (channel is null) return BadRequest("Channel is not exists");
+                    if (!GuildChecks.IsUserMember(token.UserId, channel.Guild.Id))
+                        return BadRequest("You are not a member");
+
+                    return Ok(GuildCreateHelper.GetChannel(channel, onlyId));
                 }
                 catch (Exception e)
                 {
@@ -159,14 +192,17 @@ namespace VardoneApi.Controllers
 
                     if (!guildMembers.Any(p => p.User.Id == userId && p.Guild == guild)) return BadRequest("You are not member this guild");
 
-                    channelMessages.Add(new ChannelMessagesTable
+                    var messageTable = new ChannelMessagesTable
                     {
                         Author = users.First(p => p.Id == userId),
                         Channel = channel,
                         CreatedTime = DateTime.Now,
-                        Image = message.Base64Image is not null ? Convert.FromBase64String(message.Base64Image) : null,
+                        Image = message.Base64Image is not null
+                            ? ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image), 70)
+                            : null,
                         Text = message.Text ?? ""
-                    });
+                    };
+                    channelMessages.Add(messageTable);
 
                     dataContext.SaveChanges();
                     return Ok("Message was sent");
@@ -179,7 +215,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessages")]
-        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] bool read = true, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
+        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -223,18 +259,65 @@ namespace VardoneApi.Controllers
                         var item = new ChannelMessage
                         {
                             MessageId = m.Id,
-                            CreatedTime = m.CreatedTime,
-                            Author = UserCreateHelper.GetUser(m.Author),
-                            Channel = GuildCreateHelper.GetChannel(m.Channel)
+                            Author = UserCreateHelper.GetUser(m.Author, true),
+                            Channel = GuildCreateHelper.GetChannel(m.Channel, true)
                         };
-                        if (read)
+                        if (!onlyId)
                         {
                             item.Text = m.Text;
                             item.Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null;
                         }
+
                         returnMessages.Add(item);
                     }
-                    return Ok(returnMessages);
+                    return Ok(returnMessages.ToArray());
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getChannelMessage")]
+        public async Task<IActionResult> GetChannelMessage([FromQuery] long messageId, [FromHeader] bool onlyId)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Token invalid");
+                }
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var channelMessages = dataContext.ChannelMessages;
+                    channelMessages.Include(p => p.Channel).Load();
+                    channelMessages.Include(p => p.Channel.Guild).Load();
+                    channelMessages.Include(p => p.Channel.Guild.Info).Load();
+
+                    var message = channelMessages.FirstOrDefault(p => p.Id == messageId);
+                    if (message is null) return BadRequest("Message is not exists");
+                    if (!GuildChecks.IsUserMember(token.UserId, message.Channel.Guild.Id))
+                        return BadRequest("You are not a member");
+
+                    var returnMessage = new ChannelMessage
+                    {
+                        MessageId = message.Id,
+                        Channel = GuildCreateHelper.GetChannel(message.Channel, onlyId),
+                        Author = UserCreateHelper.GetUser(message.Author, true),
+                        CreatedTime = message.CreatedTime
+                    };
+                    if (!onlyId)
+                    {
+                        returnMessage.Base64Image = message.Image is null ? null : Convert.ToBase64String(message.Image);
+                        returnMessage.Text = message.Text;
+                    }
+
+                    return Ok(returnMessage);
                 }
                 catch (Exception e)
                 {

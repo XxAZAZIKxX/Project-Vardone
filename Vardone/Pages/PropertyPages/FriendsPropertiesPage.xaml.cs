@@ -21,6 +21,7 @@ namespace Vardone.Pages.PropertyPages
         {
             LoadIncomingRequests();
             LoadOutgoingRequests();
+            AddFriendTab.IsSelected = true;
             return this;
         }
 

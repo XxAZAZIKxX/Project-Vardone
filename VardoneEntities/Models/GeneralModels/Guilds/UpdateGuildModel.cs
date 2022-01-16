@@ -2,14 +2,19 @@
 
 namespace VardoneEntities.Models.GeneralModels.Guilds
 {
-    public class UpdateGuildModel
+    public record UpdateGuildModel
     {
         public long GuildId { get; set; }
-        public string Name { get; set; } = null;
+        public string Name { get; set; }
         private string _base64Image;
         public string Base64Image
         {
-            get => _base64Image;
+            get
+            {
+                if (_base64Image is not null && Convert.TryFromBase64String(_base64Image, new Span<byte>(new byte[_base64Image.Length]), out _))
+                    return _base64Image;
+                return null;
+            }
             set
             {
                 if (value is not null && Convert.TryFromBase64String(value, new Span<byte>(new byte[value.Length]), out _))

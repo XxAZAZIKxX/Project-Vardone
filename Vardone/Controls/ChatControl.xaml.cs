@@ -76,22 +76,23 @@ namespace Vardone.Controls
         public PrivateChat chat;
         public Channel channel;
 
-        public void LoadChat(PrivateChat chat)
+        public void LoadChat(PrivateChat privateChat)
         {
-            if (chat is null)
+            if (privateChat is null)
             {
                 CloseChat();
                 return;
             }
 
             CloseChat();
-            this.chat = chat;
-            if (this.chat.ChatId == -1) this.chat.ChatId = MainPage.Client.GetPrivateChatWithUser(chat.ToUser.UserId).ChatId;
+            this.chat = privateChat;
+            if (this.chat.ChatId == -1) this.chat.ChatId = MainPage.Client.GetPrivateChatWithUser(privateChat.ToUser.UserId).ChatId;
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var user = MainPage.Client.GetUser(chat.ToUser.UserId);
+                    var user = MainPage.Client.GetUser(privateChat.ToUser.UserId);
+                    var me = MainPage.Client.GetMe().UserId;
                     var userHeader = new UserItem(user, UserItemType.Profile)
                     {
                         VerticalAlignment = VerticalAlignment.Center,
@@ -100,9 +101,12 @@ namespace Vardone.Controls
                     var onlineUser = MainPage.Client.GetOnlineUser(user.UserId);
                     userHeader.SetStatus(onlineUser);
                     PrivateChatHeader.Children.Add(userHeader);
-                    foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 15).OrderBy(p => p.MessageId))
+                    foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(privateChat.ChatId, 15).OrderBy(p => p.MessageId))
                     {
-                        var messageItem = new MessageItem(message);
+                        var mode = message.Author.UserId == me
+                            ? MessageItem.DeleteMode.CanDelete
+                            : MessageItem.DeleteMode.CannotDelete;
+                        var messageItem = new MessageItem(message, mode);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
                         ChatMessagesList.Children.Add(messageItem);
                     }
@@ -119,23 +123,33 @@ namespace Vardone.Controls
                 });
             });
         }
-        public void LoadChat(Channel channel)
+        public void LoadChat(Channel openChannel)
         {
-            if (channel is null)
+            if (openChannel is null)
             {
                 CloseChat();
                 return;
             }
 
             CloseChat();
-            this.channel = channel;
+            this.channel = openChannel;
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    PrivateChatHeader.Children.Add(new HeaderChannelNameItem(channel));
-                    var messages = MainPage.Client.GetChannelMessages(channel.ChannelId, 15).OrderBy(p => p.MessageId);
-                    foreach (var message in messages) ChatMessagesList.Children.Add(new MessageItem(message));
+                    PrivateChatHeader.Children.Add(new HeaderChannelNameItem(openChannel));
+                    var me = MainPage.Client.GetMe().UserId;
+                    var owner = MainPage.Client.GetGuilds()
+                        .FirstOrDefault(p => p.Channels.Any(p => p.ChannelId == openChannel.ChannelId))?.Owner?.User?.UserId;
+                    var messages = MainPage.Client.GetChannelMessages(openChannel.ChannelId, 15).OrderBy(p => p.MessageId);
+                    foreach (var message in messages)
+                    {
+                        var mode = message.Author.UserId == me || me == owner
+                            ? MessageItem.DeleteMode.CanDelete
+                            : MessageItem.DeleteMode.CannotDelete;
+                        ChatMessagesList.Children.Add(new MessageItem(message, mode));
+                    }
+
                     ChatScrollViewer.ScrollToEnd();
 
                 });
@@ -150,7 +164,16 @@ namespace Vardone.Controls
                 PrivateChatHeader.Children.Clear();
                 ChatMessagesList.Children.Clear();
             });
+            GC.Collect();
+            MainWindow.FlushMemory();
         }
+
+        public void UpdateMessages()
+        {
+            if (chat is not null) LoadChat(chat);
+            if (channel is not null) LoadChat(channel);
+        }
+
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Task.Run(() =>
@@ -161,12 +184,12 @@ namespace Vardone.Controls
                     if (chat is null && channel is null) return;
                     if (ChatMessagesList.Children.Count == 0) return;
 
-                    var numberAdded = 0;
+                    int numberAdded;
 
                     if (chat is not null)
                     {
                         var list = MainPage.Client.GetPrivateMessagesFromChat(chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
-                        numberAdded = list.Count;
+                        numberAdded = list.Length;
                         foreach (var message in list)
                         {
                             var messageItem = new MessageItem(message);
@@ -177,7 +200,7 @@ namespace Vardone.Controls
                     else
                     {
                         var list = MainPage.Client.GetChannelMessages(channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
-                        numberAdded = list.Count;
+                        numberAdded = list.Length;
                         foreach (var message in list)
                         {
                             var messageItem = new MessageItem(message);
@@ -214,7 +237,9 @@ namespace Vardone.Controls
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
-                Multiselect = false
+                Multiselect = false,
+                CheckFileExists = true,
+                Title = "Отправить изображение"
             };
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;

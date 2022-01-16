@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace VardoneApi.Core.Checks
 {
-    public abstract class InviteChecks
+    internal static class InviteChecks
     {
         public static bool IsInviteExists(string inviteCode)
         {

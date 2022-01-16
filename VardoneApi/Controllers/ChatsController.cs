@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
+using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.PrivateChats;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -17,8 +17,58 @@ namespace VardoneApi.Controllers
     [ApiController, Route("[controller]"), Authorize]
     public class ChatsController : ControllerBase
     {
+        [HttpPost, Route("getPrivateChat")]
+        public async Task<IActionResult> GetPrivateChat([FromQuery] long chatId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanManageChat(token.UserId, chatId))
+                    return BadRequest("You are not allowed to get this");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateChats = dataContext.PrivateChats;
+                    privateChats.Include(p => p.FromUser).Load();
+                    privateChats.Include(p => p.ToUser).Load();
+                    var messages = dataContext.PrivateMessages;
+                    messages.Include(p => p.Chat).Load();
+                    messages.Include(p => p.Author).Load();
+
+                    var chat = privateChats.FirstOrDefault(p => p.Id == chatId);
+                    if (chat is null) return BadRequest("Chat is not exists");
+
+                    var user1 = chat.FromUser.Id == token.UserId ? chat.FromUser : chat.ToUser;
+                    var user2 = chat.FromUser.Id != token.UserId ? chat.FromUser : chat.ToUser;
+                    var lastReadTime = chat.FromUser.Id == user1.Id ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
+
+                    var chatReturn = new PrivateChat
+                    {
+                        ChatId = chatId,
+                        FromUser = UserCreateHelper.GetUser(user1, onlyId),
+                        ToUser = UserCreateHelper.GetUser(user2, onlyId),
+                        UnreadMessages = messages.Count(p => p.Chat.Id == chat.Id && p.Author.Id != user1.Id && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
+                    };
+                    return Ok(chatReturn);
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
         [HttpPost, Route("getPrivateChatWithUser")]
-        public async Task<IActionResult> GetPrivateChatWithUser([FromQuery] long secondId)
+        public async Task<IActionResult> GetPrivateChatWithUser([FromQuery] long secondId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -48,23 +98,13 @@ namespace VardoneApi.Controllers
                     var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
                     var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
                     var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
+
+
                     var privateChat = new PrivateChat
                     {
                         ChatId = chat.Id,
-                        FromUser = new User
-                        {
-                            UserId = user1.Id,
-                            Username = user1.Username,
-                            Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
-                            Description = user1.Info?.Description
-                        },
-                        ToUser = new User
-                        {
-                            UserId = user2.Id,
-                            Username = user2.Username,
-                            Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
-                            Description = user2.Info?.Description
-                        },
+                        FromUser = UserCreateHelper.GetUser(user1, onlyId),
+                        ToUser = UserCreateHelper.GetUser(user2, onlyId),
                         UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
                     };
                     return Ok(privateChat);
@@ -85,20 +125,8 @@ namespace VardoneApi.Controllers
                         var chat = new PrivateChat
                         {
                             ChatId = newChat.Id,
-                            FromUser = new User
-                            {
-                                UserId = newChat.FromUser.Id,
-                                Username = newChat.FromUser.Username,
-                                Base64Avatar = newChat.FromUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.FromUser.Info.Avatar),
-                                Description = newChat.FromUser.Info?.Description
-                            },
-                            ToUser = new User
-                            {
-                                UserId = newChat.ToUser.Id,
-                                Username = newChat.ToUser.Username,
-                                Base64Avatar = newChat.ToUser.Info?.Avatar == null ? null : Convert.ToBase64String(newChat.ToUser.Info.Avatar),
-                                Description = newChat.ToUser.Info?.Description
-                            }
+                            FromUser = UserCreateHelper.GetUser(newChat.FromUser, onlyId),
+                            ToUser = UserCreateHelper.GetUser(newChat.ToUser, onlyId)
                         };
                         return Ok(chat);
                     }
@@ -111,7 +139,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChatMessages")]
-        public async Task<IActionResult> GetPrivateChatMessages([FromQuery] long chatId, [FromQuery] bool read = true, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
+        public async Task<IActionResult> GetPrivateChatMessages([FromQuery] long chatId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -146,7 +174,7 @@ namespace VardoneApi.Controllers
                         var messages = new List<PrivateMessage>();
                         var chat = privateChats.First(p => p.Id == chatId);
 
-                        if (read)
+                        if (!onlyId)
                         {
                             if (chat.FromUser.Id == userId) chat.FromLastReadTimeMessages = DateTime.Now;
                             else chat.ToLastReadTimeMessages = DateTime.Now;
@@ -159,51 +187,105 @@ namespace VardoneApi.Controllers
                         if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
                         foreach (var message in selectedMessages)
                         {
-                            var user1 = message.Chat.FromUser.Id == userId ? message.Chat.FromUser : message.Chat.ToUser;
-                            var user2 = message.Chat.FromUser.Id != userId ? message.Chat.FromUser : message.Chat.ToUser;
                             var item = new PrivateMessage
                             {
                                 MessageId = message.Id,
-                                Chat = new PrivateChat
-                                {
-                                    ChatId = chat.Id,
-                                    FromUser = new User
-                                    {
-                                        UserId = user1.Id,
-                                        Username = user1.Username,
-                                        Base64Avatar = user1.Info?.Avatar == null ? null : Convert.ToBase64String(user1.Info.Avatar),
-                                        Description = user1.Info?.Description
-                                    },
-                                    ToUser = new User
-                                    {
-                                        UserId = user2.Id,
-                                        Username = user2.Username,
-                                        Base64Avatar = user2.Info?.Avatar == null ? null : Convert.ToBase64String(user2.Info.Avatar),
-                                        Description = user2.Info?.Description
-                                    }
-                                },
-                                Author = new User
-                                {
-                                    UserId = message.Author.Id,
-                                    Username = message.Author.Username,
-                                    Base64Avatar = message.Author.Info?.Avatar == null ? null : Convert.ToBase64String(message.Author.Info.Avatar),
-                                    Description = message.Author.Info?.Description
-                                },
+                                Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, userId),
+                                Author = UserCreateHelper.GetUser(message.Author, onlyId),
                                 CreatedTime = message.CreatedTime
                             };
-                            if (read)
+                            if (!onlyId)
                             {
                                 item.Text = message.Text;
                                 item.Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image);
                             }
+
                             messages.Add(item);
                         }
-                        return Ok(messages);
+                        return Ok(messages.ToArray());
                     }
                     catch
                     {
-                        return Ok(new List<PrivateMessage>(0));
+                        return Ok(new List<PrivateMessage>(0).ToArray());
                     }
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getPrivateChatMessage")]
+        public async Task<IActionResult> GetPrivateMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Token invalid");
+                }
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateMessages = dataContext.PrivateMessages;
+                    privateMessages.Include(p => p.Author).Load();
+                    privateMessages.Include(p => p.Chat).Load();
+
+                    var message = privateMessages.FirstOrDefault(p => p.Id == messageId);
+                    if (message is null) return BadRequest("Message is not exists");
+
+                    if (!PrivateChatChecks.IsCanManageChat(token.UserId, message.Chat.Id))
+                        return BadRequest("You are not allowed to do this");
+
+                    var returnMessage = new PrivateMessage
+                    {
+                        MessageId = message.Id,
+                        Author = UserCreateHelper.GetUser(message.Author, onlyId),
+                        Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, token.UserId),
+                        CreatedTime = message.CreatedTime
+                    };
+                    if (!onlyId)
+                    {
+                        returnMessage.Text = message.Text;
+                        returnMessage.Base64Image = message.Image is null ? null : Convert.ToBase64String(message.Image);
+                    }
+
+                    return Ok(returnMessage);
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+        //
+        [HttpPost, Route("getLastDeleteMessageTime")]
+        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long chatId)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = TokenParserWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                var userId = token.UserId;
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
+                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
+
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var privateChats = dataContext.PrivateChats;
+                    var chat = privateChats.First(p => p.Id == chatId);
+                    return chat.LastDeleteMessageTime is not null ? Ok(chat.LastDeleteMessageTime) : Ok();
                 }
                 catch (Exception e)
                 {
@@ -226,6 +308,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
                 if (message == null) return BadRequest("Empty message");
+                if (message.Text.Length > 255) return BadRequest("<#!> Сообщение больше чем 255 символов!");
 
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest();
                 if (!PrivateChatChecks.IsCanWriteMessage(userId, secondId)) return BadRequest("You should be friends");
@@ -263,7 +346,10 @@ namespace VardoneApi.Controllers
                         Chat = chat,
                         Author = user1,
                         Text = message.Text ?? "",
-                        Image = message.Base64Image == null ? null : Convert.FromBase64String(message.Base64Image),
+                        Image = message.Base64Image is null
+                            ? null
+                            : ImageCompressionWorker.VaryQualityLevel(Convert.FromBase64String(message.Base64Image),
+                                70),
                         CreatedTime = DateTime.Now
                     };
                     messages.Add(newMessage);
@@ -338,37 +424,6 @@ namespace VardoneApi.Controllers
                     messages.Remove(message);
                     dataContext.SaveChanges();
                     return Ok("Deleted");
-                }
-                catch (Exception e)
-                {
-                    return Problem(e.Message);
-                }
-            }));
-        }
-        //
-        [HttpPost, Route("getLastDeleteMessageTime")]
-        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long chatId)
-        {
-            return await Task.Run(new Func<IActionResult>(() =>
-            {
-                var token = TokenParserWorker.GetUserToken(User);
-                if (token is null) return BadRequest("Token parser problem");
-                var userId = token.UserId;
-                if (!UserChecks.CheckToken(token))
-                {
-                    Response.Headers.Add("Token-Invalid", "true");
-                    return Unauthorized("Invalid token");
-                }
-
-                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
-
-                try
-                {
-                    var dataContext = Program.DataContext;
-                    var privateChats = dataContext.PrivateChats;
-                    var chat = privateChats.First(p => p.Id == chatId);
-                    return chat.LastDeleteMessageTime is not null ? Ok(chat.LastDeleteMessageTime) : new EmptyResult();
                 }
                 catch (Exception e)
                 {

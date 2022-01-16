@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace VardoneApi
+namespace VardoneApi.Config
 {
-    public static class TokenOptions
+    internal static class TokenOptions
     {
         public const string ISSUER = "VardoneApi_C#";
         public const string AUDIENCE = "Vardone_WPF";

@@ -3,44 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VardoneApi.Core.Checks
 {
-    public abstract class PrivateChatChecks
+    internal static class PrivateChatChecks
     {
         public static bool IsChatExists(long idFirstUser, long idSecondUser)
         {
-            var dataContext = Program.DataContext;
-            var chats = dataContext.PrivateChats;
+            var chats = Program.DataContext.PrivateChats;
             chats.Include(p => p.FromUser).Load();
             chats.Include(p => p.ToUser).Load();
-            try
-            {
-                var _ = chats.First(p =>
-                   p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser ||
-                   p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return chats.Any(p => p.FromUser.Id == idFirstUser && p.ToUser.Id == idSecondUser || p.FromUser.Id == idSecondUser && p.ToUser.Id == idFirstUser);
         }
-        public static bool IsChatExists(long chatId)
-        {
-            var dataContext = Program.DataContext;
-            var chats = dataContext.PrivateChats;
-            try
-            {
-                var _ = chats.First(p => p.Id == chatId);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        public static bool IsChatExists(long chatId) => Program.DataContext.PrivateChats.Any(p => p.Id == chatId);
 
-        public static bool IsCanWriteMessage(long idFirstUser, long idSecondUser) =>
-            UserChecks.IsFriends(idFirstUser, idSecondUser) ||
-            UserChecks.DoUsersHaveSharedGuilds(idFirstUser, idSecondUser);
+        public static bool IsCanWriteMessage(long idFirstUser, long idSecondUser) => UserChecks.IsFriends(idFirstUser, idSecondUser) || UserChecks.DoUsersHaveSharedGuilds(idFirstUser, idSecondUser);
 
         public static bool IsCanManageChat(long userId, long chatId)
         {

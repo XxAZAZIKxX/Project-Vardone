@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Notifications.Wpf;
+using Vardone.Controls.Items;
 using Vardone.Core;
 using VardoneEntities.Models.GeneralModels.Users;
 using Application = System.Windows.Application;
@@ -29,8 +32,11 @@ namespace Vardone.Pages.PropertyPages
                 AvatarImage.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
                 UsernameLabel.Content = user.Username;
                 UsernameTb.Text = user.Username;
-                EmailTb.Text = user.Email;
-                DescTb.Text = user.Description ?? "Description";
+                EmailTb.Text = user.AdditionalInformation.Email;
+                DescTb.Text = user.Description ?? "Описание";
+                StartPreferencesSp.Children.Clear();
+                StartPreferencesSp.Children.Add(new CheckBoxItem("Автозапуск", ConfigWorker.GetAutostart(), ConfigWorker.SetAutostart));
+                StartPreferencesSp.Children.Add(new CheckBoxItem("Запускать свернутым", ConfigWorker.GetStartMinimized(), ConfigWorker.SetStartMinimized));
             });
             return this;
         }
@@ -53,10 +59,19 @@ namespace Vardone.Pages.PropertyPages
 
                 try
                 {
+                    var previousPasswordHash = new StringBuilder();
+                    var newPasswordHash = new StringBuilder();
+                    using (var sha512 = SHA512.Create())
+                    {
+                        var computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(PasswordBox1.Password));
+                        foreach (var b in computeHash) previousPasswordHash.Append(b.ToString("X"));
+                        computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(PasswordBox2.Password));
+                        foreach (var b in computeHash) newPasswordHash.Append(b.ToString("X"));
+                    }
                     MainPage.Client.UpdatePassword(new UpdatePasswordModel
                     {
-                        PreviousPassword = PasswordBox1.Password,
-                        NewPassword = PasswordBox2.Password
+                        PreviousPasswordHash = previousPasswordHash.ToString(),
+                        NewPasswordHash = newPasswordHash.ToString()
                     });
                     PasswordButton_CancelClick(null, null);
                     return;
@@ -156,7 +171,12 @@ namespace Vardone.Pages.PropertyPages
 
         private void Change_Avatar(object sender, MouseButtonEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog { Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg", Multiselect = false };
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Изображение .png|*.png|Изображение .jpg|*.jpg",
+                Multiselect = false,
+                Title = "Сменить аватар"
+            };
             var dialogResult = openFileDialog.ShowDialog();
             if (dialogResult != DialogResult.OK) return;
             if (!openFileDialog.CheckFileExists) return;

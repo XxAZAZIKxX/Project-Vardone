@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Config;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Users;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneApi.Controllers
@@ -129,7 +130,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getFriends")]
-        public async Task<IActionResult> GetFriends()
+        public async Task<IActionResult> GetFriends([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -151,11 +152,10 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.FromUser.Info).Load();
                     friendsList.Include(p => p.ToUser.Info).Load();
                     var users = new List<User>();
-                    foreach (var row in friendsList.Where(p =>
-                        (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
+                    foreach (var row in friendsList.Where(p => (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
                     {
                         var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
-                        users.Add(UserCreateHelper.GetUser(friend));
+                        users.Add(UserCreateHelper.GetUser(friend, onlyId));
                     }
 
                     return Ok(users);
@@ -168,7 +168,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getIncomingFriendRequests")]
-        public async Task<IActionResult> GetIncomingFriendRequests()
+        public async Task<IActionResult> GetIncomingFriendRequests([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -189,17 +189,11 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.ToUser).Load();
                     friendsList.Include(p => p.FromUser.Info).Load();
                     var users = new List<User>();
-                    try
+                    foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                     {
-                        foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
-                        {
-                            users.Add(UserCreateHelper.GetUser(row.FromUser));
-                        }
+                        users.Add(UserCreateHelper.GetUser(row.FromUser, onlyId));
                     }
-                    catch
-                    {
-                        // ignored
-                    }
+
 
                     return Ok(users);
                 }
@@ -211,7 +205,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getOutgoingFriendRequests")]
-        public async Task<IActionResult> GetOutgoingFriendRequests()
+        public async Task<IActionResult> GetOutgoingFriendRequests([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -232,16 +226,9 @@ namespace VardoneApi.Controllers
                     friendsList.Include(p => p.ToUser).Load();
                     friendsList.Include(p => p.ToUser.Info).Load();
                     var users = new List<User>();
-                    try
+                    foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
                     {
-                        foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
-                        {
-                            users.Add(UserCreateHelper.GetUser(row.ToUser));
-                        }
-                    }
-                    catch
-                    {
-                        // ignored
+                        users.Add(UserCreateHelper.GetUser(row.ToUser, onlyId));
                     }
 
                     return Ok(users);
@@ -254,7 +241,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getMe")]
-        public async Task<IActionResult> GetMe()
+        public async Task<IActionResult> GetMe([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -272,15 +259,46 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     dataContext.Users.Include(p => p.Info).Load();
+                    var puss = dataContext.PrivateUserSalts;
+                    puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
-                    return Ok(new User
+                    var pus = puss.First(p => p.User.Id == user.Id).Pus;
+                    
+                    var returnUser = new User
                     {
                         UserId = user.Id,
-                        Username = user.Username,
-                        Email = user.Email,
-                        Description = user.Info?.Description,
-                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
-                    });
+                        Username = user.Username
+                    };
+                    if (!onlyId)
+                    {
+                        var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                        var fullName = user.Info?.FullName is null
+                            ? null
+                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
+
+                        var phone = user.Info?.Phone is null
+                            ? null
+                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
+
+                        DateTime? birthDate = user.Info?.BirthDate is null
+                            ? null
+                            : DateTime.FromBinary(Convert.ToInt64(CryptographyTools.DecryptStringFromBytes_Aes(
+                                Convert.FromBase64String(user.Info?.BirthDate),
+                                byteKey,
+                                PasswordOptions.IV)));
+                        returnUser.Description = user.Info?.Description;
+                        returnUser.Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar);
+                        returnUser.AdditionalInformation = new AdditionalUserInformation
+                        {
+                            Email = user.Email,
+                            FullName = fullName,
+                            Phone = phone,
+                            BirthDate = birthDate
+                        };
+                    }
+
+                    return Ok(returnUser);
                 }
                 catch (Exception e)
                 {
@@ -303,7 +321,7 @@ namespace VardoneApi.Controllers
                     return Unauthorized("Invalid token");
                 }
 
-                if (!UserChecks.IsUserExists(secondId)) return BadRequest("BannedUser does not exist");
+                if (!UserChecks.IsUserExists(secondId)) return BadRequest("User does not exist");
                 if (!UserChecks.CanGetUser(userId, secondId)) return BadRequest("You not allowed to do this");
                 try
                 {
@@ -361,7 +379,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuilds")]
-        public async Task<IActionResult> GetGuilds()
+        public async Task<IActionResult> GetGuilds([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -378,18 +396,18 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.Guild.Info).Load();
                     guildMembers.Include(p => p.Guild.Owner).Load();
                     guildMembers.Include(p => p.Guild.Owner.Info).Load();
-                    guildMembers.Include(p => p.User).Load();
                     var guilds = new List<Guild>();
                     foreach (var item in guildMembers.Where(p => p.User.Id == userId))
                     {
-                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild));
+                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild, true, true, onlyId: onlyId));
                     }
 
-                    return Ok(guilds);
+                    return Ok(guilds.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -399,7 +417,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChats")]
-        public async Task<IActionResult> GetPrivateChats()
+        public async Task<IActionResult> GetPrivateChats([FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -432,8 +450,8 @@ namespace VardoneApi.Controllers
                         var item = new PrivateChat
                         {
                             ChatId = chat.Id,
-                            FromUser = UserCreateHelper.GetUser(user1),
-                            ToUser = UserCreateHelper.GetUser(user2),
+                            FromUser = UserCreateHelper.GetUser(user1, onlyId),
+                            ToUser = UserCreateHelper.GetUser(user2, onlyId),
                             UnreadMessages = privateMessages.Count(p =>
                                 p.Chat.Id == chat.Id && p.Author != user1 &&
                                 DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
@@ -441,7 +459,7 @@ namespace VardoneApi.Controllers
                         chats.Add(item);
                     }
 
-                    return Ok(chats);
+                    return Ok(chats.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -536,7 +554,7 @@ namespace VardoneApi.Controllers
                 }
                 catch (Exception e)
                 {
-                    return BadRequest(e);
+                    return Problem(e.Message);
                 }
             }));
         }
@@ -605,12 +623,19 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var users = dataContext.Users;
+                    var puss = dataContext.PrivateUserSalts;
+                    puss.Include(p => p.User).Load();
                     var user = users.First(p => p.Id == userId);
-                    if (updatePasswordModel.PreviousPassword != user.Password)
-                        return BadRequest("Incorrect previous password");
-                    if (string.IsNullOrWhiteSpace(updatePasswordModel.NewPassword))
-                        return BadRequest("Incorrect new password");
-                    user.Password = updatePasswordModel.NewPassword;
+
+                    var pus = puss.First(p => p.User.Id == user.Id).Pus;
+                    var prevPasswordHash = CryptographyTools.GetPasswordHash(pus, updatePasswordModel.PreviousPasswordHash);
+
+                    if (prevPasswordHash != user.PasswordHash) return BadRequest("Incorrect previous password");
+
+                    if (string.IsNullOrWhiteSpace(updatePasswordModel.NewPasswordHash)) return BadRequest("Incorrect new password");
+                    var newPasswordHash = CryptographyTools.GetPasswordHash(pus, updatePasswordModel.NewPasswordHash);
+
+                    user.PasswordHash = newPasswordHash;
                     users.Update(user);
                     dataContext.SaveChanges();
                     return Ok();
@@ -637,29 +662,52 @@ namespace VardoneApi.Controllers
                 }
 
                 if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email)) return BadRequest("Email is booked");
+
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
                 users.Include(p => p.Info).Load();
                 var usersInfos = dataContext.UserInfos;
                 usersInfos.Include(p => p.User).Load();
+                var puss = dataContext.PrivateUserSalts;
+                puss.Include(p => p.User).Load();
+
                 var user = users.First(p => p.Id == userId);
                 var userInfo = user.Info ?? new UserInfosTable();
                 userInfo.User = user;
+
                 if (updateUserModel.Username is not null) user.Username = updateUserModel.Username;
-                if (updateUserModel.Description is not null)
-                    userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description)
-                        ? null
-                        : updateUserModel.Description;
+                if (updateUserModel.Description is not null) userInfo.Description = string.IsNullOrEmpty(updateUserModel.Description) ? null : updateUserModel.Description;
                 if (updateUserModel.Email is not null) user.Email = updateUserModel.Email;
                 if (updateUserModel.Base64Image is not null)
                 {
                     if (string.IsNullOrEmpty(updateUserModel.Base64Image)) userInfo.Avatar = null;
                     else
                     {
-                        var res = Convert.TryFromBase64String(updateUserModel.Base64Image,
-                            new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
-                        if (res) userInfo.Avatar = Convert.FromBase64String(updateUserModel.Base64Image);
+                        var res = Convert.TryFromBase64String(updateUserModel.Base64Image, new Span<byte>(new byte[updateUserModel.Base64Image.Length]), out _);
+                        if (res)
+                        {
+                            var bytes = Convert.FromBase64String(updateUserModel.Base64Image);
+                            userInfo.Avatar = ImageCompressionWorker.VaryQualityLevel(bytes, 50);
+                        }
                     }
+                }
+
+                var pus = puss.First(p => p.User.Id == user.Id).Pus;
+
+                var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                if (updateUserModel.Phone is not null)
+                    userInfo.Phone = Convert.ToBase64String(
+                        CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.Phone, byteKey, PasswordOptions.IV));
+
+                if (updateUserModel.BirthDate is not null)
+                    userInfo.BirthDate = Convert.ToBase64String(
+                        CryptographyTools.EncryptStringToBytes_Aes(
+                            updateUserModel.BirthDate.Value.ToBinary().ToString(), byteKey, PasswordOptions.IV));
+
+                if (updateUserModel.FullName is not null)
+                {
+                    userInfo.FullName = Convert.ToBase64String(CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.FullName, byteKey, PasswordOptions.IV));
                 }
 
                 try
