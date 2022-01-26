@@ -263,37 +263,6 @@ namespace VardoneApi.Controllers
             }));
         }
         //
-        [HttpPost, Route("getLastDeleteMessageTime")]
-        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long chatId)
-        {
-            return await Task.Run(new Func<IActionResult>(() =>
-            {
-                var token = TokenParserWorker.GetUserToken(User);
-                if (token is null) return BadRequest("Token parser problem");
-                var userId = token.UserId;
-                if (!UserChecks.CheckToken(token))
-                {
-                    Response.Headers.Add("Token-Invalid", "true");
-                    return Unauthorized("Invalid token");
-                }
-
-                if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
-
-                try
-                {
-                    var dataContext = Program.DataContext;
-                    var privateChats = dataContext.PrivateChats;
-                    var chat = privateChats.First(p => p.Id == chatId);
-                    return chat.LastDeleteMessageTime is not null ? Ok(chat.LastDeleteMessageTime) : Ok();
-                }
-                catch (Exception e)
-                {
-                    return Problem(e.Message);
-                }
-            }));
-        }
-        //
         [HttpPost, Route("sendPrivateChatMessage")]
         public async Task<IActionResult> SendPrivateChatMessage([FromQuery] long secondId, [FromBody] MessageModel message)
         {
@@ -418,12 +387,9 @@ namespace VardoneApi.Controllers
                     var messages = dataContext.PrivateMessages;
                     messages.Include(p => p.Author).Load();
                     messages.Include(p => p.Chat).Load();
-                    var chats = dataContext.PrivateChats;
 
                     var message = messages.First(p => p.Id == messageId);
-                    var chat = chats.First(p => p.Id == message.Chat.Id);
                     if (message.Author.Id != userId) return BadRequest("You cannot delete this message");
-                    chat.LastDeleteMessageTime = DateTime.Now;
                     messages.Remove(message);
                     dataContext.SaveChanges();
                     return Ok("Deleted");

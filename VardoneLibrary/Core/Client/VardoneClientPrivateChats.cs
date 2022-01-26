@@ -155,29 +155,7 @@ namespace VardoneLibrary.Core.Client
                     }
                 }
             }
-
-            public DateTime? GetLastDeleteTimeOnChat(long chatId)
-            {
-                while (true)
-                {
-                    var response = ExecutePostWithToken("chats/getLastDeleteMessageTime", null, new Dictionary<string, string> { { "chatId", chatId.ToString() } });
-                    switch (ResponseHandler.GetResponseStatus(response))
-                    {
-                        case ResponseStatus.Ok:
-                            return JsonConvert.DeserializeObject<DateTime?>(response.Content);
-                        case ResponseStatus.UpdateToken:
-                            UpdateToken();
-                            continue;
-                        case ResponseStatus.InvalidToken:
-                            EventDisconnectInvoke();
-                            return null;
-                        case ResponseStatus.Error:
-                            throw new Exception(response.ErrorMessage);
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            }
+        
 
             //===============================[OTHER]===============================
             /// <summary>

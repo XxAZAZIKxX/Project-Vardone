@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using Microsoft.EntityFrameworkCore.Internal;
 using Notifications.Wpf;
 using Vardone.Controls;
 using Vardone.Controls.Items;
@@ -71,39 +70,49 @@ namespace Vardone.Pages
             ConfigWorker.SetToken(null);
             AvatarsWorker.ClearAll();
             //
-            ChatListGrid.Children.Clear();
-            ChatGrid.Children.Clear();
-            //
-            guildPanel.ChangeGuild(null);
-            chatControl.CloseChat();
-            //
-            MyAvatar.ImageSource = null;
-            MyUsername.Text = null;
-            //
-            _instance = null;
-            UserPropertiesPage.ClearInstance();
-            GuildPropertiesPage.ClearInstance();
-            FriendsPropertiesPage.ClearInstance();
-            UserProfilePage.ClearInstance();
-            GuildMembersPage.ClearInstance();
-            DeployImagePage.ClearInstance();
-            AddGuildPage.ClearInstance();
-            JoinGuildControl.ClearInstance();
-            GuildPanelControl.ClearInstance();
-            FriendPanelControl.ClearInstance();
-            ChatControl.ClearInstance();
-            //
-            GC.Collect();
-            //
-            MainWindow.FlushMemory();
-            //
-            AuthorizationPage.GetInstance().OpenAuth();
-            MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ChatListGrid.Children.Clear();
+                ChatGrid.Children.Clear();
+                //
+                guildPanel.ChangeGuild(null);
+                chatControl.CloseChat();
+                //
+                MyAvatar.ImageSource = null;
+                MyUsername.Text = null;
+                //
+                _instance = null;
+                UserPropertiesPage.ClearInstance();
+                GuildPropertiesPage.ClearInstance();
+                FriendsPropertiesPage.ClearInstance();
+                UserProfilePage.ClearInstance();
+                GuildMembersPage.ClearInstance();
+                DeployImagePage.ClearInstance();
+                AddGuildPage.ClearInstance();
+                JoinGuildControl.ClearInstance();
+                GuildPanelControl.ClearInstance();
+                FriendPanelControl.ClearInstance();
+                ChatControl.ClearInstance();
+                //
+                GC.Collect();
+                //
+                MainWindow.FlushMemory();
+                //
+                AuthorizationPage.GetInstance().OpenAuth();
+                MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
+            });
         }
 
         //Events
         private Task OnUpdateFriendList() => Task.Run(LoadFriendList);
-        private Task OnUpdateOutgoingFriendRequestList() => Task.Run(FriendsPropertiesPage.GetInstance().LoadOutgoingRequests);
+        private Task OnUpdateOutgoingFriendRequestList()
+        {
+            return Task.Run(() =>
+            {
+                Application.Current.Dispatcher.Invoke(() => FriendsPropertiesPage.GetInstance().LoadOutgoingRequests());
+            });
+        }
+
         private Task OnUpdateIncomingFriendRequestList(bool becameLess)
         {
             return Task.Run(() =>
@@ -118,8 +127,7 @@ namespace Vardone.Pages
                             Type = NotificationType.Information
                         });
                 }
-
-                FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
+                Application.Current.Dispatcher.Invoke(() => FriendsPropertiesPage.GetInstance().LoadIncomingRequests());
             });
         }
         private Task OnUpdateOnline(User user)
@@ -160,7 +168,7 @@ namespace Vardone.Pages
 
                     if (chatControl.Chat is not null || chatControl.Channel is not null)
                     {
-                        if (chatControl.Chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First().SetStatus(onlineUser);
+                        if (chatControl.Chat is not null) chatControl.PrivateChatHeader.Children.Cast<UserItem>().First()?.SetStatus(onlineUser);
                         foreach (var privateMessage in chatControl.ChatMessagesList.Children.Cast<MessageItem>())
                         {
                             if (privateMessage.Author.UserId == user.UserId) privateMessage.SetStatus(onlineUser);
@@ -182,18 +190,7 @@ namespace Vardone.Pages
                         Message = message.Text,
                         Type = NotificationType.Information
                     });
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    if (chatControl.Visibility is Visibility.Hidden or Visibility.Collapsed) return;
-                    var userId = chatControl.Chat?.ToUser.UserId;
-                    if (userId == message.Author.UserId) chatControl.LoadChat(Client.GetPrivateChatWithUser(userId.Value));
-                    foreach (var userItem in friendListPanel.ChatListGrid.Children.Cast<UserItem>())
-                    {
-                        if (userItem.User.UserId != message.Author.UserId) continue;
-                        userItem.SetCountMessages(Client.GetPrivateChatWithUser(message.Author.UserId).UnreadMessages);
-                        break;
-                    }
-                });
+                chatControl.AddMessage(message);
             });
         }
         private Task OnUpdateUser(User user)
@@ -204,22 +201,20 @@ namespace Vardone.Pages
                 if (Equals(user, Client.GetMe())) LoadMe();
             });
         }
-        private Task OnDeletePrivateChatMessage(PrivateChat chat)
+        private Task OnDeletePrivateChatMessage(long messageId)
         {
-            if (chatControl?.Chat?.ChatId != chat.ChatId) return Task.CompletedTask;
-            chatControl.UpdateMessages();
+            chatControl.DeleteMessageOnChat(messageId);
             return Task.CompletedTask;
         }
-        private Task OnDeleteChannelMessage(Channel channel)
+        private Task OnDeleteChannelMessage(long messageId)
         {
-            if (chatControl?.Channel?.ChannelId != channel.ChannelId) return Task.CompletedTask;
-            chatControl.UpdateMessages();
+            chatControl.DeleteMessageOnChannel(messageId);
             return Task.CompletedTask;
         }
         private Task OnNewChannelMessage(ChannelMessage message)
         {
             if (chatControl.Channel is null || message is null) return Task.CompletedTask;
-            if (chatControl.Channel.ChannelId == message.Channel.ChannelId) chatControl.LoadChat(message.Channel);
+            if (chatControl.Channel.ChannelId == message.Channel.ChannelId) chatControl.AddMessage(message);
             return Task.CompletedTask;
         }
         private Task OnUpdateChannelList(Guild guild)
@@ -251,12 +246,18 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     GuildList.Children.Clear();
-                    foreach (var guild in Client.GetGuilds()) GuildList.Children.Add(new GuildListItem(guild));
+                    var guilds = Client.GetGuilds();
+                    if (guildPanel.currentGuild is not null && !guilds.Select(p => p.GuildId).Contains(guildPanel.currentGuild.GuildId))
+                    {
+                        PrivateChatButtonClicked(null, null);
+                    }
+
+                    foreach (var guild in guilds) GuildList.Children.Add(new GuildListItem(guild));
                     if (guildPanel.Visibility == Visibility.Visible)
                     {
                         foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
                         {
-                            if (guildItem.guild.GuildId == guildPanel.currentGuild.GuildId) guildItem.IsActive = true;
+                            if (guildItem.guild.GuildId == guildPanel.currentGuild?.GuildId) guildItem.IsActive = true;
                         }
                     }
                 });
@@ -266,9 +267,9 @@ namespace Vardone.Pages
         {
             Task.Run(() =>
             {
+                var me = Client.GetMe();
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var me = Client.GetMe();
                     MyUsername.Text = me.Username;
                     MyAvatar.ImageSource = AvatarsWorker.GetAvatarUser(me.UserId);
                 });
@@ -281,9 +282,14 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     friendListPanel.ChatListGrid.Children.Clear();
-                    foreach (var chat in Client.GetPrivateChats()
-                        .OrderBy(p => p.ToUser.Username)
-                        .ThenByDescending(p => p.UnreadMessages))
+                    var privateChats = Client.GetPrivateChats();
+                    if (chatControl.Chat is not null && !privateChats.Select(p => p.ChatId).Contains(chatControl.Chat.ChatId))
+                    {
+                        chatControl.CloseChat();
+                    }
+                    foreach (var chat in privateChats
+                                 .OrderBy(p => p.ToUser.Username)
+                                 .ThenByDescending(p => p.UnreadMessages))
                     {
                         var friendGridItem = new UserItem(chat.ToUser, UserItemType.Chat);
                         friendGridItem.SetStatus(Client.GetOnlineUser(friendGridItem.User.UserId));
@@ -345,7 +351,7 @@ namespace Vardone.Pages
             guild = Client.GetGuild(guild.GuildId);
             guildPanel.ChangeGuild(guild);
             chatControl.CloseChat();
-            chatControl.LoadChat(guild.Channels?.FirstOr(null!));
+            chatControl.LoadChat(guild.Channels?.FirstOrDefault());
             foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
                 if (guildItem.guild.GuildId == guild.GuildId)
                     guildItem.IsActive = true;

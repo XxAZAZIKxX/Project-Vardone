@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +20,6 @@ using DataFormats = System.Windows.DataFormats;
 using DragDropEffects = System.Windows.DragDropEffects;
 using DragEventArgs = System.Windows.DragEventArgs;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
-using Image = System.Drawing.Image;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace Vardone.Controls
@@ -48,6 +45,65 @@ namespace Vardone.Controls
         {
             CloseChat();
             GC.Collect();
+        }
+
+        public void DeleteMessageOnChannel(long messageId)
+        {
+            if (Channel is null) return;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var firstOrDefault = ChatMessagesList.Children.Cast<MessageItem>().FirstOrDefault(p => p.ChannelMessage.MessageId == messageId);
+                ChatMessagesList.Children.Remove(firstOrDefault);
+            });
+        }
+
+        public void DeleteMessageOnChat(long messageId)
+        {
+            if (Chat is null) return;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var firstOrDefault = ChatMessagesList.Children.Cast<MessageItem>().FirstOrDefault(p => p.PrivateMessage.MessageId == messageId);
+                ChatMessagesList.Children.Remove(firstOrDefault);
+            });
+        }
+
+        public void AddMessage(ChannelMessage message)
+        {
+            if (Channel is null) return;
+            message = MainPage.Client.GetChannelMessage(message.MessageId);
+            var myId = MainPage.Client.GetMe().UserId;
+            var ownerId = MainPage.Client.GetGuilds()
+                .FirstOrDefault(p => p.Channels.Any(c => c.ChannelId == message.Channel.ChannelId))?.Owner.User
+                .UserId;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var deleteMode = message.Author.UserId == myId || ownerId == myId
+                    ? MessageItem.DeleteMode.CanDelete
+                    : MessageItem.DeleteMode.CannotDelete;
+
+                var firstOrDefault = ChatMessagesList.Children.Cast<MessageItem>()
+                    .OrderByDescending(m => m.ChannelMessage.MessageId)
+                    .FirstOrDefault(m => m.ChannelMessage.MessageId < message.MessageId);
+                var index = ChatMessagesList.Children.IndexOf(firstOrDefault) + 1;
+                ChatMessagesList.Children.Insert(index, new MessageItem(message, deleteMode));
+            });
+        }
+
+        public void AddMessage(PrivateMessage message)
+        {
+            if (Chat is null) return;
+            message = MainPage.Client.GetPrivateChatMessage(message.MessageId);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var myId = MainPage.Client.GetMe().UserId;
+                var deleteMode = message.Author.UserId == myId ? MessageItem.DeleteMode.CanDelete : MessageItem.DeleteMode.CannotDelete;
+
+                var firstOrDefault = ChatMessagesList.Children.Cast<MessageItem>()
+                    .OrderByDescending(m => m.PrivateMessage.MessageId)
+                    .FirstOrDefault(m => m.PrivateMessage.MessageId < message.MessageId);
+                var index = ChatMessagesList.Children.IndexOf(firstOrDefault) + 1;
+                ChatMessagesList.Children.Insert(index, new MessageItem(message, deleteMode));
+            });
         }
 
         private void OnPaste(object sender, ExecutedRoutedEventArgs e)
@@ -89,36 +145,42 @@ namespace Vardone.Controls
             if (Chat.ChatId == -1) Chat.ChatId = MainPage.Client.GetPrivateChatWithUser(privateChat.ToUser.UserId).ChatId;
             Task.Run(() =>
             {
+                var user = MainPage.Client.GetUser(privateChat.ToUser.UserId);
+                var me = MainPage.Client.GetMe().UserId;
+                var onlineUser = MainPage.Client.GetOnlineUser(user.UserId);
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var user = MainPage.Client.GetUser(privateChat.ToUser.UserId);
-                    var me = MainPage.Client.GetMe().UserId;
                     var userHeader = new UserItem(user, UserItemType.Profile)
                     {
                         VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Left
                     };
-                    var onlineUser = MainPage.Client.GetOnlineUser(user.UserId);
                     userHeader.SetStatus(onlineUser);
                     PrivateChatHeader.Children.Add(userHeader);
-                    foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(privateChat.ChatId, 15).OrderBy(p => p.MessageId))
+                });
+                foreach (var message in MainPage.Client.GetPrivateMessagesFromChat(privateChat.ChatId, 15).OrderBy(p => p.MessageId))
+                {
+                    var mode = message.Author.UserId == me
+                        ? MessageItem.DeleteMode.CanDelete
+                        : MessageItem.DeleteMode.CannotDelete;
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        var mode = message.Author.UserId == me
-                            ? MessageItem.DeleteMode.CanDelete
-                            : MessageItem.DeleteMode.CannotDelete;
                         var messageItem = new MessageItem(message, mode);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
                         ChatMessagesList.Children.Add(messageItem);
-                    }
+                    });
+                }
 
-                    var privateChatWithUser = MainPage.Client.GetPrivateChatWithUser(user.UserId);
-                    foreach (var userItem in MainPage.GetInstance().friendListPanel.ChatListGrid.Children.Cast<UserItem>())
+                var privateChatWithUser = MainPage.Client.GetPrivateChatWithUser(user.UserId);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var userItem in MainPage.GetInstance().friendListPanel.ChatListGrid.Children
+                                 .Cast<UserItem>().Where(p => p.User.UserId != user.UserId))
                     {
                         if (userItem.User.UserId != user.UserId) continue;
                         userItem.SetCountMessages(privateChatWithUser.UnreadMessages);
-                        break;
                     }
-
                     ChatScrollViewer.ScrollToEnd();
                 });
             });
@@ -135,25 +197,21 @@ namespace Vardone.Controls
             Channel = openChannel;
             Task.Run(() =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() => PrivateChatHeader.Children.Add(new HeaderChannelNameItem(openChannel)));
+
+                var me = MainPage.Client.GetMe().UserId;
+                var owner = MainPage.Client.GetGuilds()
+                    .FirstOrDefault(p => p.Channels.Any(channel1 => channel1.ChannelId == openChannel.ChannelId))
+                    ?.Owner?.User?.UserId;
+                var messages = MainPage.Client.GetChannelMessages(openChannel.ChannelId, 15).OrderBy(p => p.MessageId);
+                foreach (var message in messages)
                 {
-                    PrivateChatHeader.Children.Add(new HeaderChannelNameItem(openChannel));
-                    var me = MainPage.Client.GetMe().UserId;
-                    var owner = MainPage.Client.GetGuilds()
-                        .FirstOrDefault(p => p.Channels.Any(channel1 => channel1.ChannelId == openChannel.ChannelId))
-                        ?.Owner?.User?.UserId;
-                    var messages = MainPage.Client.GetChannelMessages(openChannel.ChannelId, 15).OrderBy(p => p.MessageId);
-                    foreach (var message in messages)
-                    {
-                        var mode = message.Author.UserId == me || me == owner
-                            ? MessageItem.DeleteMode.CanDelete
-                            : MessageItem.DeleteMode.CannotDelete;
-                        ChatMessagesList.Children.Add(new MessageItem(message, mode));
-                    }
-
-                    ChatScrollViewer.ScrollToEnd();
-
-                });
+                    var mode = message.Author.UserId == me || me == owner
+                        ? MessageItem.DeleteMode.CanDelete
+                        : MessageItem.DeleteMode.CannotDelete;
+                    Application.Current.Dispatcher.Invoke(() => ChatMessagesList.Children.Add(new MessageItem(message, mode)));
+                }
+                Application.Current.Dispatcher.Invoke(() => ChatScrollViewer.ScrollToEnd());
             });
         }
         public void CloseChat()
@@ -168,11 +226,7 @@ namespace Vardone.Controls
             GC.Collect();
             MainWindow.FlushMemory();
         }
-        public void UpdateMessages()
-        {
-            if (Chat is not null) LoadChat(Chat);
-            if (Channel is not null) LoadChat(Channel);
-        }
+
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Task.Run(() =>
@@ -272,7 +326,6 @@ namespace Vardone.Controls
 
             if (Chat is not null) MainPage.Client.SendPrivateMessage(Chat.ToUser.UserId, message);
             else if (Channel is not null) MainPage.Client.SendChannelMessage(Channel.ChannelId, message);
-            UpdateMessages();
         }
 
         private void TextBoxDragEnter(object sender, DragEventArgs e)

@@ -62,8 +62,9 @@
                 <Border BorderBrush="#0fa9f0 " BorderThickness="1,1,1,0"
                         VerticalAlignment="Bottom" CornerRadius="0,0,20,20" HorizontalAlignment="Center" Height="80"
                         Width="200" Margin="0,0,0,40">
-                    <TextBox Name="SomeText" Margin="10,10,10,35" Text="Подпись.." VerticalContentAlignment="Center"
+                    <TextBox Name="MessageTextBox" Margin="10,10,10,35" Text="Подпись.." VerticalContentAlignment="Center"
                          Foreground="White" FontWeight="Thin"
+                         KeyUp="MessageTextKeyUp"
                          FontSize="14" CaretBrush="White" Padding="5,5,5,5"
                           ToolTip="Ты можешь добавить текст" BorderBrush="#0fa9f0" Background="Transparent">
 

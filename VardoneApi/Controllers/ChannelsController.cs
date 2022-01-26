@@ -262,7 +262,8 @@ namespace VardoneApi.Controllers
                         {
                             MessageId = m.Id,
                             Author = UserCreateHelper.GetUser(m.Author, true),
-                            Channel = GuildCreateHelper.GetChannel(m.Channel, true)
+                            Channel = GuildCreateHelper.GetChannel(m.Channel, true),
+                            CreatedTime = m.CreatedTime
                         };
                         if (!onlyId)
                         {
@@ -282,7 +283,7 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessage")]
-        public async Task<IActionResult> GetChannelMessage([FromQuery] long messageId, [FromHeader] bool onlyId)
+        public async Task<IActionResult> GetChannelMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
@@ -297,6 +298,8 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var channelMessages = dataContext.ChannelMessages;
+                    channelMessages.Include(p => p.Author).Load();
+                    channelMessages.Include(p => p.Author.Info).Load();
                     channelMessages.Include(p => p.Channel).Load();
                     channelMessages.Include(p => p.Channel.Guild).Load();
                     channelMessages.Include(p => p.Channel.Guild.Info).Load();
@@ -309,7 +312,7 @@ namespace VardoneApi.Controllers
                     var returnMessage = new ChannelMessage
                     {
                         MessageId = message.Id,
-                        Channel = GuildCreateHelper.GetChannel(message.Channel, onlyId),
+                        Channel = GuildCreateHelper.GetChannel(message.Channel, true),
                         Author = UserCreateHelper.GetUser(message.Author, true),
                         CreatedTime = message.CreatedTime
                     };
@@ -348,7 +351,6 @@ namespace VardoneApi.Controllers
                     var guildMembers = dataContext.GuildMembers;
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.User).Load();
-                    var channels = dataContext.Channels;
                     var channelMessages = dataContext.ChannelMessages;
                     channelMessages.Include(p => p.Author).Load();
                     channelMessages.Include(p => p.Channel).Load();
@@ -361,48 +363,9 @@ namespace VardoneApi.Controllers
 
                     if (channelMessage.Author.Id != userId && channelMessage.Channel.Guild.Owner.Id != userId) return BadRequest("You cannot delete this message");
 
-                    var channel = channels.First(p => p.Id == channelMessage.Channel.Id);
-                    channel.LastDeleteMessageTime = DateTime.Now;
                     channelMessages.Remove(channelMessage);
                     dataContext.SaveChanges();
                     return Ok("Deleted");
-                }
-                catch (Exception e)
-                {
-                    return Problem(e.Message);
-                }
-            }));
-        }
-        //
-        [HttpPost, Route("getLastDeleteMessageTime")]
-        public async Task<IActionResult> GetLastDeleteMessageTime([FromQuery] long channelId)
-        {
-            return await Task.Run(new Func<IActionResult>(() =>
-            {
-                var token = TokenParserWorker.GetUserToken(User);
-                if (token is null) return BadRequest("Token parser problem");
-                var userId = token.UserId;
-                if (!UserChecks.CheckToken(token))
-                {
-                    Response.Headers.Add("Token-Invalid", "true");
-                    return Unauthorized("Invalid token");
-                }
-                if (!ChannelChecks.IsChannelExists(channelId)) return BadRequest("Channel is not exists");
-
-                try
-                {
-                    var dataContext = Program.DataContext;
-                    var channels = dataContext.Channels;
-                    channels.Include(p => p.Guild).Load();
-                    var guildMembers = dataContext.GuildMembers;
-                    guildMembers.Include(p => p.User).Load();
-                    guildMembers.Include(p => p.Guild).Load();
-
-                    var channel = channels.First(p => p.Id == channelId);
-
-                    if (guildMembers.Count(p => p.User.Id == userId && p.Guild.Id == channel.Guild.Id) == 0) return BadRequest("You not a member of this guild");
-
-                    return channel.LastDeleteMessageTime is not null ? Ok(channel.LastDeleteMessageTime) : new EmptyResult();
                 }
                 catch (Exception e)
                 {

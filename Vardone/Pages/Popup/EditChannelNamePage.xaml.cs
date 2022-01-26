@@ -17,8 +17,8 @@ namespace Vardone.Pages.Popup
         public static EditChannelNamePage GetInstance() => _instance ??= new EditChannelNamePage();
         private EditChannelNamePage() => InitializeComponent();
 
-        private ActionType type;
-        private Channel channel;
+        private ActionType _type;
+        private Channel _channel;
 
         private void BackToMainPage(object sender, MouseButtonEventArgs e)
         {
@@ -34,8 +34,8 @@ namespace Vardone.Pages.Popup
         public EditChannelNamePage Load(Channel channel, ActionType type)
         {
             Reset();
-            this.type = type;
-            this.channel = channel;
+            this._type = type;
+            this._channel = channel;
             if (type == ActionType.Edit) ChannelNameTb.Text = channel.Name;
             return this;
         }
@@ -57,10 +57,10 @@ namespace Vardone.Pages.Popup
 
             try
             {
-                switch (type)
+                switch (_type)
                 {
                     case ActionType.Create:
-                        MainPage.Client.CreateChannel(channel.Guild.GuildId, ChannelNameTb.Text.Trim());
+                        MainPage.Client.CreateChannel(_channel.Guild.GuildId, ChannelNameTb.Text.Trim());
                         MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                         {
                             Type = NotificationType.Success,
@@ -71,7 +71,7 @@ namespace Vardone.Pages.Popup
                     case ActionType.Edit:
                         MainPage.Client.UpdateChannel(new UpdateChannelModel
                         {
-                            ChannelId = channel.ChannelId,
+                            ChannelId = _channel.ChannelId,
                             Name = ChannelNameTb.Text.Trim()
                         });
                         break;
@@ -79,7 +79,7 @@ namespace Vardone.Pages.Popup
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            catch 
+            catch
             {
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
@@ -91,6 +91,12 @@ namespace Vardone.Pages.Popup
             GuildPanelControl.GetInstance().UpdateChannelsList();
             BackToMainPage(null, null);
             Reset();
+        }
+
+        private void ChannelNameKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            SaveButton(null, null);
         }
     }
 }

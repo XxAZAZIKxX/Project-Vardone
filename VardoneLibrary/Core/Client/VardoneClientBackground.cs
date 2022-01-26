@@ -220,9 +220,6 @@ namespace VardoneLibrary.Core.Client
                 {
                     var channelsDictionary = _client.GetGuilds(true).ToDictionary(p => p.GuildId, p => p.Channels);
 
-                    foreach (var guildId in channelsDictionary.Keys.Except(dictionary.Keys)) _client.EventUpdateChannelListInvoke(_client.GetGuild(guildId, true));
-                    foreach (var guildId in dictionary.Keys.Except(channelsDictionary.Keys)) _client.EventUpdateChannelListInvoke(_client.GetGuild(guildId, true));
-
                     foreach (var (guildId, channels) in dictionary)
                     {
                         if (!channelsDictionary.TryGetValue(guildId, out var value)) continue;
@@ -270,21 +267,20 @@ namespace VardoneLibrary.Core.Client
             continueWork:
             var dictionary = _client.GetPrivateChats(true).ToDictionary(chat => chat.ChatId,
                 chat => _client.GetPrivateMessagesFromChat(chat.ChatId, 1, 0, true)
-                    .Where(p => p.Author.UserId != _client.GetMe(true).UserId).Select(p => p.MessageId)
-                    .FirstOrDefault());
+                    .Select(p => p.MessageId).FirstOrDefault());
             try
             {
                 while (_isCheckNewPrivateMessageThreadWork)
                 {
                     var messages = _client.GetPrivateChats(true).ToDictionary(p => p.ChatId,
                         p => _client.GetPrivateMessagesFromChat(p.ChatId, 1, 0, true)
-                            .Where(message=>message.Author.UserId != _client.GetMe(true).UserId).Select(m => m.MessageId)
-                            .FirstOrDefault());
+                            .Select(m => m.MessageId).FirstOrDefault());
 
                     foreach (var (chatId, messageId) in dictionary)
                     {
                         if (!messages.TryGetValue(chatId, out var value)) continue;
-                        if (messageId < value) _client.EventNewPrivateMessageInvoke(_client.GetPrivateChatMessage(value));
+                        if (messageId >= value) continue;
+                        _client.EventNewPrivateMessageInvoke(_client.GetPrivateChatMessage(value));
                     }
 
                     dictionary = messages;
@@ -305,7 +301,6 @@ namespace VardoneLibrary.Core.Client
             {
                 foreach (var (key, value) in channels.ToDictionary(p => p.ChannelId,
                              p => _client.GetChannelMessages(p.ChannelId, 1, 0, true)
-                                 .Where(message => message.Author.UserId != _client.GetMe(true).UserId)
                                  .Select(message => message.MessageId).FirstOrDefault()))
                 {
                     dictionary.Add(key, value);
@@ -320,7 +315,6 @@ namespace VardoneLibrary.Core.Client
                     {
                         foreach (var (key, value) in channels.ToDictionary(p => p.ChannelId,
                                      p => _client.GetChannelMessages(p.ChannelId, 1, 0, true)
-                                         .Where(message => message.Author.UserId != _client.GetMe(true).UserId)
                                          .Select(message => message.MessageId).FirstOrDefault()))
                         {
                             messages.Add(key, value);
@@ -330,7 +324,9 @@ namespace VardoneLibrary.Core.Client
                     foreach (var (channelId, messageId) in dictionary)
                     {
                         if (!messages.TryGetValue(channelId, out var value)) continue;
-                        if (messageId < value) _client.EventNewChannelMessageInvoke(_client.GetChannelMessage(value, true));
+                        if (messageId >= value) continue;
+
+                        _client.EventNewChannelMessageInvoke(_client.GetChannelMessage(value, true));
                     }
                     dictionary = messages;
                     Thread.Sleep(200);
@@ -345,35 +341,28 @@ namespace VardoneLibrary.Core.Client
         private void CheckDeleteMessagesOnChannelThread()
         {
             continueWork:
-            var dictionary = new Dictionary<long, DateTime?>();
+            var dictionary = new Dictionary<long, long[]>();
             foreach (var guild in _client.GetGuilds(true))
-            {
-                foreach (var (key, value) in guild.Channels.ToDictionary(p => p.ChannelId,
-                             p => _client.GetLastDeleteMessageTimeOnChannel(p.ChannelId)))
-                {
-                    dictionary.Add(key, value);
-                }
-            }
+                foreach (var guildChannel in guild.Channels)
+                    dictionary[guildChannel.ChannelId] = _client.GetChannelMessages(guildChannel.ChannelId, 0, 0, true)
+                        .Select(p => p.MessageId).ToArray();
             try
             {
                 while (_isCheckDeleteMessagesOnChannelWork)
                 {
-                    var times = new Dictionary<long, DateTime?>();
-                    foreach (var guild in _client.GetGuilds(onlyId: true))
+                    var messages = new Dictionary<long, long[]>();
+                    foreach (var guild in _client.GetGuilds(true))
+                        foreach (var guildChannel in guild.Channels)
+                            messages[guildChannel.ChannelId] = _client.GetChannelMessages(guildChannel.ChannelId, 0, 0, true)
+                                .Select(p => p.MessageId).ToArray();
+
+                    foreach (var (guildId, messageIds) in dictionary)
                     {
-                        foreach (var (key, value) in guild.Channels.ToDictionary(p => p.ChannelId,
-                                     p => _client.GetLastDeleteMessageTimeOnChannel(p.ChannelId)))
-                        {
-                            times.Add(key, value);
-                        }
+                        if (!messages.TryGetValue(guildId, out var m)) continue;
+                        foreach (var deletedId in messageIds.Except(m)) _client.EventDeleteChannelMessageInvoke(deletedId);
                     }
 
-                    foreach (var (channelId, time) in dictionary)
-                    {
-                        if (!times.TryGetValue(channelId, out var t)) continue;
-                        if (time != t) _client.EventDeleteChannelMessageInvoke(_client.GetGuildChannel(channelId));
-                    }
-                    dictionary = times;
+                    dictionary = messages;
                     Thread.Sleep(TimeSpan.FromSeconds(0.5));
                 }
             }
@@ -386,20 +375,27 @@ namespace VardoneLibrary.Core.Client
         private void CheckDeleteMessagesOnChatThread()
         {
             continueWork:
-            var dictionary = _client.GetPrivateChats(true).ToDictionary(p => p.ChatId, p => _client.GetLastDeleteTimeOnChat(p.ChatId));
+            var dictionary = new Dictionary<long, long[]>();
+            foreach (var privateChat in _client.GetPrivateChats(true))
+                dictionary[privateChat.ChatId] = _client.GetPrivateMessagesFromChat(privateChat.ChatId, 0, 0, true)
+                    .Select(p => p.MessageId).ToArray();
             try
             {
                 while (_isCheckDeleteMessagesOnChatWork)
                 {
-                    var chats = _client.GetPrivateChats(true).ToDictionary(p => p.ChatId, p => _client.GetLastDeleteTimeOnChat(p.ChatId));
+                    var messages = new Dictionary<long, long[]>();
+                    foreach (var privateChat in _client.GetPrivateChats(true))
+                        messages[privateChat.ChatId] = _client.GetPrivateMessagesFromChat(privateChat.ChatId, 0, 0, true)
+                            .Select(p => p.MessageId).ToArray();
 
-                    foreach (var (chatId, time) in dictionary)
+                    foreach (var (chatId, messageIds) in dictionary)
                     {
-                        if (!chats.TryGetValue(chatId, out var value)) continue;
-                        if (time != value) _client.EventDeletePrivateChatMessageInvoke(_client.GetPrivateChat(chatId, true));
+                        if (!messages.TryGetValue(chatId, out var m)) continue;
+                        foreach (var deletedId in messageIds.Except(m))
+                            _client.EventDeletePrivateChatMessageInvoke(deletedId);
                     }
 
-                    dictionary = chats;
+                    dictionary = messages;
                     Thread.Sleep(TimeSpan.FromSeconds(0.5));
                 }
             }

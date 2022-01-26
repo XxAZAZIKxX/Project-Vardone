@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Vardone.Controls;
 using Vardone.Core;
@@ -19,20 +18,26 @@ namespace Vardone.Pages.Popup
         public ImageMessagePreview() => InitializeComponent();
         public ImageMessagePreview Load(BitmapImage loadImage, string text)
         {
-            SomeText.Text = text;
+            MessageTextBox.Text = text;
             picture.Source = _image = loadImage;
             return this;
         }
         private void CancelButtonDown(object sender, MouseButtonEventArgs e)
         {
             MainPage.GetInstance().MainFrame.Navigate(null);
-            SomeText.Text = "";
+            MessageTextBox.Text = "";
             picture.Source = _image = null;
         }
         private void SendButtonDown(object sender, MouseButtonEventArgs e)
         {
-            ChatControl.GetInstance().SendMessage(SomeText.Text, ImageWorker.BitmapImageToBytes(_image));
+            ChatControl.GetInstance().SendMessage(MessageTextBox.Text, ImageWorker.BitmapImageToBytes(_image));
             CancelButtonDown(null, null);
+        }
+
+        private void MessageTextKeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.Key != Key.Enter)return;
+            SendButtonDown(null, null);
         }
     }
 }

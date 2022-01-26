@@ -83,16 +83,13 @@ namespace Vardone.Pages.PropertyPages
 
         public void UpdateMembers()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            var currentUserId = MainPage.Client.GetMe().UserId;
+            Application.Current.Dispatcher.Invoke(() => GuildMembersList.Children.Clear());
+            foreach (var guildMember in MainPage.Client.GetGuildMembers(_guild.GuildId))
             {
-                GuildMembersList.Children.Clear();
-                var currentUserId = MainPage.Client.GetMe().UserId;
-                foreach (var guildMember in MainPage.Client.GetGuildMembers(_guild.GuildId))
-                {
-                    var viewPermission = _guild.Owner.User.UserId == currentUserId && guildMember.User.UserId != currentUserId ? MemberItem.ViewPermission.Owner : MemberItem.ViewPermission.Member;
-                    GuildMembersList.Children.Add(new MemberItem(guildMember, viewPermission));
-                }
-            });
+                var viewPermission = _guild.Owner.User.UserId == currentUserId && guildMember.User.UserId != currentUserId ? MemberItem.ViewPermission.Owner : MemberItem.ViewPermission.Member;
+                Application.Current.Dispatcher.Invoke(() => GuildMembersList.Children.Add(new MemberItem(guildMember, viewPermission)));
+            }
         }
 
         public void UpdateBannedMembers()

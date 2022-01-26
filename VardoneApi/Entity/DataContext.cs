@@ -45,8 +45,6 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();
             modelBuilder.Entity<BannedGuildMembersTable>().Property(p => p.Reason).HasDefaultValue();
             modelBuilder.Entity<GuildInvitesTable>().Property(p => p.NumberOfUses).HasDefaultValue(0);
-            modelBuilder.Entity<ChannelsTable>().Property(p => p.LastDeleteMessageTime).HasDefaultValue();
-            modelBuilder.Entity<PrivateChatsTable>().Property(p => p.LastDeleteMessageTime).HasDefaultValue();
             modelBuilder.Entity<GuildMembersTable>().Property(p => p.NumberOfInvitedMembers).HasDefaultValue(0);
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();

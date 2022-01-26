@@ -235,30 +235,7 @@ namespace VardoneLibrary.Core.Client
                     throw new ArgumentOutOfRangeException();
             }
         }
-
-        public DateTime? GetLastDeleteMessageTimeOnChannel(long channelId)
-        {
-            while (true)
-            {
-                var response = ExecutePostWithToken("channels/getLastDeleteMessageTime", null, new Dictionary<string, string> { { "channelId", channelId.ToString() } });
-                switch (ResponseHandler.GetResponseStatus(response))
-                {
-                    case ResponseStatus.Ok:
-                        return JsonConvert.DeserializeObject<DateTime?>(response.Content);
-                    case ResponseStatus.UpdateToken:
-                        UpdateToken();
-                        continue;
-                    case ResponseStatus.InvalidToken:
-                        EventDisconnectInvoke();
-                        return null;
-                    case ResponseStatus.Error:
-                        throw new Exception(response.ErrorMessage);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
+        
         //===============================[CREATE]===============================
         public void CreateGuild(string name = null)
         {

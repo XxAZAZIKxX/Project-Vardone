@@ -57,6 +57,7 @@
                         CornerRadius="20,0,0,20">
                         <TextBox
                             x:Name="ChannelNameTb"
+                            KeyUp="ChannelNameKeyUp"
                             HorizontalContentAlignment="Left"
                             CaretBrush="White"
                             HorizontalAlignment="Stretch"

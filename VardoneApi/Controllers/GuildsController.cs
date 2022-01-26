@@ -563,6 +563,7 @@ namespace VardoneApi.Controllers
 
                     var guildInvites = dataContext.GuildInvites;
                     guildInvites.Include(p => p.Guild).Load();
+                    guildInvites.Include(p => p.CreatedByUser).Load();
 
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
@@ -585,7 +586,7 @@ namespace VardoneApi.Controllers
                     }
 
                     members.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
-                    members.First(p => p.User.Id == invite.CreatedByUser.Id).NumberOfInvitedMembers++;
+                    members.First(p => p.User.Id == invite.CreatedByUser.Id && p.Guild.Id == invite.Guild.Id).NumberOfInvitedMembers++;
                     invite.NumberOfUses++;
                     dataContext.SaveChanges();
                     return Ok("Joined");

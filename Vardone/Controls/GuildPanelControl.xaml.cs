@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -79,15 +80,19 @@ namespace Vardone.Controls
             Application.Current.Dispatcher.Invoke(() =>
             {
                 ChannelsList.Children.Clear();
-                var guild = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == currentGuild.GuildId, null!);
-                var channels = guild?.Channels;
-                if (channels is null) return;
-                foreach (var channel in channels)
-                    ChannelsList.Children.Add(new GuildChannelItem(channel,
-                        currentGuild.Owner.User.UserId == MainPage.Client.GetMe().UserId
-                            ? GuildChannelItem.ActiveContextMenu.Active
-                            : GuildChannelItem.ActiveContextMenu.Disable));
             });
+            var guild = MainPage.Client.GetGuilds().FirstOrDefault(p => p.GuildId == currentGuild.GuildId);
+            var channels = guild?.Channels;
+            if (channels is null) return;
+            var ownerId = currentGuild.Owner.User.UserId;
+            foreach (var channel in channels)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var activeContextMenu = ownerId == MainPage.Client.GetMe().UserId ? GuildChannelItem.ActiveContextMenu.Active : GuildChannelItem.ActiveContextMenu.Disable;
+                    ChannelsList.Children.Add(new GuildChannelItem(channel, activeContextMenu));
+                });
+            }
         }
 
         private void PropertiesButtonClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(GuildPropertiesPage.GetInstance().LoadGuild(currentGuild));

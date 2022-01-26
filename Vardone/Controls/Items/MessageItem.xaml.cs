@@ -84,14 +84,8 @@ namespace Vardone.Controls.Items
 
         private void DeleteMessageButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (ChannelMessage is not null)
-            {
-                MainPage.Client.DeleteChannelMessage(ChannelMessage.MessageId);
-            }
-            if (PrivateMessage is not null)
-            {
-                MainPage.Client.DeletePrivateMessage(PrivateMessage.MessageId);
-            }
+            if (ChannelMessage is not null) MainPage.Client.DeleteChannelMessage(ChannelMessage.MessageId);
+            if (PrivateMessage is not null) MainPage.Client.DeletePrivateMessage(PrivateMessage.MessageId);
         }
     }
 }

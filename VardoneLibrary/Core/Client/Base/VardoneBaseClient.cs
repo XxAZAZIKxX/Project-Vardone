@@ -42,8 +42,8 @@ namespace VardoneLibrary.Core.Client.Base
         public event Func<User,Task> OnUpdateOnline;
         public event Func<Task> OnUpdateGuildList;
         public event Func<Guild,Task> OnUpdateChannelList;
-        public event Func<Channel,Task> OnDeleteChannelMessage;
-        public event Func<PrivateChat,Task> OnDeletePrivateChatMessage;
+        public event Func<long,Task> OnDeleteChannelMessage;
+        public event Func<long,Task> OnDeletePrivateChatMessage;
         public event Func<Task> OnDisconnect; 
 
         internal void EventNewPrivateMessageInvoke(PrivateMessage arg) => OnNewPrivateMessage?.Invoke(arg);
@@ -56,8 +56,8 @@ namespace VardoneLibrary.Core.Client.Base
         internal void EventUpdateOnlineInvoke(User arg) => OnUpdateOnline?.Invoke(arg);
         internal void EventUpdateGuildListInvoke() => OnUpdateGuildList?.Invoke();
         internal void EventUpdateChannelListInvoke(Guild arg) => OnUpdateChannelList?.Invoke(arg);
-        internal void EventDeleteChannelMessageInvoke(Channel arg) => OnDeleteChannelMessage?.Invoke(arg);
-        internal void EventDeletePrivateChatMessageInvoke(PrivateChat arg) => OnDeletePrivateChatMessage?.Invoke(arg);
+        internal void EventDeleteChannelMessageInvoke(long arg) => OnDeleteChannelMessage?.Invoke(arg);
+        internal void EventDeletePrivateChatMessageInvoke(long arg) => OnDeletePrivateChatMessage?.Invoke(arg);
         internal void EventDisconnectInvoke() => OnDisconnect?.Invoke();
     }
 }
