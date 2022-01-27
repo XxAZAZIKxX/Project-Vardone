@@ -266,21 +266,23 @@ namespace VardoneLibrary.Core.Client
         {
             continueWork:
             var dictionary = _client.GetPrivateChats(true).ToDictionary(chat => chat.ChatId,
-                chat => _client.GetPrivateMessagesFromChat(chat.ChatId, 1, 0, true)
-                    .Select(p => p.MessageId).FirstOrDefault());
+                chat => _client.GetPrivateMessagesFromChat(chat.ChatId, 0, 0, true)
+                    .Select(p => p.MessageId).ToArray());
             try
             {
                 while (_isCheckNewPrivateMessageThreadWork)
                 {
-                    var messages = _client.GetPrivateChats(true).ToDictionary(p => p.ChatId,
-                        p => _client.GetPrivateMessagesFromChat(p.ChatId, 1, 0, true)
-                            .Select(m => m.MessageId).FirstOrDefault());
+                    var messages = _client.GetPrivateChats(true).ToDictionary(chat => chat.ChatId,
+                        chat => _client.GetPrivateMessagesFromChat(chat.ChatId, 0, 0, true)
+                            .Select(m => m.MessageId).ToArray());
 
-                    foreach (var (chatId, messageId) in dictionary)
+                    foreach (var (chatId, messageIds) in dictionary)
                     {
                         if (!messages.TryGetValue(chatId, out var value)) continue;
-                        if (messageId >= value) continue;
-                        _client.EventNewPrivateMessageInvoke(_client.GetPrivateChatMessage(value));
+                        foreach (var messageId in value.Except(messageIds))
+                        {
+                            _client.EventNewPrivateMessageInvoke(_client.GetPrivateChatMessage(messageId));
+                        }
                     }
 
                     dictionary = messages;
@@ -296,12 +298,12 @@ namespace VardoneLibrary.Core.Client
         private void CheckNewChannelMessagesThread()
         {
             continueWork:
-            var dictionary = new Dictionary<long, long>();
+            var dictionary = new Dictionary<long, long[]>();
             foreach (var channels in _client.GetGuilds(true).Select(p => p.Channels))
             {
                 foreach (var (key, value) in channels.ToDictionary(p => p.ChannelId,
-                             p => _client.GetChannelMessages(p.ChannelId, 1, 0, true)
-                                 .Select(message => message.MessageId).FirstOrDefault()))
+                             p => _client.GetChannelMessages(p.ChannelId, 0, 0, true)
+                                 .Select(message => message.MessageId).ToArray()))
                 {
                     dictionary.Add(key, value);
                 }
@@ -310,23 +312,24 @@ namespace VardoneLibrary.Core.Client
             {
                 while (_isCheckNewChannelMessagesThreadWork)
                 {
-                    var messages = new Dictionary<long, long>();
+                    var messages = new Dictionary<long, long[]>();
                     foreach (var channels in _client.GetGuilds(true).Select(p => p.Channels))
                     {
                         foreach (var (key, value) in channels.ToDictionary(p => p.ChannelId,
-                                     p => _client.GetChannelMessages(p.ChannelId, 1, 0, true)
-                                         .Select(message => message.MessageId).FirstOrDefault()))
+                                     p => _client.GetChannelMessages(p.ChannelId, 0, 0, true)
+                                         .Select(message => message.MessageId).ToArray()))
                         {
                             messages.Add(key, value);
                         }
                     }
 
-                    foreach (var (channelId, messageId) in dictionary)
+                    foreach (var (channelId, messageIds) in dictionary)
                     {
                         if (!messages.TryGetValue(channelId, out var value)) continue;
-                        if (messageId >= value) continue;
-
-                        _client.EventNewChannelMessageInvoke(_client.GetChannelMessage(value, true));
+                        foreach (var messageId in value.Except(messageIds))
+                        {
+                            _client.EventNewChannelMessageInvoke(_client.GetChannelMessage(messageId, true));
+                        }
                     }
                     dictionary = messages;
                     Thread.Sleep(200);

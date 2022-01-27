@@ -233,7 +233,10 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var privateMessages = dataContext.PrivateMessages;
                     privateMessages.Include(p => p.Author).Load();
+                    privateMessages.Include(p => p.Author.Info).Load();
                     privateMessages.Include(p => p.Chat).Load();
+                    privateMessages.Include(p => p.Chat.FromUser).Load();
+                    privateMessages.Include(p => p.Chat.ToUser).Load();
 
                     var message = privateMessages.FirstOrDefault(p => p.Id == messageId);
                     if (message is null) return BadRequest("Message is not exists");

@@ -182,15 +182,17 @@ namespace Vardone.Pages
         {
             return Task.Run(() =>
             {
-                if (Equals(message.Author, Client.GetMe())) return;
-                MainWindow.GetInstance()
-                    .notificationManager.Show(new NotificationContent
-                    {
-                        Title = "Новое сообщение от " + message.Author.Username,
-                        Message = message.Text,
-                        Type = NotificationType.Information
-                    });
                 chatControl.AddMessage(message);
+                if (message.Author.UserId != Client.GetMe().UserId)
+                {
+                    MainWindow.GetInstance()
+                        .notificationManager.Show(new NotificationContent
+                        {
+                            Title = "Новое сообщение от " + message.Author.Username,
+                            Message = message.Text,
+                            Type = NotificationType.Information
+                        });
+                }
             });
         }
         private Task OnUpdateUser(User user)
