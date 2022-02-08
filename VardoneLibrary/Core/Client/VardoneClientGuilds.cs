@@ -12,13 +12,11 @@ namespace VardoneLibrary.Core.Client
     public partial class VardoneClient
     {
         //===============================[GET]===============================
-        public Guild GetGuild(long guildId) => GetGuild(guildId, false);
-
-        internal Guild GetGuild(long guildId, bool onlyId)
+        Guild GetGuild(long guildId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken(@"guilds/getGuild", queryParameters: new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken(@"guilds/getGuild", queryParameters: new Dictionary<string, string> { { "guildId", guildId.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -37,12 +35,11 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public Guild[] GetGuilds() => GetGuilds(false);
-        internal Guild[] GetGuilds(bool onlyId)
+        public Guild[] GetGuilds()
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getGuilds", onlyId: onlyId);
+                var response = ExecutePostWithToken("users/getGuilds");
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -61,12 +58,11 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public Channel[] GetGuildChannels(long guildId) => GetGuildChannels(guildId, false);
-        internal Channel[] GetGuildChannels(long guildId, bool onlyId)
+        public Channel[] GetGuildChannels(long guildId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("guilds/getGuildChannels", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken("guilds/getGuildChannels", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -85,8 +81,7 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public Channel GetGuildChannel(long channelId) => GetGuildChannel(channelId, false);
-        internal Channel GetGuildChannel(long channelId, bool onlyId)
+        public Channel GetGuildChannel(long channelId)
         {
             while (true)
             {
@@ -94,7 +89,7 @@ namespace VardoneLibrary.Core.Client
                     queryParameters: new Dictionary<string, string>
                     {
                         { "channelId", channelId.ToString() }
-                    }, onlyId: onlyId);
+                    });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -114,12 +109,11 @@ namespace VardoneLibrary.Core.Client
         }
 
 
-        public BannedMember[] GetBannedGuildMembers(long guildId) => GetBannedGuildMembers(guildId, false);
-        internal BannedMember[] GetBannedGuildMembers(long guildId, bool onlyId)
+        public BannedMember[] GetBannedGuildMembers(long guildId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken("guilds/getBannedGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -138,12 +132,11 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public Member[] GetGuildMembers(long guildId) => GetGuildMembers(guildId, false);
-        internal Member[] GetGuildMembers(long guildId, bool onlyId)
+        public Member[] GetGuildMembers(long guildId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("guilds/GetGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken("guilds/GetGuildMembers", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -162,12 +155,11 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public GuildInvite[] GetGuildInvites(long guildId) => GetGuildInvites(guildId, false);
-        internal GuildInvite[] GetGuildInvites(long guildId, bool onlyId)
+        public GuildInvite[] GetGuildInvites(long guildId)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("guilds/getGuildInvites", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken("guilds/getGuildInvites", null, new Dictionary<string, string> { { "guildId", guildId.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -186,12 +178,11 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public ChannelMessage[] GetChannelMessages(long channelId, int limit = 0, long startFrom = 0) => GetChannelMessages(channelId, limit, startFrom, false);
-        internal ChannelMessage[] GetChannelMessages(long channelId, int limit, long startFrom, bool onlyId)
+        public ChannelMessage[] GetChannelMessages(long channelId, int limit=0, long startFrom=0)
         {
             while (true)
             {
-                var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string> { { "channelId", channelId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } }, onlyId: onlyId);
+                var response = ExecutePostWithToken("channels/getChannelMessages", null, new Dictionary<string, string> { { "channelId", channelId.ToString() }, { "limit", limit.ToString() }, { "startFrom", startFrom.ToString() } });
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -210,32 +201,29 @@ namespace VardoneLibrary.Core.Client
             }
         }
 
-        public ChannelMessage GetChannelMessage(long messageId) => GetChannelMessage(messageId, false);
-
-        internal ChannelMessage GetChannelMessage(long messageId, bool onlyId)
+        public ChannelMessage GetChannelMessage(long messageId)
         {
-            var response = ExecutePostWithToken(@"channels/getChannelMessage",
-                queryParameters: new Dictionary<string, string>
-                {
-                    { "messageId", messageId.ToString() }
-                }, onlyId: onlyId);
-            switch (ResponseHandler.GetResponseStatus(response))
+            while (true)
             {
-                case ResponseStatus.Ok:
-                    return JsonConvert.DeserializeObject<ChannelMessage>(response.Content);
-                case ResponseStatus.UpdateToken:
-                    UpdateToken();
-                    return GetChannelMessage(messageId, onlyId);
-                case ResponseStatus.InvalidToken:
-                    EventDisconnectInvoke();
-                    return null;
-                case ResponseStatus.Error:
-                    throw new Exception(response.Content);
-                default:
-                    throw new ArgumentOutOfRangeException();
+                var response = ExecutePostWithToken(@"channels/getChannelMessage", queryParameters: new Dictionary<string, string> {{"messageId", messageId.ToString()}});
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok:
+                        return JsonConvert.DeserializeObject<ChannelMessage>(response.Content);
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return null;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.Content);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
-        
+
         //===============================[CREATE]===============================
         public void CreateGuild(string name = null)
         {

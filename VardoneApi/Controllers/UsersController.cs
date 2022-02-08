@@ -9,11 +9,13 @@ using VardoneApi.Config;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
+using VardoneApi.Entity.Models.Channels;
 using VardoneApi.Entity.Models.Users;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
+using VardoneEntities.Models.TcpModels;
 
 namespace VardoneApi.Controllers
 {
@@ -25,7 +27,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -35,7 +37,7 @@ namespace VardoneApi.Controllers
                 }
 
                 if (!UserChecks.IsUserExists(secondUsername)) return BadRequest("Friend does not exist");
-                if (UserChecks.IsFriends(userId, secondUsername)) return Ok();
+                if (UserChecks.IsFriends(userId, secondUsername)) return Ok("You are already friends");
                 var dataContext = Program.DataContext;
                 var friendsList = dataContext.FriendsList;
                 friendsList.Include(p => p.FromUser).Load();
@@ -43,15 +45,37 @@ namespace VardoneApi.Controllers
                 var users = dataContext.Users;
                 var user1 = users.First(p => p.Id == userId);
                 var user2 = users.First(p => p.Username == secondUsername);
-                if (user1.Id == user2.Id) return BadRequest();
+                if (user1.Id == user2.Id) return BadRequest("You can not add yourself as friend");
                 try
                 {
-                    var list = friendsList.First(p =>
-                        p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
-                    if (list.FromUser == user1) return Ok();
-                    list.Confirmed = true;
+                    var friendTable = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
+                    if (friendTable.FromUser == user1) return Ok("Already sended friend request");
+                    friendTable.Confirmed = true;
                     dataContext.SaveChanges();
-                    return Ok();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(user1.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewFriend,
+                            data = UserCreateHelper.GetUser(user2.Id)
+                        });
+                        Program.TcpServer.SendMessageTo(user2.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewFriend,
+                            data = UserCreateHelper.GetUser(user1.Id)
+                        });
+                        Program.TcpServer.SendMessageTo(friendTable.FromUser.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteOutgoingFriendRequest,
+                            data = UserCreateHelper.GetUser(friendTable.ToUser.Id)
+                        });
+                        Program.TcpServer.SendMessageTo(friendTable.ToUser.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteIncomingFriendRequest,
+                            data = UserCreateHelper.GetUser(friendTable.FromUser.Id)
+                        });
+                    });
+                    return Ok("Friend added");
                 }
                 catch
                 {
@@ -63,7 +87,20 @@ namespace VardoneApi.Controllers
                 {
                     friendsList.Add(newFl);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(user1.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewOutgoingFriendRequest,
+                            data = UserCreateHelper.GetUser(user2.Id)
+                        });
+                        Program.TcpServer.SendMessageTo(user2.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewIncomingFriendRequest,
+                            data = UserCreateHelper.GetUser(user1.Id)
+                        });
+                    });
+                    return Ok("Friend request sended");
                 }
                 catch (Exception e)
                 {
@@ -77,7 +114,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -97,7 +134,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -116,11 +153,43 @@ namespace VardoneApi.Controllers
                 var user2 = users.First(p => p.Id == secondId);
                 try
                 {
-                    var first = friendsList.First(p =>
-                        p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
+                    var first = friendsList.First(p => p.FromUser == user1 && p.ToUser == user2 || p.FromUser == user2 && p.ToUser == user1);
                     friendsList.Remove(first);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Task.Run(() =>
+                    {
+                        if (first.Confirmed)
+                        {
+                            var u1 = UserCreateHelper.GetUser(user1.Id, true);
+                            var u2 = UserCreateHelper.GetUser(user2.Id, true);
+                            Program.TcpServer.SendMessageTo(u1.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteFriend,
+                                data = u2
+                            });
+                            Program.TcpServer.SendMessageTo(u2.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteFriend,
+                                data = u1
+                            });
+                        }
+                        else
+                        {
+                            var from = UserCreateHelper.GetUser(first.FromUser.Id);
+                            var to = UserCreateHelper.GetUser(first.ToUser.Id);
+                            Program.TcpServer.SendMessageTo(from.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteOutgoingFriendRequest,
+                                data = to
+                            });
+                            Program.TcpServer.SendMessageTo(to.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteIncomingFriendRequest,
+                                data = from
+                            });
+                        }
+                    });
+                    return Ok("Deleted");
                 }
                 catch (Exception e)
                 {
@@ -130,11 +199,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getFriends")]
-        public async Task<IActionResult> GetFriends([FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetFriends()
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -155,10 +224,10 @@ namespace VardoneApi.Controllers
                     foreach (var row in friendsList.Where(p => (p.FromUser.Id == userId || p.ToUser.Id == userId) && p.Confirmed))
                     {
                         var friend = row.FromUser.Id != userId ? row.FromUser : row.ToUser;
-                        users.Add(UserCreateHelper.GetUser(friend, onlyId));
+                        users.Add(UserCreateHelper.GetUser(friend.Id));
                     }
 
-                    return Ok(users);
+                    return Ok(users.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -168,11 +237,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getIncomingFriendRequests")]
-        public async Task<IActionResult> GetIncomingFriendRequests([FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetIncomingFriendRequests()
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -191,11 +260,10 @@ namespace VardoneApi.Controllers
                     var users = new List<User>();
                     foreach (var row in friendsList.Where(p => p.ToUser.Id == userId && p.Confirmed == false))
                     {
-                        users.Add(UserCreateHelper.GetUser(row.FromUser, onlyId));
+                        users.Add(UserCreateHelper.GetUser(row.FromUser.Id));
                     }
 
-
-                    return Ok(users);
+                    return Ok(users.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -205,11 +273,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getOutgoingFriendRequests")]
-        public async Task<IActionResult> GetOutgoingFriendRequests([FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetOutgoingFriendRequests()
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -228,10 +296,10 @@ namespace VardoneApi.Controllers
                     var users = new List<User>();
                     foreach (var row in friendsList.Where(p => p.FromUser.Id == userId && p.Confirmed == false))
                     {
-                        users.Add(UserCreateHelper.GetUser(row.ToUser, onlyId));
+                        users.Add(UserCreateHelper.GetUser(row.ToUser.Id));
                     }
 
-                    return Ok(users);
+                    return Ok(users.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -241,11 +309,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getMe")]
-        public async Task<IActionResult> GetMe([FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetMe()
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -267,36 +335,33 @@ namespace VardoneApi.Controllers
                     var returnUser = new User
                     {
                         UserId = user.Id,
-                        Username = user.Username
+                        Username = user.Username,
+                        Description = user.Info?.Description,
+                        Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar)
                     };
-                    if (!onlyId)
+
+                    var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
+
+                    var fullName = user.Info?.FullName is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
+
+                    var phone = user.Info?.Phone is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
+
+                    DateTime? birthDate = user.Info?.BirthDate is null
+                        ? null
+                        : DateTime.FromBinary(Convert.ToInt64(
+                            CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.BirthDate),
+                                byteKey, PasswordOptions.IV)));
+                    returnUser.AdditionalInformation = new AdditionalUserInformation
                     {
-                        var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
-
-                        var fullName = user.Info?.FullName is null
-                            ? null
-                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.FullName), byteKey, PasswordOptions.IV);
-
-                        var phone = user.Info?.Phone is null
-                            ? null
-                            : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Phone), byteKey, PasswordOptions.IV);
-
-                        DateTime? birthDate = user.Info?.BirthDate is null
-                            ? null
-                            : DateTime.FromBinary(Convert.ToInt64(CryptographyTools.DecryptStringFromBytes_Aes(
-                                Convert.FromBase64String(user.Info?.BirthDate),
-                                byteKey,
-                                PasswordOptions.IV)));
-                        returnUser.Description = user.Info?.Description;
-                        returnUser.Base64Avatar = user.Info?.Avatar == null ? null : Convert.ToBase64String(user.Info.Avatar);
-                        returnUser.AdditionalInformation = new AdditionalUserInformation
-                        {
-                            Email = user.Email,
-                            FullName = fullName,
-                            Phone = phone,
-                            BirthDate = birthDate
-                        };
-                    }
+                        Email = user.Email,
+                        FullName = fullName,
+                        Phone = phone,
+                        BirthDate = birthDate
+                    };
 
                     return Ok(returnUser);
                 }
@@ -312,7 +377,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -329,7 +394,7 @@ namespace VardoneApi.Controllers
                     var users = dataContext.Users;
                     users.Include(p => p.Info).Load();
                     var user = users.First(p => p.Id == secondId);
-                    return Ok(UserCreateHelper.GetUser(user));
+                    return Ok(UserCreateHelper.GetUser(user.Id));
                 }
                 catch (Exception e)
                 {
@@ -343,7 +408,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -359,17 +424,8 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var usersOnline = dataContext.UsersOnline;
                     usersOnline.Include(p => p.User).Load();
-                    try
-                    {
-                        var user = usersOnline.First(p => p.User.Id == secondId);
-                        var span = TimeSpan.FromTicks(DateTime.Now.Ticks) - TimeSpan.FromTicks(user.LastOnlineTime.Ticks);
-                        var res = span.Minutes < 1;
-                        return Ok(res);
-                    }
-                    catch
-                    {
-                        return Ok(false);
-                    }
+
+                    return Ok(usersOnline.FirstOrDefault(p => p.User.Id == secondId)?.IsOnline);
                 }
                 catch (Exception e)
                 {
@@ -383,7 +439,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -404,7 +460,7 @@ namespace VardoneApi.Controllers
                     var guilds = new List<Guild>();
                     foreach (var item in guildMembers.Where(p => p.User.Id == userId))
                     {
-                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild, true, true, onlyId: onlyId));
+                        guilds.Add(GuildCreateHelper.GetGuild(item.Guild.Id, true, true, onlyId: onlyId));
                     }
 
                     return Ok(guilds.ToArray());
@@ -421,7 +477,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -441,24 +497,11 @@ namespace VardoneApi.Controllers
                     chatsTable.Include(p => p.ToUser).Load();
                     chatsTable.Include(p => p.ToUser.Info).Load();
                     var chats = new List<PrivateChat>();
-                    var @where = chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).ToList();
-                    foreach (var chat in @where)
+                    foreach (var chat in chatsTable.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId))
                     {
-                        var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
-                        var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
-                        var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
-                        var item = new PrivateChat
-                        {
-                            ChatId = chat.Id,
-                            FromUser = UserCreateHelper.GetUser(user1, onlyId),
-                            ToUser = UserCreateHelper.GetUser(user2, onlyId),
-                            UnreadMessages = privateMessages.Count(p =>
-                                p.Chat.Id == chat.Id && p.Author != user1 &&
-                                DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
-                        };
+                        var item = PrivateChatCreateHelper.GetPrivateChat(chat.Id, userId);
                         chats.Add(item);
                     }
-
                     return Ok(chats.ToArray());
                 }
                 catch (Exception e)
@@ -473,7 +516,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -490,11 +533,12 @@ namespace VardoneApi.Controllers
                     var @where = tokens.Where(p => p.User.Id == userId);
                     tokens.RemoveRange(@where);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Program.TcpServer.RemoveConnection(userId);
+                    return Ok("Closed");
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return BadRequest();
+                    return Problem(ex.Message);
                 }
             }));
         }
@@ -504,7 +548,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -521,11 +565,12 @@ namespace VardoneApi.Controllers
                     var first = tokens.First(p => p.User.Id == userId && p.Token == token.Token);
                     tokens.Remove(first);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Program.TcpServer.RemoveConnection(token);
+                    return Ok("Closed");
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return BadRequest();
+                    return Problem(ex.Message);
                 }
             }));
         }
@@ -535,7 +580,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -546,61 +591,150 @@ namespace VardoneApi.Controllers
 
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;
+                var members = dataContext.GuildMembers;
+                members.Include(p => p.Guild).Load();
+                members.Include(p => p.Guild.Owner).Load();
+                members.Include(p => p.User).Load();
+                var privateChats = dataContext.PrivateChats;
+                privateChats.Include(p => p.FromUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
+                var invites = dataContext.GuildInvites;
+                invites.Include(p => p.Guild).Load();
+                invites.Include(p => p.CreatedByUser).Load();
+                var friends = dataContext.FriendsList;
+                friends.Include(p => p.FromUser).Load();
+                friends.Include(p => p.ToUser).Load();
+                var bannedMembers = dataContext.BannedGuildMembers;
+                bannedMembers.Include(p => p.Guild).Load();
+                bannedMembers.Include(p => p.Guild.Owner).Load();
+                bannedMembers.Include(p => p.BannedUser).Load();
+                var channelMessages = dataContext.ChannelMessages;
+                channelMessages.Include(p => p.Author).Load();
+                channelMessages.Include(p => p.Channel).Load();
+                channelMessages.Include(p => p.Channel.Guild).Load();
+
                 try
                 {
-                    users.Remove(users.First(p => p.Id == userId));
+                    var user = users.First(p => p.Id == userId);
+                    var userOb = UserCreateHelper.GetUser(user.Id, true);
+
+                    var userFriendList = friends.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).ToArray();
+                    var userIncomingFriendRequsts = userFriendList.Where(p => p.ToUser.Id == userId && !p.Confirmed).ToArray();
+                    var userOutgoingFriendRequsts = userFriendList.Where(p => p.FromUser.Id == userId && !p.Confirmed).ToArray();
+                    var userFriends = userFriendList.Where(p => p.Confirmed).ToArray();
+
+                    var userPrivateChats = privateChats.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId).Select(p => PrivateChatCreateHelper.GetPrivateChat(p.Id, userId)).ToArray();
+
+                    var userGuilds = members.Where(p => p.User.Id == userId);
+                    var userGuildObs = userGuilds.ToDictionary(p => p.Guild.Id, p => GuildCreateHelper.GetGuild(p.Guild.Id, false, false, true));
+                    var userMemberObs = userGuilds.ToDictionary(p => p.Guild.Id, p => UserCreateHelper.GetMember(p.Id, true));
+                    var userOwnedGuildMemberIds = members
+                        .Where(p => p.Guild.Owner.Id == userId && userGuilds.Any(c => c.Guild.Id == p.Guild.Id))
+                        .ToLookup(p => p.Guild.Id)
+                        .ToDictionary(p => p.Key, p => p.Select(c => c.User.Id).ToArray());
+                    var userUnownedGuildMemberIds = members
+                        .Where(p => p.Guild.Owner.Id != userId && userGuilds.Any(c => c.Guild.Id == p.Guild.Id))
+                        .ToLookup(p => p.Guild.Id)
+                        .ToDictionary(p => p.Key, p => p.Select(c => c.User.Id).ToArray());
+
+                    var userBannedOnGuilds = bannedMembers.Where(p => p.BannedUser.Id == userId).ToArray();
+
+                    var userChannelMessages = channelMessages.AsEnumerable().Where(p => p.Author.Id == userId && userUnownedGuildMemberIds.ContainsKey(p.Channel.Guild.Id)).ToList();
+                    var userChannelMessageObs = userChannelMessages.ToDictionary(p => p.Id, p => MessageCreateHelper.GetChannelMessage(p.Id, true));
+
+                    users.Remove(user);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Program.TcpServer.RemoveConnection(userId);
+                    Task.Run(() =>
+                    {
+                        foreach (var incomingFriendRequst in userIncomingFriendRequsts)
+                        {
+                            Program.TcpServer.SendMessageTo(incomingFriendRequst.FromUser.Id, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteOutgoingFriendRequest,
+                                data = userOb
+                            });
+                        }
+                        foreach (var outgoingFriendRequst in userOutgoingFriendRequsts)
+                        {
+                            Program.TcpServer.SendMessageTo(outgoingFriendRequst.ToUser.Id, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteIncomingFriendRequest,
+                                data = userOb
+                            });
+                        }
+                        foreach (var friend in userFriends)
+                        {
+                            var uid = friend.FromUser.Id == userId ? friend.ToUser.Id : friend.FromUser.Id;
+                            Program.TcpServer.SendMessageTo(uid, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteFriend,
+                                data = userOb
+                            });
+                        }
+
+                        foreach (var chat in userPrivateChats)
+                        {
+                            Program.TcpServer.SendMessageTo(chat.ToUser.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeletePrivateChat,
+                                data = chat
+                            });
+                        }
+
+                        foreach (var (guildId, membersIds) in userUnownedGuildMemberIds)
+                        {
+                            var tcpNotice = new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteMember,
+                                data = userMemberObs[guildId]
+                            };
+                            foreach (var id in membersIds)
+                            {
+                                Program.TcpServer.SendMessageTo(id, tcpNotice);
+                            }
+                        }
+
+                        foreach (var messageItem in userChannelMessages)
+                        {
+                            var tcpNotice = new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteChannelMessage,
+                                data = userChannelMessageObs[messageItem.Id]
+                            };
+                            foreach (var id in userUnownedGuildMemberIds[messageItem.Channel.Guild.Id])
+                            {
+                                Program.TcpServer.SendMessageTo(id, tcpNotice);
+                            }
+                        }
+
+                        foreach (var (guildId, memberIds) in userOwnedGuildMemberIds)
+                        {
+                            var tcpNotice = new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.GuildLeave,
+                                data = userGuildObs[guildId]
+                            };
+                            foreach (var id in memberIds)
+                            {
+                                Program.TcpServer.SendMessageTo(id, tcpNotice);
+                            }
+                        }
+
+                        foreach (var banItem in userBannedOnGuilds)
+                        {
+                            Program.TcpServer.SendMessageTo(banItem.Guild.Owner.Id, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.UnbanMember,
+                                data = userOb
+                            });
+                        }
+                    });
+                    return Ok("Deleted successfully");
                 }
                 catch (Exception e)
                 {
                     return Problem(e.Message);
-                }
-            }));
-        }
-        //
-        [HttpPost, Route("setOnline")]
-        public async Task<IActionResult> setOnline()
-        {
-            return await Task.Run(new Func<IActionResult>(() =>
-            {
-                var token = TokenParserWorker.GetUserToken(User);
-                if (token is null) return BadRequest("Token parser problem");
-                var userId = token.UserId;
-                if (!UserChecks.CheckToken(token))
-                {
-                    Response.Headers.Add("Token-Invalid", "true");
-                    return Unauthorized("Invalid token");
-                }
-
-                var dataContext = Program.DataContext;
-                var users = dataContext.Users;
-                var usersOnline = dataContext.UsersOnline;
-                usersOnline.Include(p => p.User).Load();
-                try
-                {
-                    var user = usersOnline.First(p => p.User.Id == userId);
-                    user.LastOnlineTime = DateTime.Now;
-                    usersOnline.Update(user);
-                    dataContext.SaveChanges();
-                    return Ok();
-                }
-                catch
-                {
-                    try
-                    {
-                        usersOnline.Add(new UsersOnlineTable
-                        {
-                            User = users.First(p => p.Id == userId),
-                            LastOnlineTime = DateTime.Now
-                        });
-                        dataContext.SaveChanges();
-                        return Ok();
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest(e);
-                    }
                 }
             }));
         }
@@ -610,7 +744,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -652,7 +786,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -717,26 +851,40 @@ namespace VardoneApi.Controllers
                     user.Info = userInfo;
                     users.Update(user);
                     dataContext.SaveChanges();
-                    try
+                    usersInfos.RemoveRange(usersInfos.Where(p => p.User.Id == user.Id && p.Id != user.Info.Id));
+                    dataContext.SaveChanges();
+                    Task.Run(() =>
                     {
-                        var where = usersInfos.Where(p => p.User.Id == user.Id && p.Id != user.Info.Id);
-                        if (where.ToArray().Length == 0) throw new Exception();
-                        usersInfos.RemoveRange(where);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                    finally
-                    {
-                        dataContext.SaveChanges();
-                    }
-
-                    return Ok();
+                        var friendsList = dataContext.FriendsList;
+                        friendsList.Include(p => p.FromUser).Load();
+                        friendsList.Include(p => p.ToUser).Load();
+                        var guildMembers = dataContext.GuildMembers;
+                        guildMembers.Include(p => p.Guild).Load();
+                        guildMembers.Include(p => p.User).Load();
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.UpdateUser,
+                            data = UserCreateHelper.GetUser(userId)
+                        };
+                        Program.TcpServer.SendMessageTo(userId, tcpNotify);
+                        var guildIds = guildMembers.Where(p => p.User.Id == userId).Select(p => p.Guild.Id).ToArray();
+                        var userIds = guildMembers.Where(p => guildIds.Contains(p.Guild.Id)).Select(p => p.User.Id).ToArray();
+                        foreach (var id in userIds)
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                        foreach (var friendsListTable in friendsList.Where(p => p.FromUser.Id == userId || p.ToUser.Id == userId))
+                        {
+                            var u = friendsListTable.FromUser.Id == userId ? friendsListTable.ToUser.Id : friendsListTable.FromUser.Id;
+                            if (userIds.Contains(u)) continue;
+                            Program.TcpServer.SendMessageTo(u, tcpNotify);
+                        }
+                    });
+                    return Ok("Updated");
                 }
                 catch (Exception e)
                 {
-                    return BadRequest(e);
+                    return BadRequest(e.Message);
                 }
             }));
         }

@@ -11,6 +11,7 @@ using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Guilds;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
+using VardoneEntities.Models.TcpModels;
 
 namespace VardoneApi.Controllers
 {
@@ -18,11 +19,11 @@ namespace VardoneApi.Controllers
     public class GuildsController : ControllerBase
     {
         [HttpPost, Route("getGuild")]
-        public async Task<IActionResult> GetGuild([FromQuery] long guildId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetGuild([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 if (!UserChecks.CheckToken(token))
                 {
@@ -39,7 +40,8 @@ namespace VardoneApi.Controllers
                     guilds.Include(p => p.Info).Load();
                     guilds.Include(p => p.Owner).Load();
                     var guild = guilds.FirstOrDefault(p => p.Id == guildId);
-                    return Ok(GuildCreateHelper.GetGuild(guild, true, true, onlyId));
+                    if (guild == null) return BadRequest("Guild is not exists");
+                    return Ok(GuildCreateHelper.GetGuild(guild.Id));
                 }
                 catch (Exception e)
                 {
@@ -49,11 +51,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getBannedGuildMembers")]
-        public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetBannedGuildMembers([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -80,15 +82,12 @@ namespace VardoneApi.Controllers
                     {
                         var member = new BannedMember
                         {
-                            BannedUser = UserCreateHelper.GetUser(item.BannedUser, onlyId),
-                            BannedByUser = UserCreateHelper.GetUser(item.BannedByUser, onlyId),
-                            Guild = GuildCreateHelper.GetGuild(item.Guild, false, onlyId: onlyId),
-                            BanDateTime = item.BanDate
+                            BannedUser = UserCreateHelper.GetUser(item.BannedUser.Id),
+                            BannedByUser = UserCreateHelper.GetUser(item.BannedByUser.Id),
+                            Guild = GuildCreateHelper.GetGuild(item.Guild.Id, false),
+                            BanDateTime = item.BanDate,
+                            Reason = item.Reason
                         };
-                        if (!onlyId)
-                        {
-                            member.Reason = item.Reason;
-                        }
                         bannedUsers.Add(member);
                     }
                     return Ok(bannedUsers.ToArray());
@@ -101,11 +100,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildChannels")]
-        public async Task<IActionResult> GetGuildChannels([FromQuery] long guildId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetGuildChannels([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -118,7 +117,7 @@ namespace VardoneApi.Controllers
                 if (!GuildChecks.IsUserMember(userId, guildId)) return BadRequest("You are not a guild member");
                 try
                 {
-                    return Ok(GuildCreateHelper.GetGuildChannels(guildId, onlyId).ToArray());
+                    return Ok(GuildCreateHelper.GetGuildChannels(guildId).ToArray());
                 }
                 catch (Exception e)
                 {
@@ -128,11 +127,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getGuildInvites")]
-        public async Task<IActionResult> GetGuildInvites([FromQuery] long guildId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetGuildInvites([FromQuery] long guildId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -158,15 +157,7 @@ namespace VardoneApi.Controllers
 
                     foreach (var item in guildInvites.Where(p => p.Guild.Id == guildId))
                     {
-                        invites.Add(new GuildInvite
-                        {
-                            InviteId = item.Id,
-                            CreatedAt = item.CreatedAt,
-                            InviteCode = item.InviteCode,
-                            CreatedBy = UserCreateHelper.GetUser(item.CreatedByUser, onlyId),
-                            Guild = GuildCreateHelper.GetGuild(item.Guild, false, onlyId: onlyId),
-                            NumberOfUses = item.NumberOfUses
-                        });
+                        invites.Add(GuildCreateHelper.GetGuildInvite(item.Id));
                     }
                     return Ok(invites.ToArray());
                 }
@@ -174,7 +165,6 @@ namespace VardoneApi.Controllers
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //
@@ -183,7 +173,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -206,7 +196,7 @@ namespace VardoneApi.Controllers
                     var returnMembers = new List<Member>();
                     foreach (var member in members.Where(p => p.Guild.Id == guildId))
                     {
-                        returnMembers.Add(UserCreateHelper.GetMember(member));
+                        returnMembers.Add(UserCreateHelper.GetMember(member.Id));
                     }
 
                     return Ok(returnMembers.ToArray());
@@ -223,7 +213,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -249,15 +239,23 @@ namespace VardoneApi.Controllers
                     };
                     guilds.Add(guild);
                     dataContext.SaveChanges();
-                    members.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
+                    var guildMembersTable = new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now };
+                    members.Add(guildMembersTable);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.GuildJoin,
+                            data = GuildCreateHelper.GetGuild(guild.Id)
+                        });
+                    });
                     return Ok("Created");
                 }
                 catch (Exception e)
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //
@@ -266,7 +264,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -282,16 +280,29 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var guilds = dataContext.Guilds;
-
-                    guilds.Remove(guilds.First(p => p.Id == guildId));
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
+                    guildMembers.Include(p => p.Guild).Load();
+                    var guild = guilds.First(p => p.Id == guildId);
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.GuildLeave,
+                        data = GuildCreateHelper.GetGuild(guild.Id, false, false, true)
+                    };
+                    var idsToNotify = guildMembers.Where(p => p.Guild.Id == guildId).Select(p => p.User.Id).ToArray();
+                    guilds.Remove(guild);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        foreach (var id in idsToNotify) Program.TcpServer.SendMessageTo(id, tcpNotify);
+                    });
+
                     return Ok("Deleted");
                 }
                 catch (Exception e)
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //
@@ -300,7 +311,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -318,11 +329,19 @@ namespace VardoneApi.Controllers
                     guildInvites.Include(p => p.Guild).Load();
                     guildInvites.Include(p => p.Guild.Owner).Load();
 
-                    var invite = guildInvites.First(p => p.Id == inviteId);
-                    if (invite.Guild.Owner.Id != userId) return BadRequest("You are not owner");
-
-                    guildInvites.Remove(invite);
+                    var inviteTable = guildInvites.First(p => p.Id == inviteId);
+                    if (inviteTable.Guild.Owner.Id != userId) return BadRequest("You are not owner");
+                    var invite = GuildCreateHelper.GetGuildInvite(inviteTable.Id);
+                    guildInvites.Remove(inviteTable);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteGuildInvite,
+                            data = invite
+                        });
+                    });
                     return Ok("Invite deleted");
                 }
                 catch (Exception e)
@@ -337,7 +356,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -353,6 +372,9 @@ namespace VardoneApi.Controllers
                     var guildInfos = dataContext.GuildInfos;
                     guildInfos.Include(p => p.Guild).Load();
                     var guilds = dataContext.Guilds;
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.User).Load();
 
                     var guild = guilds.First(p => p.Id == updateModel.GuildId);
 
@@ -379,6 +401,19 @@ namespace VardoneApi.Controllers
                     guilds.Update(guild);
                     guildInfos.Update(info);
                     dataContext.SaveChanges();
+
+                    Task.Run(() =>
+                    {
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.UpdateGuild,
+                            data = GuildCreateHelper.GetGuild(guild.Id)
+                        };
+                        foreach (var id in guildMembers.Where(p => p.Guild.Id == guild.Id).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
                     return Ok("Updated");
                 }
                 catch (Exception e)
@@ -393,7 +428,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -416,22 +451,76 @@ namespace VardoneApi.Controllers
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.BannedUser).Load();
                     bannedGuildMembers.Include(p => p.Guild).Load();
+                    var channelMessages = dataContext.ChannelMessages;
+                    channelMessages.Include(p => p.Author).Load();
+                    channelMessages.Include(p => p.Channel).Load();
+                    channelMessages.Include(p => p.Channel.Guild).Load();
                     var invites = dataContext.GuildInvites;
                     invites.Include(p => p.CreatedByUser).Load();
-
-                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId));
-                    guildMembers.RemoveRange(guildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
-                    invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
-
-                    dataContext.SaveChanges();
-
+                    invites.Include(p => p.Guild).Load();
+                    //
                     var guild = guilds.First(p => p.Id == guildId);
                     var bannedUser = users.First(p => p.Id == secondId);
                     var bannedByUser = users.First(p => p.Id == userId);
 
+                    var userChannelMessages = channelMessages.Where(p => p.Author.Id == secondId && p.Channel.Guild.Id == guildId).ToArray();
+                    var userInvites = invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId).ToArray();
+
+                    if (bannedGuildMembers.Any(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId)) return Ok("User is already banned");
                     bannedGuildMembers.Add(new BannedGuildMembersTable { Guild = guild, Reason = reason, BannedUser = bannedUser, BannedByUser = bannedByUser, BanDate = DateTime.Now });
+
+                    var members = guildMembers.Where(p => p.Guild.Id == guildId).ToArray();
+                    var member = members.FirstOrDefault(p => p.User.Id == secondId && p.Guild.Id == guildId);
+                    if (member is null) return BadRequest("User is not a member");
+                    var memberOb = UserCreateHelper.GetMember(secondId, guildId, true);
+                    guildMembers.Remove(member);
+
+                    var userInvitesObs = userInvites.Select(p => GuildCreateHelper.GetGuildInvite(p.Id)).ToArray();
+                    invites.RemoveRange(userInvites);
+
+                    var userMessageObs = userChannelMessages.Select(p => MessageCreateHelper.GetChannelMessage(p.Id, true)).ToArray();
+                    channelMessages.RemoveRange(userChannelMessages);
                     dataContext.SaveChanges();
-                    return Ok("Banned");
+
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(secondId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.GuildLeave,
+                            data = GuildCreateHelper.GetGuild(guildId, false, false, true)
+                        });
+                        Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.BanMember,
+                            data = UserCreateHelper.GetBannedMember(secondId, guildId)
+                        });
+                        var tcpNoticeDeleteMember = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteMember,
+                            data = memberOb
+                        };
+                        foreach (var id in members.Where(p => p.User.Id != secondId).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNoticeDeleteMember);
+                            foreach (var message in userMessageObs)
+                            {
+                                Program.TcpServer.SendMessageTo(id, new TcpResponseModel
+                                {
+                                    type = TypeTcpResponse.DeleteChannelMessage,
+                                    data = message
+                                });
+                            }
+                        }
+                        foreach (var invite in userInvitesObs)
+                        {
+                            Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteGuildInvite,
+                                data = invite
+                            });
+                        }
+                    });
+                    return Ok("User was banned");
                 }
                 catch (Exception e)
                 {
@@ -445,7 +534,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -467,8 +556,19 @@ namespace VardoneApi.Controllers
                     bannedGuildMembers.Include(p => p.BannedUser).Load();
                     bannedGuildMembers.Include(p => p.Guild).Load();
 
-                    bannedGuildMembers.RemoveRange(bannedGuildMembers.Where(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId));
+                    var bannedMember = bannedGuildMembers.FirstOrDefault(p => p.BannedUser.Id == secondId && p.Guild.Id == guildId);
+                    if (bannedMember is null) return Ok("User not banned");
+                    var bannedMemberObj = UserCreateHelper.GetBannedMember(bannedMember.Id, true);
+                    bannedGuildMembers.Remove(bannedMember);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(secondId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.UnbanMember,
+                            data = bannedMemberObj
+                        });
+                    });
                     return Ok("Unbanned");
                 }
                 catch (Exception e)
@@ -483,7 +583,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -503,6 +603,7 @@ namespace VardoneApi.Controllers
                     guildInvites.Include(p => p.Guild.Info).Load();
                     var guilds = dataContext.Guilds;
                     guilds.Include(p => p.Info).Load();
+                    guilds.Include(p => p.Owner).Load();
                     var users = dataContext.Users;
                     users.Include(p => p.Info).Load();
 
@@ -522,15 +623,16 @@ namespace VardoneApi.Controllers
                     };
                     guildInvites.Add(guildInvite);
                     dataContext.SaveChanges();
-                    return Ok(new GuildInvite
+                    var invite = GuildCreateHelper.GetGuildInvite(guildInvite.Id);
+                    Task.Run(() =>
                     {
-                        InviteId = guildInvite.Id,
-                        InviteCode = guildInvite.InviteCode,
-                        CreatedAt = guildInvite.CreatedAt,
-                        CreatedBy = UserCreateHelper.GetUser(guildInvite.CreatedByUser),
-                        Guild = GuildCreateHelper.GetGuild(guildInvite.Guild, false),
-                        NumberOfUses = guildInvite.NumberOfUses
+                        Program.TcpServer.SendMessageTo(guild.Owner.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewGuildInvite,
+                            data = invite
+                        });
                     });
+                    return Ok(invite);
                 }
                 catch (Exception e)
                 {
@@ -544,7 +646,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -560,35 +662,49 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var users = dataContext.Users;
                     var guilds = dataContext.Guilds;
-
                     var guildInvites = dataContext.GuildInvites;
                     guildInvites.Include(p => p.Guild).Load();
                     guildInvites.Include(p => p.CreatedByUser).Load();
-
                     var bannedGuildMembers = dataContext.BannedGuildMembers;
                     bannedGuildMembers.Include(p => p.Guild).Load();
                     bannedGuildMembers.Include(p => p.BannedUser).Load();
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
+                    guildMembers.Include(p => p.Guild).Load();
 
-                    var members = dataContext.GuildMembers;
-                    members.Include(p => p.User).Load();
-                    members.Include(p => p.Guild).Load();
-
-                    var invite = guildInvites.First(p => p.InviteCode == inviteCode);
+                    var invite = guildInvites.FirstOrDefault(p => p.InviteCode == inviteCode);
+                    if (invite is null) return BadRequest("Invite is not exists");
                     var guildId = invite.Guild.Id;
 
                     if (bannedGuildMembers.Any(p => p.Guild.Id == guildId && p.BannedUser.Id == userId)) return BadRequest("You are banned on this guild");
 
                     var guild = guilds.First(p => p.Id == guildId);
                     var user = users.First(p => p.Id == userId);
-                    foreach (var table in members.Where(p => p.Guild == guild))
-                    {
-                        if (table.User.Id == userId) return Ok();
-                    }
+                    var members = guildMembers.Where(p => p.Guild.Id == guild.Id).ToArray();
+                    if (members.Any(p => p.User.Id == userId)) return Ok("You already on this server");
 
-                    members.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
-                    members.First(p => p.User.Id == invite.CreatedByUser.Id && p.Guild.Id == invite.Guild.Id).NumberOfInvitedMembers++;
+                    guildMembers.Add(new GuildMembersTable { User = user, Guild = guild, JoinDate = DateTime.Now });
+                    guildMembers.First(p => p.User.Id == invite.CreatedByUser.Id && p.Guild.Id == invite.Guild.Id).NumberOfInvitedMembers++;
                     invite.NumberOfUses++;
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.GuildJoin,
+                            data = GuildCreateHelper.GetGuild(guildId)
+                        });
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewMember,
+                            data = UserCreateHelper.GetMember(userId, guildId)
+                        };
+                        var uIds = members.Where(p => p.User.Id != userId).Select(p => p.User.Id);
+                        foreach (var id in uIds)
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
                     return Ok("Joined");
                 }
                 catch (Exception e)
@@ -603,7 +719,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -618,16 +734,63 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var dataContext = Program.DataContext;
+                    var channelMessages = dataContext.ChannelMessages;
+                    channelMessages.Include(p => p.Author).Load();
+                    channelMessages.Include(p => p.Channel).Load();
+                    channelMessages.Include(p => p.Channel.Guild).Load();
                     var guildMembers = dataContext.GuildMembers;
                     guildMembers.Include(p => p.Guild).Load();
                     guildMembers.Include(p => p.User).Load();
                     var invites = dataContext.GuildInvites;
                     invites.Include(p => p.CreatedByUser).Load();
 
-                    guildMembers.RemoveRange(guildMembers.Where(p => p.User.Id == secondId && p.Guild.Id == guildId));
-                    invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId));
+                    var members = guildMembers.Where(p => p.Guild.Id == guildId).ToArray();
+                    var member = members.FirstOrDefault(p => p.User.Id == secondId && p.Guild.Id == guildId);
+                    if (member is null) return BadRequest("User is not a member");
+                    guildMembers.Remove(member);
 
+                    var userInvites = invites.Where(p => p.CreatedByUser.Id == secondId && p.Guild.Id == guildId).ToArray();
+                    var userInvitesObs = userInvites.Select(p => GuildCreateHelper.GetGuildInvite(p.Id));
+                    invites.RemoveRange(userInvites);
+
+                    var userChannelMessages = channelMessages.Where(p => p.Author.Id == secondId && p.Channel.Guild.Id == guildId).ToArray();
+                    var userChannelMessagesObs = userChannelMessages.Select(p => MessageCreateHelper.GetChannelMessage(p.Id, true)).ToArray();
+                    channelMessages.RemoveRange(userChannelMessages);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(secondId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.GuildLeave,
+                            data = GuildCreateHelper.GetGuild(guildId, false, false, true)
+                        });
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteMember,
+                            data = member
+                        };
+                        foreach (var id in members.Where(p => p.User.Id != secondId).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                            foreach (var message in userChannelMessagesObs)
+                            {
+                                Program.TcpServer.SendMessageTo(id, new TcpResponseModel
+                                {
+                                    type = TypeTcpResponse.DeleteChannelMessage,
+                                    data = message
+                                });
+                            }
+                        }
+
+                        foreach (var invite in userInvitesObs)
+                        {
+                            Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteGuildInvite,
+                                data = invite
+                            });
+                        }
+                    });
                     return Ok("Kicked");
                 }
                 catch (Exception e)
@@ -642,7 +805,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -654,18 +817,71 @@ namespace VardoneApi.Controllers
                 if (!GuildChecks.IsGuildExists(guildId)) return BadRequest("Guild is not exists");
 
                 var dataContext = Program.DataContext;
-                var members = dataContext.GuildMembers;
-                members.Include(p => p.User).Load();
-                members.Include(p => p.Guild).Load();
+                var guildMembers = dataContext.GuildMembers;
+                guildMembers.Include(p => p.User).Load();
+                guildMembers.Include(p => p.Guild).Load();
+                guildMembers.Include(p => p.Guild.Owner).Load();
                 var invites = dataContext.GuildInvites;
                 invites.Include(p => p.CreatedByUser).Load();
+                var channelMessages = dataContext.ChannelMessages;
+                channelMessages.Include(p => p.Author).Load();
+                channelMessages.Include(p => p.Channel).Load();
+                channelMessages.Include(p => p.Channel.Guild).Load();
 
-                if (!members.Any(p => p.User.Id == userId && p.Guild.Id == guildId)) return Ok("You are not member");
+                if (!guildMembers.Any(p => p.User.Id == userId && p.Guild.Id == guildId)) return Ok("You are not member");
 
-                var first = members.First(p => p.User.Id == userId && p.Guild.Id == guildId);
-                members.Remove(first);
+                var userChannelMessages = channelMessages.Where(p => p.Author.Id == userId).ToArray();
+                var userChannelMessagesObs = userChannelMessages.Select(p => MessageCreateHelper.GetChannelMessage(p.Id, true)).ToArray();
+                channelMessages.RemoveRange(userChannelMessages);
+
+                var members = guildMembers.Where(p => p.Guild.Id == guildId).ToArray();
+
+                var member = guildMembers.FirstOrDefault(p => p.User.Id == userId && p.Guild.Id == guildId);
+                if (member is null) return BadRequest("You are not a member");
+
+                var owner = member.Guild.Owner;
+                var memberOb = UserCreateHelper.GetMember(member.Id, true);
+                guildMembers.Remove(member);
+
+
+                var userInvites = invites.Where(p => p.CreatedByUser.Id == userId && p.Guild.Id == guildId).ToArray();
+                var userInviteObs = userInvites.Select(p => GuildCreateHelper.GetGuildInvite(p.Id));
                 invites.RemoveRange(invites.Where(p => p.CreatedByUser.Id == userId && p.Guild.Id == guildId));
                 dataContext.SaveChanges();
+                Task.Run(() =>
+                {
+                    Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.GuildLeave,
+                        data = GuildCreateHelper.GetGuild(guildId, false, false, true)
+                    });
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.DeleteMember,
+                        data = memberOb
+                    };
+                    foreach (var id in members.Where(p => p.User.Id != userId).Select(p => p.User.Id).ToArray())
+                    {
+                        Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        foreach (var message in userChannelMessagesObs)
+                        {
+                            Program.TcpServer.SendMessageTo(id, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeleteChannelMessage,
+                                data = message
+                            });
+                        }
+                    }
+
+                    foreach (var invite in userInviteObs)
+                    {
+                        Program.TcpServer.SendMessageTo(owner.Id, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeleteGuildInvite,
+                            data = invite
+                        });
+                    }
+                });
                 return Ok("Leaved");
             }));
         }

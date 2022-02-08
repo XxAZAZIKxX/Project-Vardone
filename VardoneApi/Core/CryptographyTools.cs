@@ -15,7 +15,7 @@ namespace VardoneApi.Core
             using (var sha512 = SHA512.Create())
             {
                 var computeHash = sha512.ComputeHash(bytes);
-                foreach (var b in computeHash) sb.Append(b.ToString("X"));
+                foreach (var b in computeHash) sb.Append(b.ToString("X2"));
             }
             return sb.ToString();
         }
@@ -28,7 +28,7 @@ namespace VardoneApi.Core
 
             // Convert the byte array to hexadecimal string
             var sb = new StringBuilder();
-            foreach (var t in hashBytes) sb.Append(t.ToString("X"));
+            foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
             return sb.ToString();
         }
 

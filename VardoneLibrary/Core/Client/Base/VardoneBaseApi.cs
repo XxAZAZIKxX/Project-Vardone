@@ -31,7 +31,7 @@ namespace VardoneLibrary.Core.Client.Base
             using (var sha512 = SHA512.Create())
             {
                 var computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(password));
-                foreach (var b in computeHash) passwordHash.Append(b.ToString("X"));
+                foreach (var b in computeHash) passwordHash.Append(b.ToString("X2"));
             }
             var response = ExecutePost(@"/auth/authUser", JsonConvert.SerializeObject(new GetUserTokenClientModel { Email = email, PasswordHash = passwordHash.ToString() }));
             return response.StatusCode is not HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<string>(response.Content);
@@ -42,7 +42,7 @@ namespace VardoneLibrary.Core.Client.Base
             {
                 var sb = new StringBuilder();
                 var computeHash = sha512.ComputeHash(Encoding.ASCII.GetBytes(register.PasswordHash));
-                foreach (var b in computeHash) sb.Append(b.ToString("X"));
+                foreach (var b in computeHash) sb.Append(b.ToString("X2"));
                 register.PasswordHash = sb.ToString();
             }
             var response = ExecutePost(@"/auth/registerUser", JsonConvert.SerializeObject(register));

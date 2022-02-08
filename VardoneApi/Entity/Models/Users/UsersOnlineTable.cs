@@ -9,6 +9,6 @@ namespace VardoneApi.Entity.Models.Users
     {
         [Column("id"), Key] public long Id { get; set; }
         [Column("user_id"), ForeignKey("user_id"), Required] public UsersTable User { get; set; }
-        [Column("last_online"), Required] public DateTime LastOnlineTime { get; set; }
+        [Column("is_online"), Required] public bool IsOnline { get; set; }
     }
 }

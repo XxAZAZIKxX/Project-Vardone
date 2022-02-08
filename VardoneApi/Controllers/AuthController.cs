@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using VardoneApi.Config;
 using VardoneApi.Core;
 using VardoneApi.Core.Checks;
 using VardoneApi.Entity.Models.Users;
@@ -59,12 +54,15 @@ namespace VardoneApi.Controllers
 
 
                 var remove = tokens.FirstOrDefault(t => t.User.Email == loginRequestModel.Email && t.MacAddress == loginRequestModel.MacAddress);
-                if (remove is not null) tokens.RemoveRange(remove);
-
+                if (remove is not null)
+                {
+                    Program.TcpServer.RemoveConnection(new UserTokenModel { UserId = remove.User.Id, Token = remove.Token });
+                    tokens.RemoveRange(remove);
+                }
 
                 tokens.Add(newToken);
                 dataContext.SaveChanges();
-                return Ok(GetJwtToken(GetIdentity(user.Id, newToken.Token)));
+                return Ok(JwtTokenWorker.GetJwtToken(JwtTokenWorker.GetIdentity(user.Id, newToken.Token)));
             }));
         }
         //
@@ -73,7 +71,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token is null");
                 return Ok(UserChecks.CheckToken(token));
             }));
@@ -135,12 +133,9 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var jwt = new JwtSecurityToken(token);
-                    if (!CheckSignature(jwt)) return BadRequest("Invalid signature");
-                    model = new UserTokenModel
-                    {
-                        UserId = Convert.ToInt64(jwt.Claims.First(p => p.Type == "id").Value),
-                        Token = jwt.Claims.First(p => p.Type == "token").Value
-                    };
+                    if (!JwtTokenWorker.CheckSignature(jwt)) return BadRequest("Invalid signature");
+                    model = JwtTokenWorker.GetUserToken(jwt.Claims);
+                    if (model is null) throw new Exception();
                 }
                 catch
                 {
@@ -156,42 +151,11 @@ namespace VardoneApi.Controllers
                 var dataContext = Program.DataContext;
                 var tokens = dataContext.Tokens;
                 tokens.Include(p => p.User).Load();
-                return Ok(GetJwtToken(GetIdentity(model.UserId, model.Token)));
+                return Ok(JwtTokenWorker.GetJwtToken(JwtTokenWorker.GetIdentity(model.UserId, model.Token)));
             }));
         }
 
         //Methods
-        private static bool CheckSignature(JwtSecurityToken jwt)
-        {
-            var signature = JwtTokenUtilities.CreateEncodedSignature(jwt.EncodedHeader + "." + jwt.EncodedPayload,
-                new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            return signature == jwt.RawSignature;
-        }
-        private static ClaimsIdentity GetIdentity(long id, string token)
-        {
-            if (token is null) return null;
-            var claims = new List<Claim>
-            {
-                new ("id", id.ToString()),
-                new ("token", token)
-            };
-
-            return new ClaimsIdentity(claims);
-        }
-        private static string GetJwtToken(ClaimsIdentity ident)
-        {
-            var now = DateTime.Now;
-            var jwt = new JwtSecurityToken(
-                TokenOptions.ISSUER,
-                TokenOptions.AUDIENCE,
-                ident.Claims,
-                now,
-                now.Add(TimeSpan.FromMinutes(TokenOptions.LIFETIME)),
-                new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-
-
-            return new JwtSecurityTokenHandler().WriteToken(jwt);
-        }
         private static string GenerateToken() => CryptographyTools.GetMd5Hash((int)new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() + CryptographyTools.CreateRandomString(0, 0, 12));
         private static bool IsValidEmail(string email) => new EmailAddressAttribute().IsValid(email);
     }

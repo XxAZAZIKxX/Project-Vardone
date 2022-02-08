@@ -10,20 +10,15 @@ namespace VardoneLibrary.Core.Client
 {
     public partial class VardoneClient : VardoneBaseClient
     {
-        private VardoneClientBackground _clientBackground;
-        public bool SetOnline => _clientBackground.setOnline;
-
         public VardoneClient(string token) : base(token)
         {
-            _clientBackground = new VardoneClientBackground(this);
             OnDisconnect += () => Task.Run(StopClient);
         }
 
         private void StopClient()
         {
-            _clientBackground?.StopThreads();
-            _clientBackground = null;
             Token = null;
+            TcpClientClose();
         }
         ~VardoneClient() => StopClient();
 
@@ -33,12 +28,11 @@ namespace VardoneLibrary.Core.Client
         /// Получить объект текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public User GetMe() => GetMe(false);
-        internal User GetMe(bool onlyId)
+        public User GetMe()
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getMe", onlyId: onlyId);
+                var response = ExecutePostWithToken("users/getMe");
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
@@ -89,19 +83,18 @@ namespace VardoneLibrary.Core.Client
         /// Получить список друзей текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public User[] GetFriends() => GetFriends(false);
-        internal User[] GetFriends(bool onlyId)
+        public  User[] GetFriends()
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getFriends", onlyId: onlyId);
+                var response = ExecutePostWithToken("users/getFriends");
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
                         return JsonConvert.DeserializeObject<User[]>(response.Content);
                     case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetFriends(onlyId);
+                        return GetFriends();
                     case ResponseStatus.InvalidToken:
                         EventDisconnectInvoke();
                         return null;
@@ -118,19 +111,18 @@ namespace VardoneLibrary.Core.Client
         /// Получить входящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public User[] GetIncomingFriendRequests() => GetIncomingFriendRequests(false);
-        internal User[] GetIncomingFriendRequests(bool onlyId)
+        public User[] GetIncomingFriendRequests()
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getIncomingFriendRequests", onlyId: onlyId);
+                var response = ExecutePostWithToken("users/getIncomingFriendRequests");
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
                         return JsonConvert.DeserializeObject<User[]>(response.Content);
                     case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetIncomingFriendRequests(onlyId);
+                        return GetIncomingFriendRequests();
                     case ResponseStatus.InvalidToken:
                         EventDisconnectInvoke();
                         return null;
@@ -146,19 +138,18 @@ namespace VardoneLibrary.Core.Client
         /// Получить исходящие запросы в друзья текущего пользователя
         /// </summary>
         /// <returns></returns>
-        public User[] GetOutgoingFriendRequests() => GetOutgoingFriendRequests(false);
-        internal User[] GetOutgoingFriendRequests(bool onlyId)
+        public  User[] GetOutgoingFriendRequests()
         {
             while (true)
             {
-                var response = ExecutePostWithToken("users/getOutgoingFriendRequests", onlyId: onlyId);
+                var response = ExecutePostWithToken("users/getOutgoingFriendRequests");
                 switch (ResponseHandler.GetResponseStatus(response))
                 {
                     case ResponseStatus.Ok:
                         return JsonConvert.DeserializeObject<User[]>(response.Content);
                     case ResponseStatus.UpdateToken:
                         UpdateToken();
-                        return GetOutgoingFriendRequests(onlyId);
+                        return GetOutgoingFriendRequests();
                     case ResponseStatus.InvalidToken:
                         EventDisconnectInvoke();
                         return null;

@@ -15,4 +15,8 @@
       <ProjectReference Include="..\VardoneEntities\VardoneEntities.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Tcp\" />
+    </ItemGroup>
+
 </Project>

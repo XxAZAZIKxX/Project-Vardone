@@ -12,6 +12,7 @@ using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
+using VardoneEntities.Models.TcpModels;
 
 namespace VardoneApi.Controllers
 {
@@ -23,7 +24,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -37,16 +38,31 @@ namespace VardoneApi.Controllers
                     var dataContext = Program.DataContext;
                     var guilds = dataContext.Guilds;
                     var channels = dataContext.Channels;
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.User).Load();
+                    guildMembers.Include(p => p.Guild).Load();
                     var guild = guilds.First(p => p.Id == guildId);
-                    channels.Add(new ChannelsTable { Name = string.IsNullOrWhiteSpace(name) ? "New channel" : name, Guild = guild });
+                    var newChannel = new ChannelsTable { Name = string.IsNullOrWhiteSpace(name) ? "New channel" : name, Guild = guild };
+                    channels.Add(newChannel);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewChannel,
+                            data = GuildCreateHelper.GetChannel(newChannel.Id)
+                        };
+                        foreach (var id in guildMembers.Where(p => p.Guild.Id == guildId).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
+                    return Ok("Created");
                 }
                 catch (Exception e)
                 {
                     return Problem(e.Message);
                 }
-
-                return Ok("Created");
             }));
         }
         //
@@ -55,7 +71,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -70,19 +86,33 @@ namespace VardoneApi.Controllers
                     var channels = dataContext.Channels;
                     channels.Include(p => p.Guild).Load();
                     channels.Include(p => p.Guild.Owner).Load();
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.User).Load();
 
-                    var channel = channels.First(p => p.Id == channelId);
+                    var channel = channels.FirstOrDefault(p => p.Id == channelId);
+                    if (channel is null) return BadRequest("Channe is not exists");
                     if (channel.Guild.Owner.Id != userId) return BadRequest("You are not the guild owner");
 
+                    var membersToNotify = guildMembers.Where(p => p.Guild.Id == channel.Guild.Id).Select(p => p.User.Id).ToArray();
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.DeleteChannel,
+                        data = GuildCreateHelper.GetChannel(channel.Id)
+                    };
                     channels.Remove(channel);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        foreach (var id in membersToNotify) Program.TcpServer.SendMessageTo(id, tcpNotify);
+                    });
+                    return Ok("Deleted");
                 }
                 catch (Exception e)
                 {
                     return Problem(e.Message);
                 }
 
-                return Ok("Deleted");
             }));
         }
         //
@@ -91,7 +121,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -107,14 +137,28 @@ namespace VardoneApi.Controllers
                     var channels = dataContext.Channels;
                     channels.Include(p => p.Guild).Load();
                     channels.Include(p => p.Guild.Owner).Load();
+                    var guildMembers = dataContext.GuildMembers;
+                    guildMembers.Include(p => p.Guild).Load();
+                    guildMembers.Include(p => p.User).Load();
 
                     var channel = channels.First(p => p.Id == updateChannelModel.ChannelId);
                     if (channel.Guild.Owner.Id != userId) return BadRequest("You are not owner");
 
                     channel.Name = string.IsNullOrWhiteSpace(updateChannelModel.Name) ? channel.Name : updateChannelModel.Name;
                     channels.Update(channel);
-
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.UpdateChannel,
+                            data = GuildCreateHelper.GetChannel(channel.Id)
+                        };
+                        foreach (var id in guildMembers.Where(p => p.Guild.Id == channel.Guild.Id).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
                     return Ok("Updated");
                 }
                 catch (Exception e)
@@ -125,11 +169,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannel")]
-        public async Task<IActionResult> GetChannel([FromQuery] long channelId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetChannel([FromQuery] long channelId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
@@ -147,10 +191,9 @@ namespace VardoneApi.Controllers
 
                     var channel = channels.FirstOrDefault(p => p.Id == channelId);
                     if (channel is null) return BadRequest("Channel is not exists");
-                    if (!GuildChecks.IsUserMember(token.UserId, channel.Guild.Id))
-                        return BadRequest("You are not a member");
+                    if (!GuildChecks.IsUserMember(token.UserId, channel.Guild.Id)) return BadRequest("You are not a member");
 
-                    return Ok(GuildCreateHelper.GetChannel(channel, onlyId));
+                    return Ok(GuildCreateHelper.GetChannel(channel.Id));
                 }
                 catch (Exception e)
                 {
@@ -164,7 +207,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -199,14 +242,24 @@ namespace VardoneApi.Controllers
                         Author = users.First(p => p.Id == userId),
                         Channel = channel,
                         CreatedTime = DateTime.Now,
-                        Image = message.Base64Image is not null
-                            ? ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image), 70)
-                            : null,
+                        Image = message.Base64Image is not null ? ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image), 70) : null,
                         Text = message.Text ?? ""
                     };
                     channelMessages.Add(messageTable);
-
                     dataContext.SaveChanges();
+
+                    Task.Run(() =>
+                    {
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewChannelMessage,
+                            data = MessageCreateHelper.GetChannelMessage(messageTable.Id)
+                        };
+                        foreach (var id in guildMembers.Where(p => p.Guild.Id == channel.Guild.Id).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
                     return Ok("Message was sent");
                 }
                 catch (Exception e)
@@ -217,11 +270,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessages")]
-        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetChannelMessages([FromQuery] long channelId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -258,19 +311,7 @@ namespace VardoneApi.Controllers
                     var returnMessages = new List<ChannelMessage>();
                     foreach (var m in selectedMessages)
                     {
-                        var item = new ChannelMessage
-                        {
-                            MessageId = m.Id,
-                            Author = UserCreateHelper.GetUser(m.Author, true),
-                            Channel = GuildCreateHelper.GetChannel(m.Channel, true),
-                            CreatedTime = m.CreatedTime
-                        };
-                        if (!onlyId)
-                        {
-                            item.Text = m.Text;
-                            item.Base64Image = m.Image is not null ? Convert.ToBase64String(m.Image) : null;
-                        }
-
+                        var item = MessageCreateHelper.GetChannelMessage(m.Id);
                         returnMessages.Add(item);
                     }
                     return Ok(returnMessages.ToArray());
@@ -283,11 +324,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getChannelMessage")]
-        public async Task<IActionResult> GetChannelMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetChannelMessage([FromQuery] long messageId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
@@ -306,22 +347,9 @@ namespace VardoneApi.Controllers
 
                     var message = channelMessages.FirstOrDefault(p => p.Id == messageId);
                     if (message is null) return BadRequest("Message is not exists");
-                    if (!GuildChecks.IsUserMember(token.UserId, message.Channel.Guild.Id))
-                        return BadRequest("You are not a member");
+                    if (!GuildChecks.IsUserMember(token.UserId, message.Channel.Guild.Id)) return BadRequest("You are not a member");
 
-                    var returnMessage = new ChannelMessage
-                    {
-                        MessageId = message.Id,
-                        Channel = GuildCreateHelper.GetChannel(message.Channel, true),
-                        Author = UserCreateHelper.GetUser(message.Author, true),
-                        CreatedTime = message.CreatedTime
-                    };
-                    if (!onlyId)
-                    {
-                        returnMessage.Base64Image = message.Image is null ? null : Convert.ToBase64String(message.Image);
-                        returnMessage.Text = message.Text;
-                    }
-
+                    var returnMessage = MessageCreateHelper.GetChannelMessage(messageId);
                     return Ok(returnMessage);
                 }
                 catch (Exception e)
@@ -336,7 +364,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -358,13 +386,25 @@ namespace VardoneApi.Controllers
                     channelMessages.Include(p => p.Channel.Guild.Owner).Load();
 
                     if (channelMessages.Count(p => p.Id == messageId) == 0) return BadRequest("Message is not exists");
-                    var channelMessage = channelMessages.First(p => p.Id == messageId);
+                    var channelMessage = channelMessages.FirstOrDefault(p => p.Id == messageId);
+                    if (channelMessage is null) return BadRequest("Message is not exists");
                     if (!guildMembers.Any(p => p.Guild.Id == channelMessage.Channel.Guild.Id && p.User.Id == userId)) return BadRequest("You are not member");
-
                     if (channelMessage.Author.Id != userId && channelMessage.Channel.Guild.Owner.Id != userId) return BadRequest("You cannot delete this message");
 
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.DeleteChannelMessage,
+                        data = MessageCreateHelper.GetChannelMessage(channelMessage.Id, true)
+                    };
                     channelMessages.Remove(channelMessage);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        foreach (var id in guildMembers.Where(p => p.Guild.Id == channelMessage.Channel.Guild.Id).Select(p => p.User.Id).ToArray())
+                        {
+                            Program.TcpServer.SendMessageTo(id, tcpNotify);
+                        }
+                    });
                     return Ok("Deleted");
                 }
                 catch (Exception e)

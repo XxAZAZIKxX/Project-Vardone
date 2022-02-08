@@ -1,84 +1,49 @@
-﻿using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
-using VardoneLibrary.Core.Client;
+﻿using VardoneLibrary.Core.Client;
 using VardoneLibrary.Core.Client.Base;
 
 namespace TestLibrary;
 
 internal static class Program
 {
-    private static readonly object Locker = new();
     public static void Main()
     {
-        //Console.CursorVisible = false;
-        //Console.SetWindowSize(50, 20);
-        //Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
-
-        //Task.Run(() =>
-        //{
-        //    while (true)
-        //    {
-        //        var s = "Memory usage: ";
-        //        var workingSet64 = Process.GetCurrentProcess().WorkingSet64;
-        //        var mb = workingSet64 / 1024d / 1024;
-        //        var gb = mb / 1024;
-        //        if (gb > 1) s += $"{Math.Round((decimal)gb, 4)} gb";
-        //        else s += $"{Math.Round((decimal)mb, 4)} mb";
-                
-        //        Write(s);
-
-        //        Thread.Sleep(500);
-        //    }
-        //});
-
-        //var client = new VardoneClient(VardoneBaseApi.GetUserToken("az195753@gmail.com", "q"));
-
-        //client.OnNewPrivateMessage += (_) => Task.Run(() => { Print("OnNewPrivateMessage"); });
-        //client.OnNewChannelMessage += (_) => Task.Run(() => { Print("OnNewChannelMessage"); });
-        //client.OnUpdateUser += (_) => Task.Run(() => { Print("OnUpdateUser"); });
-        //client.OnUpdateChatList += () => Task.Run(() => { Print("OnUpdateChatList"); });
-        //client.OnUpdateFriendList += () => Task.Run(() => { Print("OnUpdateFriendList"); });
-        //client.OnUpdateIncomingFriendRequestList += (_) => Task.Run(() => { Print("OnUpdateIncomingFriendRequestList"); });
-        //client.OnUpdateOutgoingFriendRequestList += () => Task.Run(() => { Print("OnUpdateOutgoingFriendRequestList"); });
-        //client.OnUpdateOnline += (_) => Task.Run(() => { Print("OnUpdateOnline"); });
-        //client.OnUpdateGuildList += () => Task.Run(() => { Print("OnUpdateGuildList"); });
-        //client.OnUpdateChannelList += (_) => Task.Run(() => { Print("OnUpdateChannelList"); });
-        //client.OnDeleteChannelMessage += (_) => Task.Run(() => { Print("OnDeleteChannelMessage"); });
-        //client.OnDeletePrivateChatMessage += (_) => Task.Run(() => { Print("OnDeletePrivateChatMessage"); });
-        //client.OnDisconnect += () => Task.Run(() => { Print("OnDisconnect"); });
-
-        //a:
-        //var key = Console.ReadKey(true);
-        //if(key.Key is ConsoleKey.R)Console.Clear();
-        //if(key.Key is ConsoleKey.Escape) Environment.Exit(0);
-        //goto a;
-
-
-        using var sha512 = SHA512.Create();
-        var computeHash = sha512.ComputeHash(Encoding.Default.GetBytes("q"));
-        var sb = new StringBuilder();
-        foreach (var b in computeHash) sb.Append(b.ToString("X"));
-        Console.WriteLine(sb.ToString());
-    }
-
-    private static void Print(string s) => WriteLine(s);
-
-    private static void WriteLine(string s) => Write(s + '\n');
-
-    private static void Write(string s)
-    {
-        lock (Locker)
+        var client = new VardoneClient(VardoneBaseApi.GetUserToken("az195753@gmail.com", "q"));
+        client.OnDisconnect += () => Task.Run(() => { Console.WriteLine("OnDisconnect"); });
+        //
+        client.OnNewPrivateMessage += (_) => Task.Run(() => { Console.WriteLine("OnNewPrivateMessage"); });
+        client.OnDeletePrivateChatMessage += (_) => Task.Run(() => { Console.WriteLine("OnDeletePrivateChatMessage"); });
+        client.OnNewChannelMessage += (_) => Task.Run(() => { Console.WriteLine("OnNewChannelMessage"); });
+        client.OnDeleteChannelMessage += (_) => Task.Run(() => { Console.WriteLine("OnDeleteChannelMessage"); });
+        //
+        client.OnNewPrivateChat += (_) => Task.Run(() => { Console.WriteLine("OnNewPrivateChat"); });
+        client.OnDeletePrivateChat += (_) => Task.Run(() => { Console.WriteLine("OnDeletePrivateChat"); });
+        client.OnNewChannel += (_) => Task.Run(() => { Console.WriteLine("OnNewChannel"); });
+        client.OnUpdateChannel += (_) => Task.Run(() => { Console.WriteLine("OnUpdateChannel"); });
+        client.OnDeleteChannel += (_) => Task.Run(() => { Console.WriteLine("OnDeleteChannel"); });
+        //
+        client.OnUpdateUser += (_) => Task.Run(() => { Console.WriteLine("OnUpdateUser"); });
+        client.OnUpdateUserOnline += (_) => Task.Run(() => { Console.WriteLine("OnUpdateUserOnline"); });
+        //
+        client.OnNewIncomingFriendRequest += (_) => Task.Run(() => { Console.WriteLine("OnNewIncomingFriendRequest"); });
+        client.OnDeleteIncomingFriendRequest += (_) => Task.Run(() => { Console.WriteLine("OnDeleteIncomingFriendRequest"); });
+        client.OnNewOutgoingFriendRequest += (_) => Task.Run(() => { Console.WriteLine("OnNewOutgoingFriendRequest"); });
+        client.OnDeleteOutgoingFriendRequest += (_) => Task.Run(() => { Console.WriteLine("OnDeleteOutgoingFriendRequest"); });
+        client.OnNewFriend += (_) => Task.Run(() => { Console.WriteLine("OnNewFriend"); });
+        client.OnDeleteFriend += (_) => Task.Run(() => { Console.WriteLine("OnDeleteFriend"); });
+        //
+        client.OnGuildJoin += (_) => Task.Run(() => { Console.WriteLine("OnGuildJoin"); });
+        client.OnGuildLeave += (_) => Task.Run(() => { Console.WriteLine("OnGuildLeave"); });
+        client.OnGuildUpdate += (_) => Task.Run(() => { Console.WriteLine("OnGuildUpdate"); });
+        //
+        client.OnNewGuildInvite += (_) => Task.Run(() => { Console.WriteLine("OnNewGuildInvite"); });
+        client.OnDeleteGuildInvite += (_) => Task.Run(() => { Console.WriteLine("OnDeleteGuildInvite"); });
+        //
+        client.OnNewMember += (_) => Task.Run(() => { Console.WriteLine("OnNewMember"); });
+        client.OnDeleteMember += (_) => Task.Run(() => { Console.WriteLine("OnDeleteMember"); });
+        client.OnBanMember += (_) => Task.Run(() => { Console.WriteLine("OnBanMember"); });
+        client.OnUnbanMember += (_) => Task.Run(() => { Console.WriteLine("OnUnbanMember"); });
+        while (true)
         {
-            ClearLine();
-            Console.Write(s);
         }
-    }
-
-    private static void ClearLine()
-    {
-        Console.SetCursorPosition(0,Console.CursorTop);
-        Console.Write(new string(' ', Console.WindowWidth-1));
-        Console.SetCursorPosition(0,Console.CursorTop);
     }
 }

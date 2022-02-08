@@ -11,6 +11,7 @@ using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
+using VardoneEntities.Models.TcpModels;
 
 namespace VardoneApi.Controllers
 {
@@ -18,11 +19,11 @@ namespace VardoneApi.Controllers
     public class ChatsController : ControllerBase
     {
         [HttpPost, Route("getPrivateChat")]
-        public async Task<IActionResult> GetPrivateChat([FromQuery] long chatId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetPrivateChat([FromQuery] long chatId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 if (!UserChecks.CheckToken(token))
                 {
@@ -31,8 +32,7 @@ namespace VardoneApi.Controllers
                 }
 
                 if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
-                if (!PrivateChatChecks.IsCanManageChat(token.UserId, chatId))
-                    return BadRequest("You are not allowed to get this");
+                if (!PrivateChatChecks.IsCanManageChat(token.UserId, chatId)) return BadRequest("You are not allowed to get this");
 
                 try
                 {
@@ -47,17 +47,7 @@ namespace VardoneApi.Controllers
                     var chat = privateChats.FirstOrDefault(p => p.Id == chatId);
                     if (chat is null) return BadRequest("Chat is not exists");
 
-                    var user1 = chat.FromUser.Id == token.UserId ? chat.FromUser : chat.ToUser;
-                    var user2 = chat.FromUser.Id != token.UserId ? chat.FromUser : chat.ToUser;
-                    var lastReadTime = chat.FromUser.Id == user1.Id ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
-
-                    var chatReturn = new PrivateChat
-                    {
-                        ChatId = chatId,
-                        FromUser = UserCreateHelper.GetUser(user1, onlyId),
-                        ToUser = UserCreateHelper.GetUser(user2, onlyId),
-                        UnreadMessages = messages.Count(p => p.Chat.Id == chat.Id && p.Author.Id != user1.Id && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
-                    };
+                    var chatReturn = PrivateChatCreateHelper.GetPrivateChat(chatId, token.UserId);
                     return Ok(chatReturn);
                 }
                 catch (Exception e)
@@ -68,11 +58,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChatWithUser")]
-        public async Task<IActionResult> GetPrivateChatWithUser([FromQuery] long secondId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetPrivateChatWithUser([FromQuery] long secondId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -84,9 +74,8 @@ namespace VardoneApi.Controllers
                 if (!UserChecks.IsUserExists(secondId)) return BadRequest("Second user does not exists");
 
                 var dataContext = Program.DataContext;
-                var privateChats = dataContext.PrivateChats;
                 var users = dataContext.Users;
-                var privateMessages = dataContext.PrivateMessages;
+                var privateChats = dataContext.PrivateChats;
                 privateChats.Include(p => p.FromUser).Load();
                 privateChats.Include(p => p.ToUser).Load();
                 privateChats.Include(p => p.FromUser.Info).Load();
@@ -95,18 +84,7 @@ namespace VardoneApi.Controllers
                 try
                 {
                     var chat = privateChats.First(p => p.FromUser.Id == userId && p.ToUser.Id == secondId || p.FromUser.Id == secondId && p.ToUser.Id == userId);
-                    var user1 = chat.FromUser.Id == userId ? chat.FromUser : chat.ToUser;
-                    var user2 = chat.FromUser.Id != userId ? chat.FromUser : chat.ToUser;
-                    var lastReadTime = user1 == chat.FromUser ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
-
-
-                    var privateChat = new PrivateChat
-                    {
-                        ChatId = chat.Id,
-                        FromUser = UserCreateHelper.GetUser(user1, onlyId),
-                        ToUser = UserCreateHelper.GetUser(user2, onlyId),
-                        UnreadMessages = privateMessages.Count(p => p.Chat.Id == chat.Id && p.Author != user1 && DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
-                    };
+                    var privateChat = PrivateChatCreateHelper.GetPrivateChat(chat.Id, userId);
                     return Ok(privateChat);
                 }
                 catch
@@ -122,12 +100,17 @@ namespace VardoneApi.Controllers
                         };
                         privateChats.Add(newChat);
                         dataContext.SaveChanges();
-                        var chat = new PrivateChat
+                        var chat = PrivateChatCreateHelper.GetPrivateChat(newChat.Id, userId);
+                        Task.Run(() =>
                         {
-                            ChatId = newChat.Id,
-                            FromUser = UserCreateHelper.GetUser(newChat.FromUser, onlyId),
-                            ToUser = UserCreateHelper.GetUser(newChat.ToUser, onlyId)
-                        };
+                            var tcpNotify = new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.NewPrivateChat,
+                                data = chat
+                            };
+                            Program.TcpServer.SendMessageTo(chat.FromUser.UserId, tcpNotify);
+                            Program.TcpServer.SendMessageTo(chat.ToUser.UserId, tcpNotify);
+                        });
                         return Ok(chat);
                     }
                     catch (Exception e)
@@ -139,11 +122,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChatMessages")]
-        public async Task<IActionResult> GetPrivateChatMessages([FromQuery] long chatId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetPrivateChatMessages([FromQuery] long chatId, [FromQuery] int limit = 0, [FromQuery] long startFrom = 0)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -155,59 +138,37 @@ namespace VardoneApi.Controllers
                 if (!PrivateChatChecks.IsChatExists(chatId)) return BadRequest("Chat is not exists");
                 if (!PrivateChatChecks.IsCanManageChat(userId, chatId)) return BadRequest("No access");
 
+                var dataContext = Program.DataContext;
+                var privateChats = dataContext.PrivateChats;
+                privateChats.Include(p => p.FromUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
+                privateChats.Include(p => p.ToUser).Load();
+                privateChats.Include(p => p.FromUser.Info).Load();
+                privateChats.Include(p => p.ToUser.Info).Load();
+                var privateMessages = dataContext.PrivateMessages;
+                privateMessages.Include(p => p.Author).Load();
+                privateMessages.Include(p => p.Author.Info).Load();
+                privateMessages.Include(p => p.Chat).Load();
+
                 try
                 {
-                    var dataContext = Program.DataContext;
-                    var privateChats = dataContext.PrivateChats;
-                    privateChats.Include(p => p.FromUser).Load();
-                    privateChats.Include(p => p.ToUser).Load();
-                    privateChats.Include(p => p.ToUser).Load();
-                    privateChats.Include(p => p.FromUser.Info).Load();
-                    privateChats.Include(p => p.ToUser.Info).Load();
-                    var privateMessages = dataContext.PrivateMessages;
-                    privateMessages.Include(p => p.Author).Load();
-                    privateMessages.Include(p => p.Author.Info).Load();
-                    privateMessages.Include(p => p.Chat).Load();
+                    var messages = new List<PrivateMessage>();
+                    var chat = privateChats.FirstOrDefault(p => p.Id == chatId);
+                    if (chat is null) return Ok(messages.ToArray());
 
-                    try
+                    if (chat.FromUser.Id == userId) chat.FromLastReadTimeMessages = DateTime.Now;
+                    else chat.ToLastReadTimeMessages = DateTime.Now;
+                    privateChats.Update(chat);
+                    dataContext.SaveChanges();
+
+                    var selectedMessages = privateMessages.Where(p => p.Chat == chat);
+                    if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
+                    if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
+                    foreach (var message in selectedMessages)
                     {
-                        var messages = new List<PrivateMessage>();
-                        var chat = privateChats.First(p => p.Id == chatId);
-
-                        if (!onlyId)
-                        {
-                            if (chat.FromUser.Id == userId) chat.FromLastReadTimeMessages = DateTime.Now;
-                            else chat.ToLastReadTimeMessages = DateTime.Now;
-                            privateChats.Update(chat);
-                            dataContext.SaveChanges();
-                        }
-
-                        var selectedMessages = privateMessages.Where(p => p.Chat == chat);
-                        if (startFrom > 0) selectedMessages = selectedMessages.Where(p => p.Id < startFrom);
-                        if (limit > 0) selectedMessages = selectedMessages.OrderByDescending(p => p.Id).Take(limit);
-                        foreach (var message in selectedMessages)
-                        {
-                            var item = new PrivateMessage
-                            {
-                                MessageId = message.Id,
-                                Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, userId),
-                                Author = UserCreateHelper.GetUser(message.Author, onlyId),
-                                CreatedTime = message.CreatedTime
-                            };
-                            if (!onlyId)
-                            {
-                                item.Text = message.Text;
-                                item.Base64Image = message.Image == null ? null : Convert.ToBase64String(message.Image);
-                            }
-
-                            messages.Add(item);
-                        }
-                        return Ok(messages.ToArray());
+                        messages.Add(MessageCreateHelper.GetPrivateMessage(message.Id, userId));
                     }
-                    catch
-                    {
-                        return Ok(new List<PrivateMessage>(0).ToArray());
-                    }
+                    return Ok(messages.ToArray());
                 }
                 catch (Exception e)
                 {
@@ -217,11 +178,11 @@ namespace VardoneApi.Controllers
         }
         //
         [HttpPost, Route("getPrivateChatMessage")]
-        public async Task<IActionResult> GetPrivateMessage([FromQuery] long messageId, [FromHeader] bool onlyId = false)
+        public async Task<IActionResult> GetPrivateMessage([FromQuery] long messageId)
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (!UserChecks.CheckToken(token))
                 {
                     Response.Headers.Add("Token-Invalid", "true");
@@ -244,19 +205,7 @@ namespace VardoneApi.Controllers
                     if (!PrivateChatChecks.IsCanManageChat(token.UserId, message.Chat.Id))
                         return BadRequest("You are not allowed to do this");
 
-                    var returnMessage = new PrivateMessage
-                    {
-                        MessageId = message.Id,
-                        Author = UserCreateHelper.GetUser(message.Author, onlyId),
-                        Chat = PrivateChatCreateHelper.GetPrivateChat(message.Chat, token.UserId),
-                        CreatedTime = message.CreatedTime
-                    };
-                    if (!onlyId)
-                    {
-                        returnMessage.Text = message.Text;
-                        returnMessage.Base64Image = message.Image is null ? null : Convert.ToBase64String(message.Image);
-                    }
-
+                    var returnMessage = MessageCreateHelper.GetPrivateMessage(message.Id, token.UserId);
                     return Ok(returnMessage);
                 }
                 catch (Exception e)
@@ -271,7 +220,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -323,13 +272,22 @@ namespace VardoneApi.Controllers
                         Text = message.Text ?? "",
                         Image = message.Base64Image is null
                             ? null
-                            : ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image),
-                                70),
+                            : ImageWorker.CompressImageQualityLevel(Convert.FromBase64String(message.Base64Image), 70),
                         CreatedTime = DateTime.Now
                     };
                     messages.Add(newMessage);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Task.Run(() =>
+                    {
+                        var tcpNotify = new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.NewPrivateMessage,
+                            data = MessageCreateHelper.GetPrivateMessage(newMessage.Id, userId)
+                        };
+                        Program.TcpServer.SendMessageTo(userId, tcpNotify);
+                        Program.TcpServer.SendMessageTo(secondId, tcpNotify);
+                    });
+                    return Ok("Sended");
                 }
                 catch (Exception e)
                 {
@@ -343,7 +301,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -359,9 +317,22 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var privateChats = dataContext.PrivateChats;
-                    privateChats.Remove(privateChats.First(p => p.Id == chatId));
+                    var first = privateChats.FirstOrDefault(p => p.Id == chatId);
+                    if (first is null) return BadRequest("Chat is not exists");
+                    var chat = PrivateChatCreateHelper.GetPrivateChat(first.Id, userId);
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.DeletePrivateChat,
+                        data = chat
+                    };
+                    privateChats.Remove(first);
                     dataContext.SaveChanges();
-                    return Ok();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(chat.FromUser.UserId, tcpNotify);
+                        Program.TcpServer.SendMessageTo(chat.ToUser.UserId, tcpNotify);
+                    });
+                    return Ok("Deleted");
                 }
                 catch (Exception e)
                 {
@@ -375,7 +346,7 @@ namespace VardoneApi.Controllers
         {
             return await Task.Run(new Func<IActionResult>(() =>
             {
-                var token = TokenParserWorker.GetUserToken(User);
+                var token = JwtTokenWorker.GetUserToken(User);
                 if (token is null) return BadRequest("Token parser problem");
                 var userId = token.UserId;
                 if (!UserChecks.CheckToken(token))
@@ -393,8 +364,19 @@ namespace VardoneApi.Controllers
 
                     var message = messages.First(p => p.Id == messageId);
                     if (message.Author.Id != userId) return BadRequest("You cannot delete this message");
+                    var data = MessageCreateHelper.GetPrivateMessage(message.Id, userId, true);
+                    var tcpNotify = new TcpResponseModel
+                    {
+                        type = TypeTcpResponse.DeletePrivateMessage,
+                        data = data
+                    };
                     messages.Remove(message);
                     dataContext.SaveChanges();
+                    Task.Run(() =>
+                    {
+                        Program.TcpServer.SendMessageTo(data.Chat.FromUser.UserId, tcpNotify);
+                        Program.TcpServer.SendMessageTo(data.Chat.ToUser.UserId, tcpNotify);
+                    });
                     return Ok("Deleted");
                 }
                 catch (Exception e)

@@ -8,7 +8,7 @@ namespace VardoneApi.Core.Checks
     {
         public static bool CheckToken(UserTokenModel token)
         {
-            if (token == null) return false;
+            if (token is null) return false;
             var tokens = Program.DataContext.Tokens;
             tokens.Include(p => p.User).Load();
             return tokens.Any(t => t.Token == token.Token && t.User.Id == token.UserId);

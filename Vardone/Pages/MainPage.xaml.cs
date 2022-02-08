@@ -51,7 +51,7 @@ namespace Vardone.Pages
             Client.OnUpdateUser += OnUpdateUser;
             Client.OnNewPrivateMessage += OnNewPrivateMessage;
             Client.OnUpdateChatList += OnUpdateChatList;
-            Client.OnUpdateOnline += OnUpdateOnline;
+            Client.OnUpdateUserOnline += OnUpdateUserOnline;
             Client.OnUpdateIncomingFriendRequestList += OnUpdateIncomingFriendRequestList;
             Client.OnUpdateOutgoingFriendRequestList += OnUpdateOutgoingFriendRequestList;
             Client.OnUpdateFriendList += OnUpdateFriendList;
@@ -130,7 +130,7 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.Invoke(() => FriendsPropertiesPage.GetInstance().LoadIncomingRequests());
             });
         }
-        private Task OnUpdateOnline(User user)
+        private Task OnUpdateUserOnline(User user)
         {
             if (Equals(user, Client.GetMe())) return Task.CompletedTask;
             return Task.Run(() =>
