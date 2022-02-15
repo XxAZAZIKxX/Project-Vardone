@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Controls;
 using Vardone.Controls.Items.Buttons;
 
 namespace Vardone.Controls.Items

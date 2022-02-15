@@ -12,7 +12,7 @@ namespace VardoneLibrary.Core.Client
     public partial class VardoneClient
     {
         //===============================[GET]===============================
-        Guild GetGuild(long guildId)
+        public Guild GetGuild(long guildId)
         {
             while (true)
             {

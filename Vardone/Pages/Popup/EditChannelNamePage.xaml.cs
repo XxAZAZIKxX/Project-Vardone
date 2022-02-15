@@ -88,7 +88,6 @@ namespace Vardone.Pages.Popup
                     Message = "Что-то пошло не так"
                 });
             }
-            GuildPanelControl.GetInstance().UpdateChannelsList();
             BackToMainPage(null, null);
             Reset();
         }

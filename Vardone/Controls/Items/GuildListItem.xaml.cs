@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Vardone.Core;
 using Vardone.Pages;
 using Vardone.Pages.PropertyPages;
@@ -15,8 +16,8 @@ namespace Vardone.Controls.Items
     /// </summary>
     public partial class GuildListItem
     {
-        private static readonly List<GuildListItem> Items = new();
-        public Guild guild;
+        private static readonly List<GuildListItem> GuildItems = new();
+        public Guild Guild { get; private set; }
         private bool _isActive;
 
         public bool IsActive
@@ -24,7 +25,7 @@ namespace Vardone.Controls.Items
             get => _isActive;
             set
             {
-                foreach (var item in Items.Where(item => item.IsActive && item != this)) item.IsActive = false;
+                foreach (var item in GuildItems.Where(item => item.IsActive && item != this)) item.IsActive = false;
 
                 GuildHover.Visibility = value ? Visibility.Visible : Visibility.Hidden;
                 _isActive = value;
@@ -33,23 +34,29 @@ namespace Vardone.Controls.Items
         public GuildListItem(Guild guild)
         {
             InitializeComponent();
-            this.guild = guild;
-            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(this.guild.GuildId);
-            Items.Add(this);
+            this.Guild = guild;
+            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(this.Guild.GuildId);
+            GuildItems.Add(this);
             var currentUserId = MainPage.Client.GetMe().UserId;
 
             if (currentUserId != guild.Owner.User.UserId) SettingsButton.Visibility = Visibility.Collapsed;
             else LeaveGuildButton.Visibility = Visibility.Collapsed;
         }
 
+        ~GuildListItem() => GuildItems.Remove(this);
 
-        ~GuildListItem() => Items.Remove(this);
-
+        public void UpdateGuild(Guild guild)
+        {
+            if (Guild.GuildId != guild.GuildId) return;
+            Guild = guild;
+            AvatarsWorker.UpdateGuildAvatar(guild.GuildId);
+            Application.Current.Dispatcher.BeginInvoke(() => Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(guild.GuildId), DispatcherPriority.Background);
+        }
 
         private void AvatarClicked(object sender, MouseButtonEventArgs e)
         {
             GuildHover.Visibility = Visibility.Visible;
-            MainPage.GetInstance().OpenGuild(guild);
+            MainPage.GetInstance().OpenGuild(Guild);
             IsActive = true;
         }
 
@@ -65,28 +72,27 @@ namespace Vardone.Controls.Items
 
         public static void ClearAllHovers()
         {
-            if (Items is null) return;
-            foreach (var item in Items) item.IsActive = false;
+            if (GuildItems is null) return;
+            foreach (var item in GuildItems) item.IsActive = false;
         }
 
         private void LeaveGuildButtonClicked(object sender, RoutedEventArgs e)
         {
-            var messageBoxResult = MessageBox.Show($"Вы точно хотите покинуть сервер \"{guild.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var messageBoxResult = MessageBox.Show($"Вы точно хотите покинуть сервер \"{Guild.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (messageBoxResult != MessageBoxResult.Yes) return;
 
-            MainPage.Client.LeaveGuild(guild.GuildId);
-            MainPage.GetInstance().LoadGuilds();
+            MainPage.Client.LeaveGuild(Guild.GuildId);
         }
 
         private void SettingsButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainPage.GetInstance().MainFrame.Navigate(GuildPropertiesPage.GetInstance().LoadGuild(guild));
+            MainPage.GetInstance().MainFrame.Navigate(GuildPropertiesPage.GetInstance().LoadGuild(Guild));
             AvatarClicked(null, null);
         }
 
         private void InviteMembersButtonClicked(object sender, RoutedEventArgs e)
         {
-            MainPage.GetInstance().MainFrame.Navigate(GuildMembersPage.GetInstance().Load(guild));
+            MainPage.GetInstance().MainFrame.Navigate(GuildMembersPage.GetInstance().Load(Guild));
             AvatarClicked(null, null);
         }
     }

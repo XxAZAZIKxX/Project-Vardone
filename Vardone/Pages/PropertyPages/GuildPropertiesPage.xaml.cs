@@ -79,7 +79,6 @@ namespace Vardone.Pages.PropertyPages
                 });
             }
             MainPage.GetInstance().MainFrame.Navigate(null);
-            MainPage.GetInstance().LoadGuilds();
             MainPage.GetInstance().PrivateChatButtonClicked(null, null);
         }
 

@@ -36,7 +36,6 @@ namespace Vardone.Pages.Popup
         private void CreateGuildButtonClicked(object sender, RoutedEventArgs routedEventArgs)
         {
             MainPage.Client.CreateGuild();
-            MainPage.GetInstance().LoadGuilds();
             BackToMainPage(null, null);
             MainPage.GetInstance().OpenGuild(MainPage.Client.GetGuilds().LastOrDefault());
         }

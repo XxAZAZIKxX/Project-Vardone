@@ -43,7 +43,6 @@ namespace Vardone.Controls.Items
                     Message = "Что-то пошло не так"
                 });
             }
-            GuildMembersPage.GetInstance().UpdateInvites();
         }
     }
 }

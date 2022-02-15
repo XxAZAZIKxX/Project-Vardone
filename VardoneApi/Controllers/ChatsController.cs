@@ -100,18 +100,22 @@ namespace VardoneApi.Controllers
                         };
                         privateChats.Add(newChat);
                         dataContext.SaveChanges();
-                        var chat = PrivateChatCreateHelper.GetPrivateChat(newChat.Id, userId);
+                        var chat1 = PrivateChatCreateHelper.GetPrivateChat(newChat.Id, userId);
+                        var chat2 = PrivateChatCreateHelper.GetPrivateChat(newChat.Id, secondId);
                         Task.Run(() =>
                         {
-                            var tcpNotify = new TcpResponseModel
+                            Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
                             {
                                 type = TypeTcpResponse.NewPrivateChat,
-                                data = chat
-                            };
-                            Program.TcpServer.SendMessageTo(chat.FromUser.UserId, tcpNotify);
-                            Program.TcpServer.SendMessageTo(chat.ToUser.UserId, tcpNotify);
+                                data = chat2
+                            });
+                            Program.TcpServer.SendMessageTo(secondId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.NewPrivateChat,
+                                data = chat1
+                            });
                         });
-                        return Ok(chat);
+                        return Ok(chat1);
                     }
                     catch (Exception e)
                     {
@@ -285,7 +289,8 @@ namespace VardoneApi.Controllers
                             data = MessageCreateHelper.GetPrivateMessage(newMessage.Id, userId)
                         };
                         Program.TcpServer.SendMessageTo(userId, tcpNotify);
-                        Program.TcpServer.SendMessageTo(secondId, tcpNotify);
+                        if (newMessage.Chat.FromUser.Id != newMessage.Chat.ToUser.Id)
+                            Program.TcpServer.SendMessageTo(secondId, tcpNotify);
                     });
                     return Ok("Sended");
                 }
@@ -317,20 +322,27 @@ namespace VardoneApi.Controllers
                 {
                     var dataContext = Program.DataContext;
                     var privateChats = dataContext.PrivateChats;
+                    privateChats.Include(p => p.FromUser).Load();
+                    privateChats.Include(p => p.ToUser).Load();
                     var first = privateChats.FirstOrDefault(p => p.Id == chatId);
                     if (first is null) return BadRequest("Chat is not exists");
-                    var chat = PrivateChatCreateHelper.GetPrivateChat(first.Id, userId);
-                    var tcpNotify = new TcpResponseModel
-                    {
-                        type = TypeTcpResponse.DeletePrivateChat,
-                        data = chat
-                    };
+                    var chat1 = PrivateChatCreateHelper.GetPrivateChat(first.Id, userId);
+                    var chat2 = PrivateChatCreateHelper.GetPrivateChat(first.Id, first.FromUser.Id == userId ? first.ToUser.Id : first.FromUser.Id);
                     privateChats.Remove(first);
                     dataContext.SaveChanges();
                     Task.Run(() =>
                     {
-                        Program.TcpServer.SendMessageTo(chat.FromUser.UserId, tcpNotify);
-                        Program.TcpServer.SendMessageTo(chat.ToUser.UserId, tcpNotify);
+                        Program.TcpServer.SendMessageTo(chat1.FromUser.UserId, new TcpResponseModel
+                        {
+                            type = TypeTcpResponse.DeletePrivateChat,
+                            data = chat2
+                        });
+                        if (chat1.FromUser.UserId != chat1.ToUser.UserId)
+                            Program.TcpServer.SendMessageTo(chat2.FromUser.UserId, new TcpResponseModel
+                            {
+                                type = TypeTcpResponse.DeletePrivateChat,
+                                data = chat1
+                            });
                     });
                     return Ok("Deleted");
                 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -34,12 +35,11 @@ namespace Vardone
         public readonly NotificationManager notificationManager = new();
         private WinForms.NotifyIcon _trayIcon;
 
-        public MainWindow()
+        private MainWindow()
         {
             InitializeComponent();
-            _instance = this;
-
             InitializeTrayIcon();
+            _instance = this;
             TryLogin();
         }
         private void InitializeTrayIcon()
@@ -72,12 +72,8 @@ namespace Vardone
         private void TryLogin()
         {
             var token = ConfigWorker.GetToken();
-            if (token is null) MainFrame.Navigate(AuthorizationPage.GetInstance());
-            else
-            {
-                if (VardoneBaseApi.CheckToken(ref token)) LoadApp(new VardoneClient(token));
-                else MainFrame.Navigate(AuthorizationPage.GetInstance());
-            }
+            if (VardoneBaseApi.CheckToken(ref token)) LoadApp(new VardoneClient(token));
+            else MainFrame.Navigate(AuthorizationPage.GetInstance());
         }
         public void LoadApp(VardoneClient client)
         {
@@ -86,8 +82,9 @@ namespace Vardone
         }
         private void CloseApp()
         {
+            _trayIcon.Visible = false;
             _trayIcon.Dispose();
-            Environment.Exit(0);
+            Application.Current.Shutdown(0);
         }
         //Events
         private void TrayIconOnMouseClick(object sender, WinForms.MouseEventArgs e)
@@ -104,11 +101,8 @@ namespace Vardone
             Topmost = false;
             ShowInTaskbar = true;
         }
-        private void TrayCloseClick(object sender, EventArgs e)
-        {
-            _trayIcon.Dispose();
-            CloseApp();
-        }
+        private void TrayCloseClick(object sender, EventArgs e) => CloseApp();
+
         private void CloseBtnClick(object sender, RoutedEventArgs e)
         {
             HideAppInTaskbar();

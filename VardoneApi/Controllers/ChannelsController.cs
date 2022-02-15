@@ -94,7 +94,7 @@ namespace VardoneApi.Controllers
                     if (channel is null) return BadRequest("Channe is not exists");
                     if (channel.Guild.Owner.Id != userId) return BadRequest("You are not the guild owner");
 
-                    var membersToNotify = guildMembers.Where(p => p.Guild.Id == channel.Guild.Id).Select(p => p.User.Id).ToArray();
+                    var membersToNotify = guildMembers.AsEnumerable().Where(p => p.Guild.Id == channel.Guild.Id).Select(p => p.User.Id).ToArray();
                     var tcpNotify = new TcpResponseModel
                     {
                         type = TypeTcpResponse.DeleteChannel,
@@ -112,7 +112,6 @@ namespace VardoneApi.Controllers
                 {
                     return Problem(e.Message);
                 }
-
             }));
         }
         //

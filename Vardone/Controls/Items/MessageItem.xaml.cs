@@ -26,7 +26,7 @@ namespace Vardone.Controls.Items
             CanDelete, CannotDelete
         }
 
-        public MessageItem([NotNull] PrivateMessage message, DeleteMode mode = DeleteMode.CannotDelete)
+        public MessageItem(PrivateMessage message, DeleteMode mode = DeleteMode.CannotDelete)
         {
             InitializeComponent();
             SetDeleteButton(mode);
@@ -44,7 +44,7 @@ namespace Vardone.Controls.Items
             if (message.Base64Image is not null) Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(message.Base64Image));
         }
 
-        public MessageItem([NotNull] ChannelMessage channelMessage, DeleteMode mode = DeleteMode.CannotDelete)
+        public MessageItem(ChannelMessage channelMessage, DeleteMode mode = DeleteMode.CannotDelete)
         {
             InitializeComponent();
 
@@ -60,6 +60,16 @@ namespace Vardone.Controls.Items
             Username.Content = Author.Username;
             Text.Text = channelMessage.Text;
             if (channelMessage.Base64Image is not null) Image.Source = ImageWorker.BytesToBitmapImage(Convert.FromBase64String(channelMessage.Base64Image));
+        }
+
+        public void UpdateUserOnline() => SetStatus(MainPage.Client.GetOnlineUser(Author.UserId));
+
+        public void UpdateUser(User user)
+        {
+            if (user is null) return;
+            AvatarsWorker.UpdateAvatarUser(user.UserId);
+            Username.Content = user.Username;
+            Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
         }
 
         private void SetDeleteButton(DeleteMode mode)

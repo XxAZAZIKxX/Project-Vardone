@@ -6,7 +6,6 @@ using System.Windows.Media;
 using Notifications.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.User;
 
@@ -25,10 +24,10 @@ namespace Vardone.Controls.Items
     /// </summary>
     public partial class UserItem
     {
-        public User User { get; }
-        public UserItemType Type { get; }
+        public User User { get; private set; }
+        private UserItemType Type { get; }
 
-        public UserItem([NotNull] User user, UserItemType type)
+        public UserItem(User user, UserItemType type)
         {
             InitializeComponent();
             User = user;
@@ -63,6 +62,16 @@ namespace Vardone.Controls.Items
             }
         }
 
+        public void UpdateUser(User user)
+        {
+            User = user;
+            Username.Content = user.Username;
+            AvatarsWorker.UpdateAvatarUser(user.UserId);
+            Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
+        }
+
+        public void UpdateUserOnline() => SetStatus(MainPage.Client.GetOnlineUser(User.UserId));
+
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
             var messageBoxResult = MessageBox.Show($"Вы точно хотите удалить чат с {User.Username}?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -88,7 +97,6 @@ namespace Vardone.Controls.Items
                 });
             }
         }
-
         public void SetCountMessages(int count)
         {
             if (Type == UserItemType.Profile) return;
@@ -105,7 +113,6 @@ namespace Vardone.Controls.Items
                     break;
             }
         }
-
         public void SetStatus(bool online)
         {
             OnlineStatus.Fill = online switch
@@ -114,11 +121,13 @@ namespace Vardone.Controls.Items
                 false => new SolidColorBrush(Color.FromRgb(80, 80, 80))
             };
         }
-
-        private void OpenChat(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(new PrivateChat { ToUser = User });
+        private void OpenChat(object sender, MouseButtonEventArgs e)
+        {
+            MainPage.GetInstance().chatControl.LoadChat(MainPage.Client.GetPrivateChatWithUser(User.UserId));
+            SetCountMessages(0);
+        }
 
         private void OpenProfile(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(User, MainPage.Client.GetOnlineUser(User.UserId));
-
         private void DeleteFriend(object sender, RoutedEventArgs e)
         {
             var messageBoxResult = MessageBox.Show($"Вы действительно хотите удалить друга? {User.Username}", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -142,9 +151,7 @@ namespace Vardone.Controls.Items
                     Message = "Что-то пошло не так"
                 });
             }
-            MainPage.GetInstance().LoadFriendList();
         }
-
         private void SendMessage(object sender, RoutedEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(new PrivateChat { ToUser = User });
     }
 }

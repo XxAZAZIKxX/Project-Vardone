@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Media.Imaging;
-using Microsoft.EntityFrameworkCore.Internal;
 using Vardone.Pages;
 
 namespace Vardone.Core
@@ -17,7 +17,7 @@ namespace Vardone.Core
         public static BitmapImage GetAvatarUser(long userId)
         {
             if (MainPage.Client is null) return null;
-            UpdateAvatarUser(userId);
+            if (!UserAvatars.ContainsKey(userId)) UpdateAvatarUser(userId);
             return UserAvatars[userId];
         }
         public static void UpdateAvatarUser(long userId)
@@ -38,7 +38,7 @@ namespace Vardone.Core
         public static void UpdateGuildAvatar(long guildId)
         {
             if (MainPage.Client is null) return;
-            var base64 = MainPage.Client.GetGuilds().FirstOr(p => p.GuildId == guildId, null!)?.Base64Avatar;
+            var base64 = MainPage.Client.GetGuilds().FirstOrDefault(p => p.GuildId == guildId)?.Base64Avatar;
             lock (Locker)
             {
                 GuildAvatars[guildId] = base64 is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));

@@ -43,7 +43,7 @@ namespace VardoneApi.Tcp
 
         private void CheckConnection()
         {
-            while (IsConnected()) Thread.Sleep(TimeSpan.FromSeconds(5));
+            while (IsConnected()) Thread.Sleep(TimeSpan.FromSeconds(20));
             _serverObject.RemoveConnection(Id);
             Close();
         }

@@ -14,13 +14,13 @@ namespace Vardone.Controls.Items
     /// </summary>
     public partial class GuildChannelItem
     {
-        public Channel channel;
+        public Channel Channel { get; private set; }
         public enum ActiveContextMenu { Active, Disable }
         public GuildChannelItem([NotNull] Channel channel, ActiveContextMenu activeContextMenu = ActiveContextMenu.Active)
         {
             InitializeComponent();
-            this.channel = channel;
-            ChannelName.Text = this.channel.Name;
+            Channel = channel;
+            ChannelName.Text = Channel.Name;
             ContextMenu.Visibility = activeContextMenu switch
             {
                 ActiveContextMenu.Active => Visibility.Visible,
@@ -29,22 +29,27 @@ namespace Vardone.Controls.Items
             };
         }
 
-        private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(channel);
+        private void OpenChannel(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().chatControl.LoadChat(Channel);
 
-        private void MenuItemEditChannelButtonClicked(object sender, RoutedEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(EditChannelNamePage.GetInstance().Load(channel, EditChannelNamePage.ActionType.Edit));
+        public void UpdateChannel(Channel channel)
+        {
+            Channel = channel;
+            ChannelName.Text = channel.Name;
+        }
 
+        private void MenuItemEditChannelButtonClicked(object sender, RoutedEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(EditChannelNamePage.GetInstance().Load(Channel, EditChannelNamePage.ActionType.Edit));
         private void MenuItemDeleteChannelButtonClicked(object sender, RoutedEventArgs e)
         {
-            var messageBoxResult = MessageBox.Show($"Вы действительно хотите удалить канал \"{channel.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var messageBoxResult = MessageBox.Show($"Вы действительно хотите удалить канал \"{Channel.Name}\"?", "Подтвердите действие", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (messageBoxResult != MessageBoxResult.Yes) return;
             try
             {
-                MainPage.Client.DeleteChannel(channel.ChannelId);
+                MainPage.Client.DeleteChannel(Channel.ChannelId);
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Type = NotificationType.Success,
                     Title = "Успех",
-                    Message = $"Канал \"{channel.Name}\" был успешно удален"
+                    Message = $"Канал \"{Channel.Name}\" был успешно удален"
                 });
             }
             catch
@@ -56,8 +61,7 @@ namespace Vardone.Controls.Items
                     Message = "Что-то пошло не так"
                 });
             }
-            GuildPanelControl.GetInstance().UpdateChannelsList();
-            if (ChatControl.GetInstance().Channel?.ChannelId == channel.ChannelId) ChatControl.GetInstance().CloseChat();
+            if (ChatControl.GetInstance().Channel?.ChannelId == Channel.ChannelId) ChatControl.GetInstance().CloseChat();
         }
     }
 }

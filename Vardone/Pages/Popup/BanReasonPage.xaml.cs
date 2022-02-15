@@ -66,8 +66,6 @@ namespace Vardone.Pages.Popup
                     Message = "Что-то пошло не так"
                 });
             }
-            GuildMembersPage.GetInstance().UpdateBannedMembers();
-            GuildMembersPage.GetInstance().UpdateMembers();
             GuildMembersPage.GetInstance().Frame.Navigate(null);
             Reset();
         }

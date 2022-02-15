@@ -13,7 +13,6 @@ namespace Vardone
         {
             var listArgs = new List<string>(e.Args);
             var mainWindow = Vardone.MainWindow.GetInstance();
-
             if (listArgs.Contains("-autostart"))
             {
                 if (ConfigWorker.GetStartMinimized())

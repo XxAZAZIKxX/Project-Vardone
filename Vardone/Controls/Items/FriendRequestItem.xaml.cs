@@ -6,7 +6,6 @@ using System.Windows.Media;
 using Vardone.Core;
 using Vardone.Pages;
 using Vardone.Pages.PropertyPages;
-using VardoneEntities.Entities;
 using VardoneEntities.Entities.User;
 
 namespace Vardone.Controls.Items
@@ -23,7 +22,7 @@ namespace Vardone.Controls.Items
     public partial class FriendRequestItem
     {
         public User User { get; }
-        public RequestType Type { get; }
+        private RequestType Type { get; }
         public FriendRequestItem([NotNull] User user, RequestType type)
         {
             InitializeComponent();
@@ -49,7 +48,6 @@ namespace Vardone.Controls.Items
 
         private void Accept_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MessageBox.Show("тык");
             MainPage.Client.AddFriend(User.Username);
             FriendsPropertiesPage.GetInstance().LoadIncomingRequests();
         }

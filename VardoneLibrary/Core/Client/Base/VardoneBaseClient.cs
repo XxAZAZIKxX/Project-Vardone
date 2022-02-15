@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
@@ -35,10 +36,8 @@ namespace VardoneLibrary.Core.Client.Base
             new Thread(TcpListener) { IsBackground = true }.Start();
             Console.WriteLine("Connected");
         }
-        ~VardoneBaseClient()
-        {
-            TcpClientClose();
-        }
+        ~VardoneBaseClient() => TcpClientClose();
+
         protected IRestResponse ExecutePostWithToken(string resource, string json = null, Dictionary<string, string> queryParameters = null)
         {
             var request = new RestRequest(resource, Method.POST);
@@ -65,88 +64,191 @@ namespace VardoneLibrary.Core.Client.Base
         {
             Task.Run(() =>
             {
-                if (message?.data is null) return;
-                Console.WriteLine(message);
+                if (message?.data is null or not JObject) return;
                 switch (message.type)
                 {
                     case TypeTcpResponse.NewPrivateMessage:
-                        OnNewPrivateMessage?.Invoke(message.data as PrivateMessage);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<PrivateMessage>();
+                            if (data is null) return;
+                            OnNewPrivateMessage?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeletePrivateMessage:
-                        OnDeletePrivateChatMessage?.Invoke(message.data as PrivateMessage);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<PrivateMessage>();
+                            if (data is null) return;
+                            OnDeletePrivateChatMessage?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewPrivateChat:
-                        OnNewPrivateChat?.Invoke(message.data as PrivateChat);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<PrivateChat>();
+                            if (data is null) return;
+                            OnNewPrivateChat?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeletePrivateChat:
-                        OnDeletePrivateChat?.Invoke(message.data as PrivateChat);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<PrivateChat>();
+                            if (data is null) return;
+                            OnDeletePrivateChat?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.UpdateUser:
-                        OnUpdateUser?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnUpdateUser?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.UpdateUserOnline:
-                        OnUpdateUserOnline?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnUpdateUserOnline?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewIncomingFriendRequest:
-                        OnNewIncomingFriendRequest?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnNewIncomingFriendRequest?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewOutgoingFriendRequest:
-                        OnNewOutgoingFriendRequest?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnNewOutgoingFriendRequest?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewFriend:
-                        OnNewFriend?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnNewFriend?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteIncomingFriendRequest:
-                        OnDeleteIncomingFriendRequest?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnDeleteIncomingFriendRequest?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteOutgoingFriendRequest:
-                        OnDeleteOutgoingFriendRequest?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnDeleteOutgoingFriendRequest?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteFriend:
-                        OnDeleteFriend?.Invoke(message.data as User);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<User>();
+                            if (data is null) return;
+                            OnDeleteFriend?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.GuildJoin:
-                        OnGuildJoin?.Invoke(message.data as Guild);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Guild>();
+                            if (data is null) return;
+                            OnGuildJoin?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.GuildLeave:
-                        OnGuildLeave?.Invoke(message.data as Guild);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Guild>();
+                            if (data is null) return;
+                            OnGuildLeave?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.UpdateGuild:
-                        OnGuildUpdate?.Invoke(message.data as Guild);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Guild>();
+                            if (data is null) return;
+                            OnGuildUpdate?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewChannel:
-                        OnNewChannel?.Invoke(message.data as Channel);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Channel>();
+                            if (data is null) return;
+                            OnNewChannel?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteChannel:
-                        OnDeleteChannel?.Invoke(message.data as Channel);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Channel>();
+                            if (data is null) return;
+                            OnDeleteChannel?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.UpdateChannel:
-                        OnUpdateChannel?.Invoke(message.data as Channel);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Channel>();
+                            if (data is null) return;
+                            OnUpdateChannel?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewChannelMessage:
-                        OnNewChannelMessage?.Invoke(message.data as ChannelMessage);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<ChannelMessage>();
+                            if (data is null) return;
+                            OnNewChannelMessage?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteChannelMessage:
-                        OnDeleteChannelMessage?.Invoke(message.data as ChannelMessage);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<ChannelMessage>();
+                            if (data is null) return;
+                            OnDeleteChannelMessage?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewGuildInvite:
-                        OnNewGuildInvite?.Invoke(message.data as GuildInvite);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<GuildInvite>();
+                            if (data is null) return;
+                            OnNewGuildInvite?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteGuildInvite:
-                        OnDeleteGuildInvite?.Invoke(message.data as GuildInvite);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<GuildInvite>();
+                            if (data is null) return;
+                            OnDeleteGuildInvite?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.NewMember:
-                        OnNewMember?.Invoke(message.data as Member);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Member>();
+                            if (data is null) return;
+                            OnNewMember?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.DeleteMember:
-                        OnDeleteMember?.Invoke(message.data as Member);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<Member>();
+                            if (data is null) return;
+                            OnDeleteMember?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.BanMember:
-                        OnBanMember?.Invoke(message.data as BannedMember);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<BannedMember>();
+                            if (data is null) return;
+                            OnBanMember?.Invoke(data);
+                            break;
+                        }
                     case TypeTcpResponse.UnbanMember:
-                        OnUnbanMember?.Invoke(message.data as BannedMember);
-                        break;
+                        {
+                            var data = ((JObject)message.data).ToObject<BannedMember>();
+                            if (data is null) return;
+                            OnUnbanMember?.Invoke(data);
+                            break;
+                        }
                     default: return;
                 }
             });
@@ -186,7 +288,6 @@ namespace VardoneLibrary.Core.Client.Base
         protected void TcpClientClose()
         {
             _tcpDisposed = true;
-            Console.WriteLine("Closed");
             try
             {
                 _stream.Close();

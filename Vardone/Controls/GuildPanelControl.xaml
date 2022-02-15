@@ -39,7 +39,7 @@
                             Width="20" Height="20" VerticalAlignment="Center"
                             MouseLeftButtonDown="OpenGuildMemberControl"
                             Cursor="Hand" Background="#707070">
-                        <Image ToolTip="Add member" Source="/resources/add_user.png" Margin="2" />
+                        <Image ToolTip="Add CurrentMember" Source="/resources/add_user.png" Margin="2" />
                     </Border>
                     <Image
                            Cursor="Hand" Source="/resources/gear.png"

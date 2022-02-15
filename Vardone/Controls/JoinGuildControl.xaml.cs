@@ -34,7 +34,6 @@ namespace Vardone.Controls
                 });
                 return;
             }
-            MainPage.GetInstance().LoadGuilds();
             MainPage.GetInstance().MainFrame.Navigate(null);
             AddGuildPage.GetInstance().Reset();
         }

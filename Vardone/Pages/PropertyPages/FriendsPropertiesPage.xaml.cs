@@ -27,29 +27,30 @@ namespace Vardone.Pages.PropertyPages
 
         public void LoadIncomingRequests()
         {
+            var requests = MainPage.Client.GetIncomingFriendRequests();
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IncomingRequest.Children.Clear();
-                var requests = MainPage.Client.GetIncomingFriendRequests();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Incoming)))
+                {
                     IncomingRequest.Children.Add(friendRequestItem);
+                }
             });
         }
 
         public void LoadOutgoingRequests()
         {
+            var requests = MainPage.Client.GetOutgoingFriendRequests();
             Application.Current.Dispatcher.Invoke(() =>
             {
                 OutgoingRequest.Children.Clear();
-                var requests = MainPage.Client.GetOutgoingFriendRequests();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username)
                     .Select(user => new FriendRequestItem(user, RequestType.Outgoing)))
                     OutgoingRequest.Children.Add(friendRequestItem);
             });
         }
 
-        private void CloseMouseDown(object sender, MouseButtonEventArgs e) =>
-            MainPage.GetInstance().MainFrame.Navigate(null);
+        private void CloseMouseDown(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
 
         private void AddFriendClick(object sender, RoutedEventArgs e)
         {

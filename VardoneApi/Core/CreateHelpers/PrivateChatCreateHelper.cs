@@ -12,8 +12,8 @@ namespace VardoneApi.Core.CreateHelpers
         {
             var dataContext = Program.DataContext;
             var privateChats = dataContext.PrivateChats;
-            privateChats.Include(p=>p.FromUser).Load();
-            privateChats.Include(p=>p.ToUser).Load();
+            privateChats.Include(p => p.FromUser).Load();
+            privateChats.Include(p => p.ToUser).Load();
             var messages = dataContext.PrivateMessages;
             messages.Include(p => p.Chat).Load();
             messages.Include(p => p.Author).Load();
@@ -24,14 +24,16 @@ namespace VardoneApi.Core.CreateHelpers
             var user2 = chat.FromUser.Id == userId ? chat.ToUser : chat.FromUser;
             var lastReadTime = chat.FromUser.Id == user1.Id ? chat.FromLastReadTimeMessages : chat.ToLastReadTimeMessages;
 
+            var unreadMessages = messages.Count(p =>
+                p.Chat.Id == chat.Id && p.Author.Id != user1.Id &&
+                DateTime.Compare(p.CreatedTime, lastReadTime) > 0);
+            if (user1.Id == user2.Id) unreadMessages = 0;
             var chatReturn = new PrivateChat
             {
                 ChatId = chatId,
                 FromUser = UserCreateHelper.GetUser(user1.Id, true),
                 ToUser = UserCreateHelper.GetUser(user2.Id, true),
-                UnreadMessages = messages.Count(p =>
-                    p.Chat.Id == chat.Id && p.Author.Id != user1.Id &&
-                    DateTime.Compare(p.CreatedTime, lastReadTime) > 0)
+                UnreadMessages = unreadMessages
             };
             return chatReturn;
         }
