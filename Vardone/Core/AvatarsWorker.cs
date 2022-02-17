@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Vardone.Pages;
 
@@ -24,10 +25,15 @@ namespace Vardone.Core
         {
             if (MainPage.Client is null) return;
             var base64 = MainPage.Client.GetUser(userId)?.Base64Avatar;
-            lock (Locker)
+            Task.Run(() =>
             {
-                UserAvatars[userId] = base64 is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
-            }
+                lock (Locker)
+                {
+                    UserAvatars[userId] = base64 is null
+                        ? DefaultAvatar
+                        : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
+                }
+            }).Wait();
         }
         public static BitmapImage GetGuildAvatar(long guildId)
         {

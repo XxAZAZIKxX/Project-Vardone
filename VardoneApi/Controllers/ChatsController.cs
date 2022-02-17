@@ -107,12 +107,12 @@ namespace VardoneApi.Controllers
                             Program.TcpServer.SendMessageTo(userId, new TcpResponseModel
                             {
                                 type = TypeTcpResponse.NewPrivateChat,
-                                data = chat2
+                                data = chat1
                             });
                             Program.TcpServer.SendMessageTo(secondId, new TcpResponseModel
                             {
                                 type = TypeTcpResponse.NewPrivateChat,
-                                data = chat1
+                                data = chat2
                             });
                         });
                         return Ok(chat1);
@@ -335,13 +335,13 @@ namespace VardoneApi.Controllers
                         Program.TcpServer.SendMessageTo(chat1.FromUser.UserId, new TcpResponseModel
                         {
                             type = TypeTcpResponse.DeletePrivateChat,
-                            data = chat2
+                            data = chat1
                         });
                         if (chat1.FromUser.UserId != chat1.ToUser.UserId)
                             Program.TcpServer.SendMessageTo(chat2.FromUser.UserId, new TcpResponseModel
                             {
                                 type = TypeTcpResponse.DeletePrivateChat,
-                                data = chat1
+                                data = chat2
                             });
                     });
                     return Ok("Deleted");

@@ -178,6 +178,7 @@ namespace Vardone.Pages
         }
         private Task OnGuildJoin(Guild guild) =>
             Task.Run(() => Application.Current.Dispatcher.BeginInvoke(() => GuildList.Children.Add(new GuildListItem(guild)), DispatcherPriority.Background));
+
         private Task OnDeleteFriend(User user)
         {
             return Task.Run(() =>
@@ -268,7 +269,7 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     var userItems = friendListPanel.ChatListGrid.Children.Cast<UserItem>().ToList();
-                    var item = userItems.FirstOrDefault(p => p.User.UserId == chat.FromUser.UserId);
+                    var item = userItems.FirstOrDefault(p => p.User.UserId == chat.ToUser.UserId);
                     if (item is null) return;
                     friendListPanel.ChatListGrid.Children.RemoveAt(userItems.IndexOf(item));
                 }, DispatcherPriority.Send);
@@ -280,7 +281,7 @@ namespace Vardone.Pages
             {
                 return Application.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        var uiElement = new UserItem(chat.FromUser, UserItemType.Chat);
+                        var uiElement = new UserItem(chat.ToUser, UserItemType.Chat);
                         uiElement.SetCountMessages(chat.UnreadMessages);
                         friendListPanel.ChatListGrid.Children.Add(uiElement);
                     }, DispatcherPriority.Background);
