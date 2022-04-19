@@ -23,32 +23,25 @@ namespace Vardone.Core
         }
         public static void UpdateAvatarUser(long userId)
         {
-            if (MainPage.Client is null) return;
-            var base64 = MainPage.Client.GetUser(userId)?.Base64Avatar;
-            Task.Run(() =>
-            {
-                lock (Locker)
-                {
-                    UserAvatars[userId] = base64 is null
-                        ? DefaultAvatar
-                        : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
-                }
-            }).Wait();
+            var base64 = MainPage.Client?.GetUser(userId)?.Base64Avatar;
+
+            UserAvatars[userId] = base64 is null
+                ? DefaultAvatar
+                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
+            UserAvatars[userId] = DefaultAvatar;
         }
         public static BitmapImage GetGuildAvatar(long guildId)
         {
-            if (MainPage.Client is null) return null;
-            UpdateGuildAvatar(guildId);
+            if (!GuildAvatars.ContainsKey(guildId)) UpdateGuildAvatar(guildId);
             return GuildAvatars[guildId];
         }
         public static void UpdateGuildAvatar(long guildId)
         {
-            if (MainPage.Client is null) return;
-            var base64 = MainPage.Client.GetGuilds().FirstOrDefault(p => p.GuildId == guildId)?.Base64Avatar;
-            lock (Locker)
-            {
-                GuildAvatars[guildId] = base64 is null ? DefaultAvatar : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
-            }
+            var base64 = MainPage.Client?.GetGuilds().FirstOrDefault(p => p.GuildId == guildId)?.Base64Avatar;
+
+            GuildAvatars[guildId] = base64 is null
+                ? DefaultAvatar
+                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
         }
 
         public static void ClearAll()

@@ -266,40 +266,37 @@ namespace Vardone.Controls
 
         private void ChatScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Task.Run(() =>
+            Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                Application.Current.Dispatcher.BeginInvoke(() =>
+                if (ChatScrollViewer.VerticalOffset != 0) return;
+                if (Chat is null && Channel is null) return;
+                if (ChatMessagesList.Children.Count == 0) return;
+
+                int numberAdded;
+
+                if (Chat is not null)
                 {
-                    if (ChatScrollViewer.VerticalOffset != 0) return;
-                    if (Chat is null && Channel is null) return;
-                    if (ChatMessagesList.Children.Count == 0) return;
-
-                    int numberAdded;
-
-                    if (Chat is not null)
+                    var list = MainPage.Client.GetPrivateMessagesFromChat(Chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
+                    numberAdded = list.Length;
+                    foreach (var message in list)
                     {
-                        var list = MainPage.Client.GetPrivateMessagesFromChat(Chat.ChatId, 10, ((MessageItem)ChatMessagesList.Children[0]).PrivateMessage.MessageId);
-                        numberAdded = list.Length;
-                        foreach (var message in list)
-                        {
-                            var messageItem = new MessageItem(message);
-                            messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
-                            ChatMessagesList.Children.Insert(0, messageItem);
-                        }
+                        var messageItem = new MessageItem(message);
+                        messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
+                        ChatMessagesList.Children.Insert(0, messageItem);
                     }
-                    else
+                }
+                else
+                {
+                    var list = MainPage.Client.GetChannelMessages(Channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
+                    numberAdded = list.Length;
+                    foreach (var message in list)
                     {
-                        var list = MainPage.Client.GetChannelMessages(Channel.ChannelId, 10, ((MessageItem)ChatMessagesList.Children[0]).ChannelMessage.MessageId);
-                        numberAdded = list.Length;
-                        foreach (var message in list)
-                        {
-                            var messageItem = new MessageItem(message);
-                            messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
-                            ChatMessagesList.Children.Insert(0, messageItem);
-                        }
+                        var messageItem = new MessageItem(message);
+                        messageItem.SetStatus(MainPage.Client.GetOnlineUser(message.Author.UserId));
+                        ChatMessagesList.Children.Insert(0, messageItem);
                     }
-                    if (numberAdded > 0) ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
-                });
+                }
+                if (numberAdded > 0) ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
             });
         }
         //Placeholders
