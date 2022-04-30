@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Vardone.Pages;
 
@@ -13,7 +12,6 @@ namespace Vardone.Core
         private static Dictionary<long, BitmapImage> UserAvatars { get; } = new();
         private static Dictionary<long, BitmapImage> GuildAvatars { get; } = new();
         private static BitmapImage DefaultAvatar { get; } = ImageWorker.BytesToBitmapImage(File.ReadAllBytes(MainWindow.PATH + @"\resources\contentRes\avatar.jpg"));
-        private static readonly object Locker = new();
 
         public static BitmapImage GetAvatarUser(long userId)
         {
@@ -28,7 +26,6 @@ namespace Vardone.Core
             UserAvatars[userId] = base64 is null
                 ? DefaultAvatar
                 : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
-            UserAvatars[userId] = DefaultAvatar;
         }
         public static BitmapImage GetGuildAvatar(long guildId)
         {

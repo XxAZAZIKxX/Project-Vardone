@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls.Items;
 using VardoneEntities.Entities.Guild;
@@ -48,7 +49,7 @@ namespace Vardone.Pages.PropertyPages
             {
                 Title = "Успех",
                 Message = "Код приглашения был скопирован",
-                Type = NotificationType.Success
+                Type = NotificationType.Information
             });
         }
 

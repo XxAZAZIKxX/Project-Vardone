@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Notifications.Wpf;
+using Notification.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
@@ -66,7 +65,6 @@ namespace Vardone.Controls.Items
         {
             User = user;
             Username.Content = user.Username;
-            AvatarsWorker.UpdateAvatarUser(user.UserId);
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
         }
 
@@ -79,7 +77,7 @@ namespace Vardone.Controls.Items
             var vardoneClient = MainPage.Client;
             try
             {
-                vardoneClient.DeleteChat(vardoneClient.GetPrivateChatWithUser(User.UserId).ChatId);
+                vardoneClient?.DeleteChat(vardoneClient.GetPrivateChatWithUser(User.UserId).ChatId);
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Type = NotificationType.Success,

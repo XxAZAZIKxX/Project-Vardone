@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -65,6 +67,7 @@ namespace VardoneLibrary.Core.Client.Base
             Task.Run(() =>
             {
                 if (message?.data is null or not JObject) return;
+                File.WriteAllText("log.txt", message.ToString());
                 switch (message.type)
                 {
                     case TypeTcpResponse.NewPrivateMessage:

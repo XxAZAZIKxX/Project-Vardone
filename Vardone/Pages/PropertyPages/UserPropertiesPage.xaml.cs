@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls.Items;
 using Vardone.Core;

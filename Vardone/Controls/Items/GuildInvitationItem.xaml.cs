@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Pages;
 using Vardone.Pages.PropertyPages;

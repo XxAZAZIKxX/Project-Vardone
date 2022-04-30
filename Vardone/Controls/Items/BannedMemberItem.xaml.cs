@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Pages;
 using VardoneEntities.Entities.Guild;

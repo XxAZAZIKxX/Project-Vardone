@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls.Items;
 

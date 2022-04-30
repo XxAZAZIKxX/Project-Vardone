@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls.Items;
 using Vardone.Core;
@@ -121,6 +122,7 @@ namespace Vardone.Controls
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
+                if(ChatMessagesList.Children.Count == 0)return;
                 var messageItems = ChatMessagesList.Children.Cast<MessageItem>().Where(p => p.Author.UserId == user.UserId);
                 foreach (var messageItem in messageItems) messageItem.UpdateUser(user);
             }, DispatcherPriority.Background);

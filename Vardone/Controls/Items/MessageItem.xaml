@@ -75,7 +75,7 @@
                  Height="Auto"
                  MaxHeight="80"
                  VerticalAlignment="Stretch"
-                 Margin="2,5,0,10"
+                 Margin="2,5,15,10"
                  HorizontalContentAlignment="Left"
                  VerticalContentAlignment="Top"
                  Foreground="White">

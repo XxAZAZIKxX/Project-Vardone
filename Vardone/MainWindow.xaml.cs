@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
@@ -32,7 +33,7 @@ namespace Vardone
         private static readonly string DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static readonly string PATH = System.IO.Path.GetDirectoryName(DllPath);
 
-        public readonly NotificationManager notificationManager = new();
+        public readonly NotificationManager notificationManager = new(Dispatcher.CurrentDispatcher);
         private WinForms.NotifyIcon _trayIcon;
 
         private MainWindow()
@@ -53,8 +54,8 @@ namespace Vardone
             };
             _trayIcon.MouseClick += TrayIconOnMouseClick;
 
-            _trayIcon.ContextMenuStrip.Items.Add("Open").Click += TrayOpenClick;
-            _trayIcon.ContextMenuStrip.Items.Add("Close").Click += TrayCloseClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Открыть").Click += TrayOpenClick;
+            _trayIcon.ContextMenuStrip.Items.Add("Закрыть").Click += TrayCloseClick;
         }
         //Methods
         public static void FlushMemory()

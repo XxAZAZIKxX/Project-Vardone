@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls;
 using Vardone.Controls.Items;
@@ -97,14 +99,14 @@ namespace Vardone.Pages
                     {
                         Title = "Новое сообщение от " + message.Author.Username,
                         Message = message.Text,
-                        Type = NotificationType.Information
+                        Type = NotificationType.None
                     });
                     Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        friendListPanel.ChatListGrid.Children.Cast<UserItem>()
-                            .FirstOrDefault(p => p.User.UserId == message.Chat.FromUser.UserId)
-                            ?.SetCountMessages(message.Chat.UnreadMessages);
-                    }, DispatcherPriority.Send);
+                        {
+                            friendListPanel.ChatListGrid.Children.Cast<UserItem>()
+                                .FirstOrDefault(p => p.User.UserId == message.Chat.FromUser.UserId)
+                                ?.SetCountMessages(message.Chat.UnreadMessages);
+                        }, DispatcherPriority.Send);
                 }
             });
         }
@@ -234,6 +236,10 @@ namespace Vardone.Pages
                         .FirstOrDefault(p => p.User.UserId == user.UserId)?.UpdateUser(user),
                     DispatcherPriority.Background);
                 Application.Current.Dispatcher.BeginInvoke(() => GuildMembersPage.GetInstance().UpdateMember(user), DispatcherPriority.Background);
+                //if (user.UserId == Client.GetMe().UserId)
+                //{
+                //    Application.Current.Dispatcher.Invoke(LoadMe);
+                //}
                 chatControl.UpdateUser(user);
             });
         }

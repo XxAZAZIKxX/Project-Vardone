@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls;
 using VardoneEntities.Entities.Guild;

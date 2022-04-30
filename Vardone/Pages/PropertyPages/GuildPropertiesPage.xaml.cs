@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Core;
 using VardoneEntities.Entities.Guild;

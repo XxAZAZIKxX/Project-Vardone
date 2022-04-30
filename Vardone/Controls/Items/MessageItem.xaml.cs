@@ -66,7 +66,6 @@ namespace Vardone.Controls.Items
         public void UpdateUser(User user)
         {
             if (user is null) return;
-            AvatarsWorker.UpdateAvatarUser(user.UserId);
             Username.Content = user.Username;
             Avatar.ImageSource = AvatarsWorker.GetAvatarUser(user.UserId);
         }
