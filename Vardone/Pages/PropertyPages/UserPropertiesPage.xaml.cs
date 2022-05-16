@@ -185,6 +185,7 @@ namespace Vardone.Pages.PropertyPages
             {
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });
+            AvatarsWorker.UpdateAvatarUser(MainPage.Client.GetMe().UserId);
             Load();
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,7 +6,6 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Notification.Wpf;
-using Notifications.Wpf;
 using Vardone.Controls;
 using Vardone.Controls.Items;
 using Vardone.Core;
@@ -236,10 +234,10 @@ namespace Vardone.Pages
                         .FirstOrDefault(p => p.User.UserId == user.UserId)?.UpdateUser(user),
                     DispatcherPriority.Background);
                 Application.Current.Dispatcher.BeginInvoke(() => GuildMembersPage.GetInstance().UpdateMember(user), DispatcherPriority.Background);
-                //if (user.UserId == Client.GetMe().UserId)
-                //{
-                //    Application.Current.Dispatcher.Invoke(LoadMe);
-                //}
+                if (user.UserId == Client.GetMe().UserId)
+                {
+                    Application.Current.Dispatcher.Invoke(LoadMe);
+                }
                 chatControl.UpdateUser(user);
             });
         }
