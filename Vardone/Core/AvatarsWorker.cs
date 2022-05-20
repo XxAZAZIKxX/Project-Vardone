@@ -40,10 +40,12 @@ namespace Vardone.Core
         public static void UpdateGuildAvatar(long guildId)
         {
             var base64 = MainPage.Client?.GetGuilds().FirstOrDefault(p => p.GuildId == guildId)?.Base64Avatar;
-
-            GuildAvatars[guildId] = base64 is null
-                ? DefaultAvatar
-                : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                GuildAvatars[guildId] = base64 is null
+                    ? DefaultAvatar
+                    : ImageWorker.BytesToBitmapImage(Convert.FromBase64String(base64));
+            });
         }
 
         public static void ClearAll()

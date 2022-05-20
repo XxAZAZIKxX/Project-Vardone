@@ -154,7 +154,10 @@ namespace Vardone.Pages
             return Task.Run(() =>
             {
                 guildPanel.UpdateGuild(guild);
-                GuildList.Children.Cast<GuildListItem>().FirstOrDefault(p => p.Guild.GuildId == guild.GuildId)?.UpdateGuild(guild);
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    GuildList.Children.Cast<GuildListItem>().FirstOrDefault(p => p.Guild.GuildId == guild.GuildId)?.UpdateGuild(guild);
+                });
             });
         }
         private Task OnGuildLeave(Guild guild)

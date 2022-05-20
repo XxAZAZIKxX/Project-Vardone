@@ -41,8 +41,8 @@ namespace Vardone.Pages.PropertyPages
                 GuildId = _guild.GuildId,
                 Base64Image = Convert.ToBase64String(File.ReadAllBytes(openFileDialog.FileName))
             });
+            AvatarsWorker.UpdateGuildAvatar(_guild.GuildId);
             LoadGuild(_guild);
-            MainPage.GetInstance().OpenGuild(_guild);
         }
 
         private void CloseMouseDown(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
