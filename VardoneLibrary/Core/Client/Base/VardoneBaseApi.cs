@@ -11,6 +11,11 @@ namespace VardoneLibrary.Core.Client.Base
 {
     public abstract class VardoneBaseApi
     {
+        public enum RegisterResponse
+        {
+            EmailBooked, UsernameBooked, None
+        }
+
         protected static readonly RestClient REST_CLIENT = new("https://localhost:5001/") { Timeout = -1 };
 
         protected static IRestResponse ExecutePost(string resource, string json = null, Dictionary<string, string> queryParameters = null, Dictionary<string, string> headers = null)
@@ -42,7 +47,7 @@ namespace VardoneLibrary.Core.Client.Base
             return response.StatusCode is not HttpStatusCode.OK ? null : JsonConvert.DeserializeObject<string>(response.Content);
         }
 
-        public static bool RegisterUser(RegisterUserModel register)
+        public static bool RegisterUser(RegisterUserModel register, out RegisterResponse rr)
         {
             using (var sha512 = SHA512.Create())
             {
@@ -51,8 +56,10 @@ namespace VardoneLibrary.Core.Client.Base
                 foreach (var b in computeHash) sb.Append(b.ToString("X2"));
                 register.PasswordHash = sb.ToString();
             }
-
             var response = ExecutePost(@"/auth/registerUser", JsonConvert.SerializeObject(register));
+            if (response.Content.Contains("#1")) rr = RegisterResponse.EmailBooked;
+            else if (response.Content.Contains("#2")) rr = RegisterResponse.UsernameBooked;
+            else rr = RegisterResponse.None;
             return response.StatusCode == HttpStatusCode.OK;
         }
 

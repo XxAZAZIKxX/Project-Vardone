@@ -34,10 +34,10 @@ namespace Vardone.Controls.Items
         public GuildListItem(Guild guild)
         {
             InitializeComponent();
-            this.Guild = guild;
-            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(this.Guild.GuildId);
+            Guild = guild;
+            Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(Guild.GuildId);
             GuildItems.Add(this);
-            var currentUserId = MainPage.Client.GetMe().UserId;
+            var currentUserId = MainPage.Client?.GetMe().UserId;
 
             if (currentUserId != guild.Owner.User.UserId) SettingsButton.Visibility = Visibility.Collapsed;
             else LeaveGuildButton.Visibility = Visibility.Collapsed;

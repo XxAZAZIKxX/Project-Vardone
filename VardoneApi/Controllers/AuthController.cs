@@ -92,8 +92,8 @@ namespace VardoneApi.Controllers
                     var users = dataContext.Users;
                     var puss = dataContext.PrivateUserSalts;
 
-                    if (users.Any(p => p.Email == registerRequestModel.Email)) return BadRequest("<#!> Email is already booked");
-                    if (users.Any(p => p.Username == registerRequestModel.Username)) return BadRequest("<#!> Username is already booked");
+                    if (users.Any(p => p.Email == registerRequestModel.Email)) return BadRequest("<#1> Email is already booked");
+                    if (users.Any(p => p.Username == registerRequestModel.Username)) return BadRequest("<#2> Username is already booked");
 
 
                     var user = new UsersTable

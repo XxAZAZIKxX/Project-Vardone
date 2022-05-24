@@ -32,9 +32,9 @@ namespace Vardone.Pages
             MainWindow.GetInstance().LoadApp(new VardoneClient(token));
             return true;
         }
-        public bool TryRegister(string username, string email, string password)
+        public bool TryRegister(string username, string email, string password, out VardoneBaseApi.RegisterResponse response)
         {
-            var registerUser = VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, PasswordHash = password, Username = username });
+            var registerUser = VardoneBaseApi.RegisterUser(new RegisterUserModel { Email = email, PasswordHash = password, Username = username }, out response);
             if (registerUser is false) return false;
             var token = VardoneBaseApi.GetUserToken(email, password);
             if (token is null) return false;

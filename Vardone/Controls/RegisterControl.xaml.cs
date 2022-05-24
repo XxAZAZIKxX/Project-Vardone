@@ -6,6 +6,7 @@ using System.Windows.Media;
 using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Pages;
+using VardoneLibrary.Core.Client.Base;
 
 namespace Vardone.Controls
 {
@@ -56,7 +57,7 @@ namespace Vardone.Controls
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Title = "Проверьте введенные данные",
-                    Message = "Пожалуйста введите email",
+                    Message = "Пожалуйста введите почту",
                     Type = NotificationType.Warning
                 });
                 return;
@@ -67,21 +68,28 @@ namespace Vardone.Controls
                 MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                 {
                     Title = "Проверьте введенные данные",
-                    Message = "Пожалуйста введите корректный email",
+                    Message = "Пожалуйста введите корректную почту",
                     Type = NotificationType.Warning
                 });
                 return;
             }
 
-            var tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password);
+            var tryRegister = AuthorizationPage.GetInstance().TryRegister(TbLogin.Text, TbEmail.Text, PbPassword.Password, out var response);
             if (tryRegister is false)
             {
-                MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                var notificationContent = new NotificationContent
                 {
-                    Title = "Проверьте введенные данные",
-                    Message = "Попытка регистрации завершилась неудачно",
-                    Type = NotificationType.Error
-                });
+                    Title = "Попытка регистрации завершилась неудачно",
+                    Type = NotificationType.Error,
+                    Message = response switch
+                    {
+                        VardoneBaseApi.RegisterResponse.EmailBooked => "Данная почта уже занята",
+                        VardoneBaseApi.RegisterResponse.UsernameBooked => "Данное имя пользователя уже занято",
+                        _ => "Неизвестная ошибка"
+                    }
+                };
+
+                MainWindow.GetInstance().notificationManager.Show(notificationContent);
                 return;
             }
 

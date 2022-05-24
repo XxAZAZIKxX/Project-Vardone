@@ -35,7 +35,8 @@
                     <TextBox TextChanged="MessageTextBoxOnTextChanged" KeyDown="MessageBoxKeyDown"
                              GotFocus="MessageBoxGotFocus" LostFocus="MessageBoxLostFocus" Text=""
                              x:Name="MessageTextBox" BorderThickness="0" Height="30"
-                             MaxLength="255"  
+                             MaxLength="255"  Margin="0,0,30,0"
+                             TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                              VerticalContentAlignment="Center" CaretBrush="White"
                              Foreground="LightGray" Background="Transparent"
                              AllowDrop="True" PreviewDragOver="TextBoxDragEnter" PreviewDrop="TextBoxDragDrop">
