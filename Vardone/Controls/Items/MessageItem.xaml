@@ -11,10 +11,65 @@
 
             <ControlTemplate.Triggers>
                 <Trigger Property="IsHighlighted" Value="true">
+                 
                     <Setter TargetName="Head" Property="Background" Value="#353535" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Foreground" Value="LightGray"></Setter>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+        <ControlTemplate  x:Key="Menu_SubMenu_Template"
+                         TargetType="{x:Type MenuItem}">
+            <Grid Name="Head" Margin="-1,0,0,0" Background="#404040">
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Popup x:Name="PART_Popup"
+                       AllowsTransparency="true"
+                       Focusable="false"
+                       HorizontalOffset="-2"
+                       IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                       Placement="Right"
+                       PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}"
+                       VerticalOffset="0">
+
+                    <Border x:Name="SubMenuBorder"
+                            Background="#2E333A"
+                            BorderBrush="#2E333A">
+
+                        <ScrollViewer x:Name="SubMenuScrollViewer"
+                                      Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
+
+                            <Grid RenderOptions.ClearTypeHint="Enabled">
+
+                                <Canvas HorizontalAlignment="Left"
+                                        VerticalAlignment="Top" />
+
+                                <ItemsPresenter x:Name="ItemsPresenter"
+                                                KeyboardNavigation.DirectionalNavigation="Cycle"
+                                                Grid.IsSharedSizeScope="true"
+                                                KeyboardNavigation.TabNavigation="Cycle" />
+                            </Grid>
+                        </ScrollViewer>
+                    </Border>
+                </Popup>
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsSuspendingPopupAnimation"
+                     Value="true">
+                    <Setter Property="PopupAnimation"
+                        TargetName="PART_Popup"
+                        Value="None" />
+                </Trigger>
+
+                <Trigger Property="IsHighlighted" Value="true">
+                 
+                    <Setter TargetName="Head" Property="Background" Value="#353535" />
+                </Trigger>
+              
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -92,9 +147,41 @@
                 <MenuItem
                     BorderThickness="0" 
                     Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200"
+                    Foreground="White" Width="200" 
                     Click="DeleteMessageButtonClicked"
                     Background="#404040" Header="Удалить сообщение" />
+
+                <MenuItem
+                    BorderThickness="0"  Width="200"
+                    Template="{StaticResource Menu_SubMenu_Template}"
+                    Background="#404040" Foreground="OrangeRed"  Header="Пожаловаться" >
+                    
+                        <MenuItem Name="Porn"
+                    BorderThickness="0" Click="MenuItem_Click"
+                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                    Foreground="White" Width="200"
+               
+                    Background="#404040" Header="Порнография" />
+                    <MenuItem Name="Violence"
+                    BorderThickness="0" Click="MenuItem_Click"
+                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                    Foreground="White" Width="200"
+                    
+                    Background="#404040" Header="Насилие" />
+                    <MenuItem Name="Insult"
+                    BorderThickness="0" Click="MenuItem_Click"
+                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                    Foreground="White" Width="200"
+                 
+                    Background="#404040" Header="Оскорбления" />
+                    <MenuItem Name="Spam" Click="MenuItem_Click"
+                    BorderThickness="0" 
+                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                    Foreground="White" Width="200"
+                 
+                    Background="#404040" Header="Спам" />
+                
+                </MenuItem>
             </ContextMenu>
         </Grid.ContextMenu>
     </Grid>

@@ -101,8 +101,18 @@
                          HorizontalContentAlignment="Center">
                     <Border Background="#303030">
                         <Grid MinWidth="760">
+                            <Label VerticalAlignment="Center" 
+                                   HorizontalAlignment="Center"
+                                   Visibility="Visible"
+                                           Margin="-10,-20,0,0"
+                                           Name ="nomyinvitation"
+                                           Foreground="Gray"
+                                           FontSize="20"
+                                           Content="Исходящих заявок нет"/>
                             <ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Hidden">
-                                <StackPanel HorizontalAlignment="Left" x:Name="OutgoingRequest" />
+                                <StackPanel HorizontalAlignment="Left" 
+                                            x:Name="OutgoingRequest" >
+                                </StackPanel>
                             </ScrollViewer>
                         </Grid>
                     </Border>
@@ -112,6 +122,14 @@
                          HorizontalContentAlignment="Center">
                     <Border Background="#303030">
                         <Grid MinWidth="760">
+                            <Label VerticalAlignment="Center" 
+                                   HorizontalAlignment="Center"
+                                   Visibility="Visible"
+                                           Margin="-10,-20,0,0"
+                                           Name ="noinvitation"
+                                           Foreground="Gray"
+                                           FontSize="20"
+                                           Content="Входящих заявок нет"/>
                             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                 <StackPanel HorizontalAlignment="Left" x:Name="IncomingRequest" />
                             </ScrollViewer>

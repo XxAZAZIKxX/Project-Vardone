@@ -31,9 +31,12 @@ namespace Vardone.Pages.PropertyPages
             var requests = MainPage.Client.GetIncomingFriendRequests();
             Application.Current.Dispatcher.Invoke(() =>
             {
+                
+                noinvitation.Visibility = requests.Length > 0 ? Visibility.Collapsed : Visibility.Visible;
                 IncomingRequest.Children.Clear();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username).Select(user => new FriendRequestItem(user, RequestType.Incoming)))
                 {
+                    
                     IncomingRequest.Children.Add(friendRequestItem);
                 }
             });
@@ -44,6 +47,7 @@ namespace Vardone.Pages.PropertyPages
             var requests = MainPage.Client.GetOutgoingFriendRequests();
             Application.Current.Dispatcher.Invoke(() =>
             {
+                nomyinvitation.Visibility = requests.Length > 0 ? Visibility.Collapsed : Visibility.Visible;
                 OutgoingRequest.Children.Clear();
                 foreach (var friendRequestItem in requests.OrderBy(p => p.Username)
                     .Select(user => new FriendRequestItem(user, RequestType.Outgoing)))

@@ -243,15 +243,7 @@
                         </Grid>
                     </Border>
                 </TabItem>
-                <TabItem Foreground="Gray" Header="!"
-                         HorizontalContentAlignment="Center">
-                    <Border Background="#303030" MinWidth="760">
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <StackPanel HorizontalAlignment="Left"
-                                        VerticalAlignment="Top" />
-                        </ScrollViewer>
-                    </Border>
-                </TabItem>
+              
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="Template">

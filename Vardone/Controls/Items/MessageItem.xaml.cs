@@ -95,5 +95,19 @@ namespace Vardone.Controls.Items
             if (ChannelMessage is not null) MainPage.Client.DeleteChannelMessage(ChannelMessage.MessageId);
             if (PrivateMessage is not null) MainPage.Client.DeletePrivateMessage(PrivateMessage.MessageId);
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string message = Text.Text; 
+            String word = sender.ToString().Replace(" ","").Substring(39,(sender.ToString().Length-54));
+            if (MessageBox.Show($"Вы уверенны, что хотите пожаловаться на {word}?","Подтверждение"
+                , MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                MessageBox.Show("fine");
+                //Саша ворд хранит жалобу, можешь пихать ее куда хочешь. 
+                //Можешь даже заменить этим словом ник автора сообщения на неск дней.
+            }
+
+        }
     }
 }
