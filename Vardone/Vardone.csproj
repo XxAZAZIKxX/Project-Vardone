@@ -17,6 +17,7 @@
     <None Remove="Resources\Backgrounds\wallpaper.jpg" />
     <None Remove="Resources\clip.png" />
     <None Remove="Resources\ContentRes\avatar.jpg" />
+    <None Remove="Resources\ContentRes\Loading.gif" />
     <None Remove="Resources\cross.ico" />
     <None Remove="Resources\download.png" />
     <None Remove="Resources\exit.png" />
@@ -43,6 +44,9 @@
     <Resource Include="Resources\add_user.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Resources\ContentRes\Loading.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\info-icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -73,6 +77,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Notification.Wpf" Version="6.1.0.4" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>

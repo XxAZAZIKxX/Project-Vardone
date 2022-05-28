@@ -10,6 +10,7 @@ using VardoneApi.Core.Checks;
 using VardoneApi.Core.CreateHelpers;
 using VardoneApi.Entity.Models.Channels;
 using VardoneEntities.Entities.Guild;
+using VardoneEntities.Models.GeneralModels;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneEntities.Models.TcpModels;
@@ -405,6 +406,51 @@ namespace VardoneApi.Controllers
                         }
                     });
                     return Ok("Deleted");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+
+        [HttpPost, Route("complainAboutChannelMessage")]
+        public async Task<IActionResult> ComplainAboutChannelMessage([FromBody] ComplaintMessageModel complaintModel)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = JwtTokenWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Token-Invalid");
+                }
+                var userId = token.UserId;
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var users = dataContext.Users;
+                    var user = users.First(p => p.Id == userId);
+                    var channelMessages = dataContext.ChannelMessages;
+                    channelMessages.Include(p=>p.Author).Load();
+                    channelMessages.Include(p=>p.Channel).Load();
+                    channelMessages.Include(p=>p.Channel.Guild).Load();
+                    var channelMessage = channelMessages.FirstOrDefault(p => p.Id == complaintModel.MessageId);
+                    if (channelMessage is null) return BadRequest("Message is not exists");
+                    if (!GuildChecks.IsUserMember(userId, channelMessage.Channel.Guild.Id)) return BadRequest("You are not a member");
+                    var complaintsAboutChannelMessage = dataContext.ComplaintsAboutChannelMessage;
+                    complaintsAboutChannelMessage.Add(new ComplaintsAboutChannelMessageTable
+                    {
+                        MessageId = channelMessage.Id,
+                        Complainant = user,
+                        SubjectOfTheComplaint = channelMessage.Author,
+                        ComplaintType = complaintModel.ComplaintType,
+                        MessageText = channelMessage.Text,
+                        MessageImage = channelMessage.Image
+                    });
+                    dataContext.SaveChanges();
+                    return Ok("Complaint was saved");
                 }
                 catch (Exception e)
                 {

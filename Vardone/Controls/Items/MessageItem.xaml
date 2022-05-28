@@ -11,7 +11,7 @@
 
             <ControlTemplate.Triggers>
                 <Trigger Property="IsHighlighted" Value="true">
-                 
+
                     <Setter TargetName="Head" Property="Background" Value="#353535" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="True">
@@ -19,7 +19,7 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <ControlTemplate  x:Key="Menu_SubMenu_Template"
+        <ControlTemplate x:Key="Menu_SubMenu_Template"
                          TargetType="{x:Type MenuItem}">
             <Grid Name="Head" Margin="-1,0,0,0" Background="#404040">
                 <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Center" />
@@ -56,20 +56,20 @@
 
             <ControlTemplate.Triggers>
                 <Trigger Property="IsSuspendingPopupAnimation"
-                     Value="true">
+                         Value="true">
                     <Setter Property="PopupAnimation"
-                        TargetName="PART_Popup"
-                        Value="None" />
+                            TargetName="PART_Popup"
+                            Value="None" />
                 </Trigger>
 
                 <Trigger Property="IsHighlighted" Value="true">
-                 
+
                     <Setter TargetName="Head" Property="Background" Value="#353535" />
                 </Trigger>
-              
+
             </ControlTemplate.Triggers>
         </ControlTemplate>
-    
+
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -81,23 +81,23 @@
             <RowDefinition Height="Auto" MaxHeight="200" />
             <RowDefinition MinHeight="15" Height="Auto" MaxHeight="80" />
         </Grid.RowDefinitions>
-        <Ellipse 
+        <Ellipse
             VerticalAlignment="Top"
-                 Width="25" Height="25" 
-                 HorizontalAlignment="Center">
+            Width="25" Height="25"
+            HorizontalAlignment="Center">
             <Ellipse.Fill>
                 <ImageBrush ImageSource="../../Resources/avatar.jpg" Stretch="UniformToFill" x:Name="Avatar" />
             </Ellipse.Fill>
         </Ellipse>
 
-        <Ellipse Grid.Row="0" Grid.Column="0" 
+        <Ellipse Grid.Row="0" Grid.Column="0"
                  Width="10" Height="10"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Top"
                  Margin="30,17,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
-        <Label Grid.Row="0" Grid.Column="1" 
+        <Label Grid.Row="0" Grid.Column="1"
                x:Name="Username" Content="User"
                Foreground="white"
                VerticalContentAlignment="Center"
@@ -105,7 +105,7 @@
                FontSize="13"
                HorizontalAlignment="Left"
                VerticalAlignment="Stretch" />
-        <Label Grid.Row="0" Grid.Column="1" 
+        <Label Grid.Row="0" Grid.Column="1"
                x:Name="CreatedTime"
                Content="01.11.2020 14:54"
                Foreground="#5A5757"
@@ -143,44 +143,42 @@
             </TextBox.Style>
         </TextBox>
         <Grid.ContextMenu>
-            <ContextMenu Background="#404040" x:Name="ContextMenu" BorderThickness="0">
+            <ContextMenu Background="#404040" BorderThickness="0">
                 <MenuItem
-                    BorderThickness="0" 
+                    BorderThickness="0"
                     Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200" 
+                    Foreground="White" Width="200"
                     Click="DeleteMessageButtonClicked"
+                    x:Name="DeleteItemButton"
                     Background="#404040" Header="Удалить сообщение" />
 
                 <MenuItem
-                    BorderThickness="0"  Width="200"
+                    BorderThickness="0" Width="200"
                     Template="{StaticResource Menu_SubMenu_Template}"
-                    Background="#404040" Foreground="OrangeRed"  Header="Пожаловаться" >
-                    
-                        <MenuItem Name="Porn"
-                    BorderThickness="0" Click="MenuItem_Click"
-                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200"
-               
-                    Background="#404040" Header="Порнография" />
+                    Background="#404040" Foreground="OrangeRed" Header="Пожаловаться">
+
+                    <MenuItem Name="Porn"
+                              BorderThickness="0" Click="ComplaintItemClick"
+                              Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                              Foreground="White" Width="200"
+                              Background="#404040" Header="Порнография" />
                     <MenuItem Name="Violence"
-                    BorderThickness="0" Click="MenuItem_Click"
-                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200"
-                    
-                    Background="#404040" Header="Насилие" />
+                              BorderThickness="0" Click="ComplaintItemClick"
+                              Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                              Foreground="White" Width="200"
+                              Background="#404040" Header="Насилие" />
                     <MenuItem Name="Insult"
-                    BorderThickness="0" Click="MenuItem_Click"
-                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200"
-                 
-                    Background="#404040" Header="Оскорбления" />
-                    <MenuItem Name="Spam" Click="MenuItem_Click"
-                    BorderThickness="0" 
-                    Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
-                    Foreground="White" Width="200"
-                 
-                    Background="#404040" Header="Спам" />
-                
+                              BorderThickness="0" Click="ComplaintItemClick"
+                              Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                              Foreground="White" Width="200"
+                              Background="#404040" Header="Оскорбления" />
+                    <MenuItem Name="Spam" Click="ComplaintItemClick"
+                              BorderThickness="0"
+                              Template="{StaticResource {x:Static MenuItem.TopLevelHeaderTemplateKey}}"
+                              Foreground="White" Width="200"
+
+                              Background="#404040" Header="Спам" />
+
                 </MenuItem>
             </ContextMenu>
         </Grid.ContextMenu>

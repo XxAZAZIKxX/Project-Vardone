@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
+using VardoneEntities.Models.GeneralModels;
 using VardoneEntities.Models.GeneralModels.Guilds;
 using VardoneEntities.Models.GeneralModels.Users;
 
@@ -435,6 +436,26 @@ namespace VardoneLibrary.Core.Client
         }
 
         //===============================[OTHER]===============================
+        public void ComplainAboutChannelMessage(ComplaintMessageModel complaint)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("channels/complainAboutChannelMessage", JsonConvert.SerializeObject(complaint));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok: return;
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
         public void SendChannelMessage(long channelId, MessageModel message)
         {
             while (true)

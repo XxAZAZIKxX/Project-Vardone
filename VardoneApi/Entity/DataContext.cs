@@ -25,6 +25,8 @@ namespace VardoneApi.Entity
         public DbSet<ChannelMessagesTable> ChannelMessages { get; set; }
         public DbSet<GuildInvitesTable> GuildInvites { get; set; }
         public DbSet<PrivateUserSaltsTable> PrivateUserSalts { get; set; }
+        public DbSet<ComplaintsAboutPrivateMessageTable> ComplaintsAboutPrivateMessage { get; set; }
+        public DbSet<ComplaintsAboutChannelMessageTable> ComplaintsAboutChannelMessage { get; set; }
 
         public DataContext(string connectionString)
         {
@@ -47,6 +49,8 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<GuildInvitesTable>().Property(p => p.NumberOfUses).HasDefaultValue(0);
             modelBuilder.Entity<GuildMembersTable>().Property(p => p.NumberOfInvitedMembers).HasDefaultValue(0);
             modelBuilder.Entity<UsersOnlineTable>().Property(p => p.IsOnline).HasDefaultValue(false);
+            modelBuilder.Entity<ComplaintsAboutPrivateMessageTable>().Property(p => p.MessageImage).HasDefaultValue();
+            modelBuilder.Entity<ComplaintsAboutChannelMessageTable>().Property(p => p.MessageImage).HasDefaultValue();
             //Unique
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Email).IsUnique();
             modelBuilder.Entity<UsersTable>().HasIndex(p => p.Username).IsUnique();

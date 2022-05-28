@@ -18,6 +18,7 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels.Users;
+using WpfAnimatedGif;
 using Application = System.Windows.Application;
 using DataFormats = System.Windows.DataFormats;
 using DragDropEffects = System.Windows.DragDropEffects;
@@ -122,7 +123,7 @@ namespace Vardone.Controls
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                if(ChatMessagesList.Children.Count == 0)return;
+                if (ChatMessagesList.Children.Count == 0) return;
                 var messageItems = ChatMessagesList.Children.Cast<MessageItem>().Where(p => p.Author.UserId == user.UserId);
                 foreach (var messageItem in messageItems) messageItem.UpdateUser(user);
             }, DispatcherPriority.Background);
@@ -177,6 +178,8 @@ namespace Vardone.Controls
                 CloseChat();
                 return;
             }
+            Loading.Visibility = Visibility.Visible;
+            ImageBehavior.GetAnimationController(LoadingGif).Play();
             CloseChat();
             Chat = privateChat;
             if (Chat.ChatId == -1) Chat.ChatId = MainPage.Client.GetPrivateChatWithUser(privateChat.ToUser.UserId).ChatId;
@@ -207,6 +210,8 @@ namespace Vardone.Controls
                         var messageItem = new MessageItem(message, mode);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
                         ChatMessagesList.Children.Add(messageItem);
+                        Loading.Visibility = Visibility.Collapsed;
+                        ImageBehavior.GetAnimationController(LoadingGif).Pause();
                     }
                 }), DispatcherPriority.Send).Task.ContinueWith(_ => Application.Current.Dispatcher.Invoke(() => ChatScrollViewer.ScrollToEnd()));
 
@@ -229,13 +234,13 @@ namespace Vardone.Controls
                 CloseChat();
                 return;
             }
-
+            Loading.Visibility = Visibility.Visible;
+            ImageBehavior.GetAnimationController(LoadingGif).Play();
             CloseChat();
             Channel = openChannel;
             Task.Run(() =>
             {
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => PrivateChatHeader.Children.Add(new HeaderChannelNameItem(openChannel))), DispatcherPriority.Render);
-
                 var me = MainPage.Client.GetMe().UserId;
                 var owner = MainPage.Client.GetGuilds()
                     .FirstOrDefault(p => p.Channels.Any(channel1 => channel1.ChannelId == openChannel.ChannelId))
@@ -250,7 +255,12 @@ namespace Vardone.Controls
                                 : MessageItem.DeleteMode.CannotDelete;
                         ChatMessagesList.Children.Add(new MessageItem(message, mode));
                     }
-                }), DispatcherPriority.Send).Task.ContinueWith(_ => Application.Current.Dispatcher.Invoke(() => ChatScrollViewer.ScrollToEnd()));
+                }), DispatcherPriority.Send).Task.ContinueWith(_ => Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ChatScrollViewer.ScrollToEnd();
+                    Loading.Visibility = Visibility.Collapsed;
+                    ImageBehavior.GetAnimationController(LoadingGif).Pause();
+                }));
             });
         }
         public void CloseChat()

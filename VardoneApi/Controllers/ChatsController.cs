@@ -12,6 +12,7 @@ using VardoneApi.Entity.Models.PrivateChats;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Models.GeneralModels.Users;
 using VardoneEntities.Models.TcpModels;
+using VardoneEntities.Models.GeneralModels;
 
 namespace VardoneApi.Controllers
 {
@@ -390,6 +391,52 @@ namespace VardoneApi.Controllers
                         Program.TcpServer.SendMessageTo(data.Chat.ToUser.UserId, tcpNotify);
                     });
                     return Ok("Deleted");
+                }
+                catch (Exception e)
+                {
+                    return Problem(e.Message);
+                }
+            }));
+        }
+
+        [HttpPost, Route("complainAboutPrivateMessage")]
+        public async Task<IActionResult> ComplainAboutPrivateMessage([FromBody] ComplaintMessageModel complaintModel)
+        {
+            return await Task.Run(new Func<IActionResult>(() =>
+            {
+                var token = JwtTokenWorker.GetUserToken(User);
+                if (token is null) return BadRequest("Token parser problem");
+                if (!UserChecks.CheckToken(token))
+                {
+                    Response.Headers.Add("Token-Invalid", "true");
+                    return Unauthorized("Invalid token");
+                }
+
+                if (complaintModel == null) return BadRequest("Model is null");
+
+                var userId = token.UserId;
+                try
+                {
+                    var dataContext = Program.DataContext;
+                    var users = dataContext.Users;
+                    var user = users.First(p => p.Id == userId);
+                    var privateMessages = dataContext.PrivateMessages;
+                    privateMessages.Include(p=>p.Author).Load();
+                    privateMessages.Include(p=>p.Chat).Load();
+                    var privateMessage = privateMessages.FirstOrDefault(p => p.Id == complaintModel.MessageId);
+                    if (privateMessage is null) return BadRequest("Message is not exists");
+                    if (!PrivateChatChecks.IsCanManageChat(userId, privateMessage.Chat.Id)) return BadRequest("You cannot do this");
+                    var complaintsAboutPrivateMessage = dataContext.ComplaintsAboutPrivateMessage;
+                    complaintsAboutPrivateMessage.Add(new ComplaintsAboutPrivateMessageTable
+                    {
+                        SubjectOfTheComplaint = privateMessage.Author,
+                        ComplaintType = complaintModel.ComplaintType,
+                        Complainant = user,
+                        MessageText = privateMessage.Text,
+                        MessageImage = privateMessage.Image
+                    });
+                    dataContext.SaveChanges();
+                    return Ok("Complaint was saved");
                 }
                 catch (Exception e)
                 {

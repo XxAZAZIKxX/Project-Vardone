@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using VardoneEntities.Entities.Chat;
+using VardoneEntities.Models.GeneralModels;
 using VardoneEntities.Models.GeneralModels.Users;
 
 namespace VardoneLibrary.Core.Client
@@ -100,7 +101,7 @@ namespace VardoneLibrary.Core.Client
         /// <param name="limit">Количество сообщений</param>
         /// <param name="startFrom">Начинать с [n] id сообщения</param>
         /// <returns></returns>
-        public PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit=0, long startFrom=0)
+        public PrivateMessage[] GetPrivateMessagesFromChat(long chatId, int limit = 0, long startFrom = 0)
         {
             while (true)
             {
@@ -229,6 +230,33 @@ namespace VardoneLibrary.Core.Client
                         throw new Exception(response.ErrorMessage);
                     default:
                         throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Отправить жалобу на сообщение
+        /// </summary>
+        /// <param name="complaint">Модель жалобы</param>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void ComplainAboutPrivateMessage(ComplaintMessageModel complaint)
+        {
+            while (true)
+            {
+                var response = ExecutePostWithToken("chats/complainAboutPrivateMessage", JsonConvert.SerializeObject(complaint));
+                switch (ResponseHandler.GetResponseStatus(response))
+                {
+                    case ResponseStatus.Ok: return;
+                    case ResponseStatus.UpdateToken:
+                        UpdateToken();
+                        continue;
+                    case ResponseStatus.InvalidToken:
+                        EventDisconnectInvoke();
+                        return;
+                    case ResponseStatus.Error:
+                        throw new Exception(response.ErrorMessage);
+                    default: throw new ArgumentOutOfRangeException();
                 }
             }
         }

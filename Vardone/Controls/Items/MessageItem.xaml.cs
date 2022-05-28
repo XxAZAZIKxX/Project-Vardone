@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -8,6 +9,7 @@ using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
+using VardoneEntities.Models.GeneralModels;
 
 namespace Vardone.Controls.Items
 {
@@ -72,11 +74,7 @@ namespace Vardone.Controls.Items
 
         private void SetDeleteButton(DeleteMode mode)
         {
-            if (mode is DeleteMode.CannotDelete)
-            {
-                ContextMenu.IsEnabled = false;
-                ContextMenu.Visibility = Visibility.Collapsed;
-            }
+            if (mode is DeleteMode.CannotDelete) DeleteItemButton.Visibility = Visibility.Collapsed;
         }
 
         private void ImageOnClick(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().DeployImage(Image.Source as BitmapImage);
@@ -96,18 +94,37 @@ namespace Vardone.Controls.Items
             if (PrivateMessage is not null) MainPage.Client.DeletePrivateMessage(PrivateMessage.MessageId);
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void ComplaintItemClick(object sender, RoutedEventArgs e)
         {
-            string message = Text.Text; 
-            String word = sender.ToString().Replace(" ","").Substring(39,(sender.ToString().Length-54));
-            if (MessageBox.Show($"Вы уверенны, что хотите пожаловаться на {word}?","Подтверждение"
-                , MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            string reason;
+            ComplaintType type;
+            var s = (MenuItem)sender;
+            if (s.Name == Insult.Name)
             {
-                MessageBox.Show("fine");
-                //Саша ворд хранит жалобу, можешь пихать ее куда хочешь. 
-                //Можешь даже заменить этим словом ник автора сообщения на неск дней.
+                reason = "оскорбления";
+                type = ComplaintType.Insult;
             }
+            else if (s.Name == Porn.Name)
+            {
+                reason = "порнографию";
+                type = ComplaintType.Porn;
+            }
+            else if (s.Name == Spam.Name)
+            {
+                reason = "спам";
+                type = ComplaintType.Spam;
+            }
+            else if (s.Name == Violence.Name)
+            {
+                reason = "насилие";
+                type = ComplaintType.Violence;
+            }
+            else return;
+            var result = MessageBox.Show($"Вы уверенны, что хотите пожаловаться на {reason}?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result is not MessageBoxResult.Yes) return;
 
+            if (PrivateMessage is not null) MainPage.Client?.ComplainAboutPrivateMessage(new ComplaintMessageModel { MessageId = PrivateMessage.MessageId, ComplaintType = type });
+            else if (ChannelMessage is not null) MainPage.Client?.ComplainAboutChannelMessage(new ComplaintMessageModel { MessageId = ChannelMessage.MessageId, ComplaintType = type });
         }
     }
 }
