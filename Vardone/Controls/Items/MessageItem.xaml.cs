@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Notification.Wpf;
 using Vardone.Core;
 using Vardone.Pages;
 using VardoneEntities.Entities.Chat;
@@ -125,6 +126,13 @@ namespace Vardone.Controls.Items
 
             if (PrivateMessage is not null) MainPage.Client?.ComplainAboutPrivateMessage(new ComplaintMessageModel { MessageId = PrivateMessage.MessageId, ComplaintType = type });
             else if (ChannelMessage is not null) MainPage.Client?.ComplainAboutChannelMessage(new ComplaintMessageModel { MessageId = ChannelMessage.MessageId, ComplaintType = type });
+
+            MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+            {
+                Type = NotificationType.Success,
+                Message = "Ваша жалоба была отправлена",
+                Title = "Успех"
+            });
         }
     }
 }
