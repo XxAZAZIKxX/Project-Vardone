@@ -116,10 +116,22 @@ namespace Vardone.Pages.PropertyPages
                     return;
                 }
 
-                MainPage.Client.UpdateMe(new UpdateUserModel
+                try
                 {
-                    Username = UsernameTb.Text
-                });
+                    MainPage.Client.UpdateMe(new UpdateUserModel
+                    {
+                        Username = UsernameTb.Text
+                    });
+                }
+                catch
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Message = "Имя пользователя уже занято!",
+                        Title = "Ошибка",
+                        Type = NotificationType.Error
+                    });
+                }
                 Load();
             }
 
@@ -142,10 +154,23 @@ namespace Vardone.Pages.PropertyPages
                     return;
                 }
 
-                MainPage.Client.UpdateMe(new UpdateUserModel
+                try
                 {
-                    Email = EmailTb.Text
-                });
+                    MainPage.Client.UpdateMe(new UpdateUserModel
+                    {
+                        Email = EmailTb.Text
+                    });
+                }
+                catch 
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Message = "Почта уже занята!",
+                        Title = "Ошибка",
+                        Type = NotificationType.Error
+                    });
+                }
+
                 Load();
             }
 

@@ -796,6 +796,7 @@ namespace VardoneApi.Controllers
                 }
 
                 if (updateUserModel.Email is not null && !UserChecks.IsEmailAvailable(updateUserModel.Email)) return BadRequest("Email is booked");
+                if (updateUserModel.Username is not null && UserChecks.IsUserExists(updateUserModel.Username)) return BadRequest("Username is booked");
 
                 var dataContext = Program.DataContext;
                 var users = dataContext.Users;

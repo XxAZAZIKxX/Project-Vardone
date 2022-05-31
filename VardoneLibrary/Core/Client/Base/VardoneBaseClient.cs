@@ -66,7 +66,6 @@ namespace VardoneLibrary.Core.Client.Base
             Task.Run(() =>
             {
                 if (message?.data is null or not JObject) return;
-                File.WriteAllText("log.txt", message.ToString());
                 switch (message.type)
                 {
                     case TypeTcpResponse.NewPrivateMessage:

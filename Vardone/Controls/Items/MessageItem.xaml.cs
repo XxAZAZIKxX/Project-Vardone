@@ -102,7 +102,7 @@ namespace Vardone.Controls.Items
             var s = (MenuItem)sender;
             if (s.Name == Insult.Name)
             {
-                reason = "оскорбления";
+                reason = "оскорбление";
                 type = ComplaintType.Insult;
             }
             else if (s.Name == Porn.Name)
