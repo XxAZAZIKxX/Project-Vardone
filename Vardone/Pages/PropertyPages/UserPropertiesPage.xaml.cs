@@ -301,7 +301,7 @@ namespace Vardone.Pages.PropertyPages
             {
                 MainPage.Client.UpdateMe(new UpdateUserModel
                 {
-                    BirthDate = BirthdayTb
+                    BirthDate = BirthdayTb.SelectedDate
                 });
                 Load();
             }
