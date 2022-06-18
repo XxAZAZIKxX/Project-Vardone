@@ -11,6 +11,7 @@ namespace VardoneEntities.Models.GeneralModels.Users
 
         public string Phone { get; set; }
         public string FullName { get; set; }
-        public DateTime? BirthDate { get; set; } = null;
+        public DateTime? BirthDate { get; set; }
+        public string Position { get; set; }
     }
 }

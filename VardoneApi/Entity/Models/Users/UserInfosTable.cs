@@ -11,6 +11,7 @@ namespace VardoneApi.Entity.Models.Users
         [Column("avatar")] public byte[] Avatar { get; set; }
         [Column("description")] public string Description { get; set; }
         [Column("phone")] public string Phone { get; set; }
+        [Column("position")] public string Position { get; set; }
         [Column("birth_date")] public string BirthDate { get; set; }
         [Column("full_name")] public string FullName { get; set; }
     }

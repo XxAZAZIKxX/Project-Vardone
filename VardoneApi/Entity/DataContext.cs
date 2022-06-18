@@ -42,6 +42,7 @@ namespace VardoneApi.Entity
             modelBuilder.Entity<UserInfosTable>().Property(p => p.FullName).HasDefaultValue();
             modelBuilder.Entity<UserInfosTable>().Property(p => p.BirthDate).HasDefaultValue();
             modelBuilder.Entity<UserInfosTable>().Property(p => p.Phone).HasDefaultValue();
+            modelBuilder.Entity<UserInfosTable>().Property(p => p.Position).HasDefaultValue();
             //
             modelBuilder.Entity<GuildInfosTable>().Property(p => p.Avatar).HasDefaultValue();
             modelBuilder.Entity<PrivateMessagesTable>().Property(p => p.Image).HasDefaultValue();

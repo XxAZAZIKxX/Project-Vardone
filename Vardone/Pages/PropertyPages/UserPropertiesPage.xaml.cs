@@ -34,6 +34,10 @@ namespace Vardone.Pages.PropertyPages
                 UsernameTb.Text = user.Username;
                 EmailTb.Text = user.AdditionalInformation.Email;
                 DescTb.Text = user.Description ?? "Описание";
+                PhoneTb.Text = user.AdditionalInformation.Phone ?? "Номер телефона";
+                BirthdayTb.SelectedDate = user.AdditionalInformation.BirthDate;
+                NameTb.Text = user.AdditionalInformation.FullName?? "ФИО";
+                PositionTb.Text = user.AdditionalInformation.Position?? "Должность";
                 StartPreferencesSp.Children.Clear();
                 StartPreferencesSp.Children.Add(new CheckBoxItem("Автозапуск", ConfigWorker.GetAutostart(), ConfigWorker.SetAutostart));
                 StartPreferencesSp.Children.Add(new CheckBoxItem("Запускать свернутым", ConfigWorker.GetStartMinimized(), ConfigWorker.SetStartMinimized));
@@ -245,17 +249,6 @@ namespace Vardone.Pages.PropertyPages
         {
             if (NameChangeButton.Content is "Сохранить")
             {
-                if (string.IsNullOrWhiteSpace(NameTb.Text))
-                {
-                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
-                    {
-                        Title = "Проверьте введенные данные",
-                        Message = "Пожалуйста введите логин",
-                        Type = NotificationType.Warning
-                    });
-                    return;
-                }
-
                 MainPage.Client.UpdateMe(new UpdateUserModel
                 {
                     FullName = NameTb.Text
@@ -283,17 +276,17 @@ namespace Vardone.Pages.PropertyPages
         }
         private void Post_ChangeBtn(object sender, RoutedEventArgs e)
         {
-            //if (PostChangeButton.Content.ToString() == "Сохранить")
-            //{
-            //    MainPage.Client.UpdateMe(new UpdateUserModel
-            //    {
-            //        Post = PostTb.Text
-            //    });
-            //    Load();
-            //}
+            if (PositionChangeButton.Content.ToString() == "Сохранить")
+            {
+                MainPage.Client.UpdateMe(new UpdateUserModel
+                {
+                    Position = PositionTb.Text.Trim()
+                });
+                Load();
+            }
 
-            PostChangeButton.Content = PostChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
-            //   PostTb.IsEnabled = PostChangeButton.Content.ToString() == "Сохранить";
+            PositionChangeButton.Content = PositionChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            PositionTb.IsEnabled = PositionChangeButton.Content.ToString() == "Сохранить";
         }
         private void Birthday_ChangeBtn(object sender, RoutedEventArgs e)
         {

@@ -135,9 +135,9 @@
                                                  Foreground="LightGray"
                                                  Margin="20,60,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        <TextBox x:Name="PostTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="PositionTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
-                                                 Background="Transparent" FontSize="18" Text="Post"
+                                                 Background="Transparent" FontSize="18" Text="Position"
                                                  Foreground="LightGray"
                                                  Margin="20,100,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
@@ -164,7 +164,7 @@
                                                 Margin="0,65,20,0"
                                                 Click="Phone_ChangeBtn"/>
                                         <Button Content="Изменить" Foreground="White"
-                                                Name="PostChangeButton"
+                                                Name="PositionChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"

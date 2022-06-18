@@ -355,12 +355,19 @@ namespace VardoneApi.Controllers
                         : DateTime.FromBinary(Convert.ToInt64(
                             CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.BirthDate),
                                 byteKey, PasswordOptions.IV)));
+
+                    var position = user.Info?.Position is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info?.Position),
+                                byteKey, PasswordOptions.IV);
+
                     returnUser.AdditionalInformation = new AdditionalUserInformation
                     {
                         Email = user.Email,
                         FullName = fullName,
                         Phone = phone,
-                        BirthDate = birthDate
+                        BirthDate = birthDate,
+                        Position = position
                     };
 
                     return Ok(returnUser);
@@ -832,17 +839,34 @@ namespace VardoneApi.Controllers
                 var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
 
                 if (updateUserModel.Phone is not null)
-                    userInfo.Phone = Convert.ToBase64String(
-                        CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.Phone, byteKey, PasswordOptions.IV));
+                {
+                    if (string.IsNullOrWhiteSpace(updateUserModel.Phone)) userInfo.Phone = null;
+                    else
+                        userInfo.Phone = Convert.ToBase64String(
+                            CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.Phone, byteKey, PasswordOptions.IV));
+                }
 
                 if (updateUserModel.BirthDate is not null)
                     userInfo.BirthDate = Convert.ToBase64String(
                         CryptographyTools.EncryptStringToBytes_Aes(
                             updateUserModel.BirthDate.Value.ToBinary().ToString(), byteKey, PasswordOptions.IV));
 
+                if (updateUserModel.Position is not null)
+                {
+                    if (string.IsNullOrWhiteSpace(updateUserModel.Position)) userInfo.Position = null;
+                    else
+                        userInfo.Position = Convert.ToBase64String(
+                            CryptographyTools.EncryptStringToBytes_Aes(
+                                updateUserModel.Position, byteKey, PasswordOptions.IV));
+                }
+
                 if (updateUserModel.FullName is not null)
                 {
-                    userInfo.FullName = Convert.ToBase64String(CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.FullName, byteKey, PasswordOptions.IV));
+                    if (string.IsNullOrWhiteSpace(updateUserModel.FullName)) userInfo.FullName = null;
+                    else
+                        userInfo.FullName = Convert.ToBase64String(
+                            CryptographyTools.EncryptStringToBytes_Aes(updateUserModel.FullName, byteKey,
+                                PasswordOptions.IV));
                 }
 
                 try

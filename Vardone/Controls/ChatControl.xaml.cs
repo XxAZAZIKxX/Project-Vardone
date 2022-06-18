@@ -9,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Notification.Wpf;
-using Notifications.Wpf;
 using Vardone.Controls.Items;
 using Vardone.Core;
 using Vardone.Pages;
@@ -210,9 +209,9 @@ namespace Vardone.Controls
                         var messageItem = new MessageItem(message, mode);
                         if (messageItem.Author.UserId == user.UserId) messageItem.SetStatus(onlineUser);
                         ChatMessagesList.Children.Add(messageItem);
-                        Loading.Visibility = Visibility.Collapsed;
-                        ImageBehavior.GetAnimationController(LoadingGif).Pause();
                     }
+                    Loading.Visibility = Visibility.Collapsed;
+                    ImageBehavior.GetAnimationController(LoadingGif).Pause();
                 }), DispatcherPriority.Send).Task.ContinueWith(_ => Application.Current.Dispatcher.Invoke(() => ChatScrollViewer.ScrollToEnd()));
 
                 var privateChatWithUser = MainPage.Client.GetPrivateChatWithUser(user.UserId);
