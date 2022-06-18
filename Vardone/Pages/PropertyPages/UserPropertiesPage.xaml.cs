@@ -243,19 +243,71 @@ namespace Vardone.Pages.PropertyPages
 
         private void Name_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (NameChangeButton.Content is "Сохранить")
+            {
+                if (string.IsNullOrWhiteSpace(NameTb.Text))
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Проверьте введенные данные",
+                        Message = "Пожалуйста введите логин",
+                        Type = NotificationType.Warning
+                    });
+                    return;
+                }
 
+                MainPage.Client.UpdateMe(new UpdateUserModel
+                {
+                    FullName = NameTb.Text
+                });
+
+                Load();
+            }
+
+            NameChangeButton.Content = NameChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            NameTb.IsEnabled = NameChangeButton.Content.ToString() == "Сохранить";
         }
         private void Phone_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (PhoneChangeButton.Content.ToString() == "Сохранить")
+            {
+                MainPage.Client.UpdateMe(new UpdateUserModel
+                {
+                    Phone = PhoneTb.Text.Trim()
+                });
+                Load();
+            }
 
+            PhoneChangeButton.Content = PhoneChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            PhoneTb.IsEnabled = PhoneChangeButton.Content.ToString() == "Сохранить";
         }
         private void Post_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            //if (PostChangeButton.Content.ToString() == "Сохранить")
+            //{
+            //    MainPage.Client.UpdateMe(new UpdateUserModel
+            //    {
+            //        Post = PostTb.Text
+            //    });
+            //    Load();
+            //}
 
+            PostChangeButton.Content = PostChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            //   PostTb.IsEnabled = PostChangeButton.Content.ToString() == "Сохранить";
         }
         private void Birthday_ChangeBtn(object sender, RoutedEventArgs e)
         {
+            if (BirthdayChangeButton.Content.ToString() == "Сохранить")
+            {
+                MainPage.Client.UpdateMe(new UpdateUserModel
+                {
+                    BirthDate = BirthdayTb
+                });
+                Load();
+            }
 
+            BirthdayChangeButton.Content = BirthdayChangeButton.Content.ToString() == "Сохранить" ? "Изменить" : "Сохранить";
+            BirthdayTb.IsEnabled = BirthdayChangeButton.Content.ToString() == "Сохранить";
         }
     }
 }

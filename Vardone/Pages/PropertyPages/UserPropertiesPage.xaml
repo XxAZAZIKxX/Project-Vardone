@@ -135,19 +135,18 @@
                                                  Foreground="LightGray"
                                                  Margin="20,60,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        <TextBox x:Name="BirthdayTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
-                                                 BorderBrush="Transparent"
-                                                 Background="Transparent" FontSize="18" Text="Birthday"
-                                                 Foreground="LightGray"
-                                                 Margin="20,100,0,20" Height="30"
-                                                 VerticalAlignment="Top" IsEnabled="False" />
                                         <TextBox x:Name="PostTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Post"
                                                  Foreground="LightGray"
+                                                 Margin="20,100,0,20" Height="30"
+                                                 VerticalAlignment="Top" IsEnabled="False" />
+                                        <DatePicker x:Name="BirthdayTb" HorizontalAlignment="Left" Width="300"
+                                                 BorderBrush="Transparent"
+                                                 Background="Transparent" FontSize="18" Text="Birthday"
+                                                 Foreground="LightGray"
                                                  Margin="20,140,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        
                                         <Button Content="Изменить"
                                                 Foreground="White"
                                                 Name="NameChangeButton"
@@ -165,19 +164,19 @@
                                                 Margin="0,65,20,0"
                                                 Click="Phone_ChangeBtn"/>
                                         <Button Content="Изменить" Foreground="White"
-                                                Name="BirthdayChangeButton"
-                                                Template="{StaticResource ButtonChange}"
-                                                VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                Width="100" Height="25"
-                                                Margin="0,105,20,0"
-                                                Click="Birthday_ChangeBtn"/>
-                                        <Button Content="Изменить" Foreground="White"
                                                 Name="PostChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
-                                                Margin="0,145,20,0"
+                                                Margin="0,105,20,0"
                                                 Click="Post_ChangeBtn"/>
+                                        <Button Content="Изменить" Foreground="White"
+                                                Name="BirthdayChangeButton"
+                                                Template="{StaticResource ButtonChange}"
+                                                VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                Width="100" Height="25"
+                                                Margin="0,145,20,0"
+                                                Click="Birthday_ChangeBtn"/>
                                        
                                     </Grid>
                                 </Border>
