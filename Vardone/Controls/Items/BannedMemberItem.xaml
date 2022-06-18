@@ -31,7 +31,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Viewbox Grid.Column="0" MaxHeight="40"
-                         VerticalAlignment="Center"
+                         VerticalAlignment="Center" MouseDown="BannedMember_MouseDown"
                       HorizontalAlignment="Center" x:Name="BannedMember" />
 
                 <Label Grid.Column="1" Foreground="WhiteSmoke"
@@ -45,7 +45,7 @@
                     Был забанен
                 </Label>
 
-                <Viewbox Grid.Column="2" x:Name="WasBannedByMember" MaxHeight="40"
+                <Viewbox Grid.Column="2" x:Name="WasBannedByMember" MouseDown="WasBannedByMember_MouseDown" MaxHeight="40"
                          VerticalAlignment="Center"
                       HorizontalAlignment="Center"  />
 

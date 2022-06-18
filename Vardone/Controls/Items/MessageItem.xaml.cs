@@ -11,6 +11,7 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels;
+using Vardone.Pages.Popup;
 
 namespace Vardone.Controls.Items
 {
@@ -133,6 +134,9 @@ namespace Vardone.Controls.Items
                 Message = "Ваша жалоба была отправлена",
                 Title = "Успех"
             });
+
         }
+        private void ProfileOpen(object sender, MouseButtonEventArgs e) => MainPage.GetInstance().UserProfileOpen(Author, MainPage.Client.GetOnlineUser(Author.UserId));
+
     }
 }

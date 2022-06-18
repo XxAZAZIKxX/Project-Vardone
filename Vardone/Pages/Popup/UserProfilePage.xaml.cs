@@ -2,6 +2,8 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using Vardone.Core;
+using Vardone.Pages.PropertyPages;
+using Vardone.Controls.Items;
 using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.User;
 
@@ -38,12 +40,22 @@ namespace Vardone.Pages.Popup
             };
             return this;
         }
-        private void BackToMainPage(object s, MouseEventArgs e) => MainPage.GetInstance().MainFrame.Navigate(null);
+        private void BackToMainPage(object s, MouseEventArgs e)
+        {
+            if (MemberItem.isMemberProfileOpen)
+            {
+                GuildMembersPage.GetInstance().Frame.Navigate(null);
+            }
+            else MainPage.GetInstance().MainFrame.Navigate(null);
+        }
 
         private void Message_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MainPage.GetInstance().chatControl.LoadChat(new PrivateChat{ToUser = User});
-            MainPage.GetInstance().MainFrame.Navigate(null);
+            if (User.UserId != MainPage.Client.GetMe().UserId)
+            {
+                MainPage.GetInstance().chatControl.LoadChat(new PrivateChat { ToUser = User });
+                MainPage.GetInstance().MainFrame.Navigate(null);
+            }
         }
     }
 }

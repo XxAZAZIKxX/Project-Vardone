@@ -72,7 +72,7 @@
                 </Ellipse>
                 <Ellipse Width="10" Cursor="Hand" Height="10" HorizontalAlignment="Left"
                          Margin="55,25,0,5" Fill="Green" />
-                <TextBlock x:Name="MyUsername" Margin="70,0,0,0" Cursor="Hand" Text="Julie Lynx"
+                <TextBlock x:Name="MyUsername" MouseDown="MyProfileOpen" Margin="70,0,0,0" Cursor="Hand" Text="Julie Lynx"
                            Foreground="WhiteSmoke"
                            VerticalAlignment="Center" HorizontalAlignment="Left"
                            Background="#141313" />

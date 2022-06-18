@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Controls.Items;
+using Vardone.Pages.Popup;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 
@@ -195,5 +196,6 @@ namespace Vardone.Pages.PropertyPages
                 BannedMembersList.Children.RemoveAt(bannedMemberItems.IndexOf(item));
             }, DispatcherPriority.Background);
         }
+        public void UserProfileOpen(User user, bool online, bool isMe = false) => Frame.Navigate(UserProfilePage.GetInstance().Load(user, online, isMe));
     }
 }

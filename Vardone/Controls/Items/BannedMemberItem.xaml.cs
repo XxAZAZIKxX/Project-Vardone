@@ -2,6 +2,8 @@
 using Notification.Wpf;
 using Notifications.Wpf;
 using Vardone.Pages;
+using Vardone.Pages.PropertyPages;
+using Vardone.Controls.Items;
 using VardoneEntities.Entities.Guild;
 
 namespace Vardone.Controls.Items
@@ -43,6 +45,18 @@ namespace Vardone.Controls.Items
                     Message = "Что-то пошло не так"
                 });
             }
+        }
+
+        private void BannedMember_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            GuildMembersPage.GetInstance().UserProfileOpen(CurrentBannedMember.BannedUser, MainPage.Client.GetOnlineUser(CurrentBannedMember.BannedUser.UserId));
+            MemberItem.isMemberProfileOpen = true;
+        }
+
+        private void WasBannedByMember_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            GuildMembersPage.GetInstance().UserProfileOpen(CurrentBannedMember.BannedByUser, MainPage.Client.GetOnlineUser(CurrentBannedMember.BannedByUser.UserId));
+            MemberItem.isMemberProfileOpen = true;
         }
     }
 }

@@ -161,7 +161,7 @@ namespace Vardone.Pages.PropertyPages
                         Email = EmailTb.Text
                     });
                 }
-                catch 
+                catch
                 {
                     MainWindow.GetInstance().notificationManager.Show(new NotificationContent
                     {
@@ -239,6 +239,23 @@ namespace Vardone.Pages.PropertyPages
             if (messageBoxResult != MessageBoxResult.Yes) return;
             MainPage.Client.DeleteMe();
             MainPage.GetInstance().ExitFromAccount();
+        }
+
+        private void Name_ChangeBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void Phone_ChangeBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void Post_ChangeBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void Birthday_ChangeBtn(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

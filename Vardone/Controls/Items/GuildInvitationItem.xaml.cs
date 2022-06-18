@@ -45,5 +45,11 @@ namespace Vardone.Controls.Items
                 });
             }
         }
+
+        private void User_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            GuildMembersPage.GetInstance().UserProfileOpen(invite.CreatedBy, MainPage.Client.GetOnlineUser(invite.CreatedBy.UserId));
+            MemberItem.isMemberProfileOpen = true;
+        }
     }
 }

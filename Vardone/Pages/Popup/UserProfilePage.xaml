@@ -32,15 +32,25 @@
                     </Ellipse.Fill>
                 </Ellipse>
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="Username" Text="Julie Lynx" FontSize="20"
-                           Margin="100,45,0,0" Foreground="White" />
-                <TextBlock x:Name="OnlineText" HorizontalAlignment="Left" VerticalAlignment="Top" Text="в сети" FontSize="15"
-                           Margin="100,75,0,0"
+                           Margin="100,35,0,0" Foreground="White" />
+                <TextBlock x:Name="Post"
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Top" Text="должность" 
+                           FontSize="15"
+                           Margin="100,60,0,0"
                            Foreground="LightGray" />
+                <TextBlock x:Name="OnlineText" 
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Top" Text="в сети" 
+                           FontSize="15"
+                           Margin="100,80,0,0" FontWeight="Thin"
+                           Foreground="LightGray" /> 
+              
 
                 <Ellipse x:Name="OnlineStatus" x:FieldModifier="private"
                          Width="10" Height="10" Cursor="Hand"
                          HorizontalAlignment="Center" VerticalAlignment="Top"
-                         Margin="85,82,0,0" Fill="LimeGreen">
+                         Margin="85,87,0,0" Fill="LimeGreen">
 
                 </Ellipse>
                 <Rectangle Fill="#0fa9f0 " Height="1" Width="200"
@@ -53,7 +63,7 @@
                         VerticalAlignment="Bottom" CornerRadius="0,0,20,20" HorizontalAlignment="Center" Height="130"
                         Width="200" Margin="0,0,0,40">
                     <TextBlock x:Name="Description" MaxWidth="200" Padding="10"
-                               Text=" Tell everyone your story.."
+                               Text=" Расскажи всем свою историю.."
                                Foreground="LightGray" FontWeight="DemiBold" 
                                HorizontalAlignment="Center" />
                 </Border>
@@ -61,7 +71,7 @@
                        Cursor="Hand"
                        x:Name="Message"
                        MouseDown="Message_OnMouseDown"
-                       Margin="0,79,60,0"
+                       Margin="0,84,60,0"
                        Source="../../Resources/message.png" 
                        VerticalAlignment="Top" 
                        HorizontalAlignment="Right"/>

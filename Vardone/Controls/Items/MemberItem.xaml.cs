@@ -15,6 +15,7 @@ namespace Vardone.Controls.Items
     public partial class MemberItem
     {
         public Member CurrentMember { get; private set; }
+        static public bool isMemberProfileOpen;
 
         public enum ViewPermission
         {
@@ -60,5 +61,11 @@ namespace Vardone.Controls.Items
         }
 
         private void BanMemberButtonClick(object sender, RoutedEventArgs e) => GuildMembersPage.GetInstance().Frame.Navigate(BanReasonPage.GetInstance().Load(CurrentMember));
+
+        private void Member_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            GuildMembersPage.GetInstance().UserProfileOpen(CurrentMember.User, MainPage.Client.GetOnlineUser(CurrentMember.User.UserId));
+            isMemberProfileOpen = true;
+        }
     }
 }

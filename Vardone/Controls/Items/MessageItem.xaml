@@ -81,7 +81,7 @@
             <RowDefinition Height="Auto" MaxHeight="200" />
             <RowDefinition MinHeight="15" Height="Auto" MaxHeight="80" />
         </Grid.RowDefinitions>
-        <Ellipse
+        <Ellipse MouseDown="ProfileOpen" Cursor="Hand"
             VerticalAlignment="Top"
             Width="25" Height="25"
             HorizontalAlignment="Center">
@@ -97,9 +97,9 @@
                  Margin="30,17,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
-        <Label Grid.Row="0" Grid.Column="1"
+        <Label Grid.Row="0" Grid.Column="1" MouseDown="ProfileOpen"
                x:Name="Username" Content="User"
-               Foreground="white"
+               Foreground="white" Cursor="Hand"
                VerticalContentAlignment="Center"
                Width="160"
                FontSize="13"

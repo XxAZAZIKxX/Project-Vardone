@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Viewbox Grid.Column="0" MaxHeight="40"
+            <Viewbox Grid.Column="0" MaxHeight="40" MouseDown="User_MouseDown"
                      VerticalAlignment="Center"
                      HorizontalAlignment="Center" x:Name="User" />
 
