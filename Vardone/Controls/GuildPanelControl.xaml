@@ -39,9 +39,9 @@
                             Width="20" Height="20" VerticalAlignment="Center"
                             MouseLeftButtonDown="OpenGuildMemberControl"
                             Cursor="Hand" Background="#707070">
-                        <Image ToolTip="Add CurrentMember" Source="/resources/add_user.png" Margin="2" />
+                        <Image ToolTip="Приглашения и участники" Source="/resources/add_user.png" Margin="2" />
                     </Border>
-                    <Image
+                    <Image ToolTip="Настройки сервера"
                            Cursor="Hand" Source="/resources/gear.png"
                            HorizontalAlignment="Right" Width="20"
                            Height="20" VerticalAlignment="Center"

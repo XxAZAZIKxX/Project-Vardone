@@ -5,7 +5,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
-      xmlns:controls="clr-namespace:Vardone.Controls"
 
       Title="MainPage">
 
@@ -77,7 +76,8 @@
                            VerticalAlignment="Center" HorizontalAlignment="Left"
                            Background="#141313" />
 
-                <Image Cursor="Hand" Source="/resources/gear.png"
+                <Image ToolTip="Настройки пользователя"
+                    Cursor="Hand" Source="/resources/gear.png"
                        HorizontalAlignment="Right"
                        MouseLeftButtonDown="PropertiesButtonClick"
                        Margin="10,10,30,10" />
