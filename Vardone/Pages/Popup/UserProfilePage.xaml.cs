@@ -38,6 +38,7 @@ namespace Vardone.Pages.Popup
                 true => "в сети",
                 false => "не в сети"
             };
+            Post.Text = user.AdditionalInformation?.Position;
             return this;
         }
         private void BackToMainPage(object s, MouseEventArgs e)

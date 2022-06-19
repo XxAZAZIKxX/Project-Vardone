@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using VardoneApi.Config;
 using VardoneApi.Core.Checks;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
@@ -24,8 +25,19 @@ namespace VardoneApi.Core.CreateHelpers
             };
             if (!onlyId)
             {
+                var puss = dataContext.PrivateUserSalts;
+                puss.Include(p => p.User).Load();
+                var pus = puss.First(p => p.User.Id == userId)?.Pus;
+                var byteKey = CryptographyTools.GetByteKey(pus + PasswordOptions.KEY, PasswordOptions.KEY);
                 getUser.Description = user.Info?.Description;
                 getUser.Base64Avatar = user.Info?.Avatar is not null ? Convert.ToBase64String(user.Info.Avatar) : null;
+                getUser.AdditionalInformation = new AdditionalUserInformation
+                {
+                    Position = user.Info?.Position is null
+                        ? null
+                        : CryptographyTools.DecryptStringFromBytes_Aes(Convert.FromBase64String(user.Info.Position),
+                            byteKey, PasswordOptions.IV)
+                };
             }
             return getUser;
         }
@@ -72,7 +84,7 @@ namespace VardoneApi.Core.CreateHelpers
                 BanDateTime = bannedMember.BanDate,
                 BannedByUser = GetUser(bannedMember.BannedByUser.Id, onlyId),
                 BannedUser = GetUser(bannedMember.BannedUser.Id, onlyId),
-                Reason = bannedMember.Reason
+                Reason = bannedMember.Reason,
             };
         }
         public static BannedMember GetBannedMember(long userId, long guildId, bool onlyId = false)

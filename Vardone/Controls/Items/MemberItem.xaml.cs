@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Vardone.Pages;
 using Vardone.Pages.Popup;
 using Vardone.Pages.PropertyPages;
@@ -15,7 +16,7 @@ namespace Vardone.Controls.Items
     public partial class MemberItem
     {
         public Member CurrentMember { get; private set; }
-        static public bool isMemberProfileOpen;
+        public static bool isMemberProfileOpen;
 
         public enum ViewPermission
         {
@@ -44,9 +45,9 @@ namespace Vardone.Controls.Items
 
         private void WriteMessageButtonClick(object sender, RoutedEventArgs e)
         {
-            ChatControl.GetInstance().LoadChat(MainPage.Client.GetPrivateChatWithUser(CurrentMember.User.UserId));
             MainPage.GetInstance().PrivateChatButtonClicked(null, null);
             MainPage.GetInstance().MainFrame.Navigate(null);
+            ChatControl.GetInstance().LoadChat(MainPage.Client.GetPrivateChatWithUser(CurrentMember.User.UserId));
         }
 
         private void KickMemberButtonClick(object sender, RoutedEventArgs e)
@@ -64,6 +65,7 @@ namespace Vardone.Controls.Items
 
         private void Member_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if(e.LeftButton != MouseButtonState.Pressed) return;
             GuildMembersPage.GetInstance().UserProfileOpen(CurrentMember.User, MainPage.Client.GetOnlineUser(CurrentMember.User.UserId));
             isMemberProfileOpen = true;
         }

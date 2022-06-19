@@ -41,8 +41,8 @@ namespace Vardone.Core
         /// <returns>Значение записи</returns>
         public string Read(string Key, string Section = null)
         {
-            var RetVal = new StringBuilder(255);
-            GetPrivateProfileString(Section ?? _exe, Key, "", RetVal, 255, _path);
+            var RetVal = new StringBuilder(1024);
+            GetPrivateProfileString(Section ?? _exe, Key, "", RetVal, 1024, _path);
             return RetVal.ToString();
         }
 

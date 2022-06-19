@@ -27,25 +27,28 @@
                          Width="70" Height="70">
                     <Ellipse.Fill>
                         <ImageBrush Stretch="UniformToFill"
-                                    x:Name="Avatar" 
+                                    x:Name="Avatar"
                                     ImageSource="/Resources/avatar.jpg" />
                     </Ellipse.Fill>
                 </Ellipse>
-                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="Username" Text="Julie Lynx" FontSize="20"
+                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="Username" Text="Julie Lynx"
+                           FontSize="20"
                            Margin="100,35,0,0" Foreground="White" />
-                <TextBlock x:Name="Post"
-                           HorizontalAlignment="Left" 
-                           VerticalAlignment="Top" Text="должность" 
-                           FontSize="15"
-                           Margin="100,60,0,0"
-                           Foreground="LightGray" />
-                <TextBlock x:Name="OnlineText" 
-                           HorizontalAlignment="Left" 
-                           VerticalAlignment="Top" Text="в сети" 
+                <Viewbox HorizontalAlignment="Left"
+                         VerticalAlignment="Top" Height="20" Width="135"
+                         Margin="100,61,0,0">
+                    <TextBlock x:Name="Post"
+                               Text="должность"
+                               FontSize="15"
+                               Foreground="LightGray" />
+                </Viewbox>
+                <TextBlock x:Name="OnlineText"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top" Text="в сети"
                            FontSize="15"
                            Margin="100,80,0,0" FontWeight="Thin"
-                           Foreground="LightGray" /> 
-              
+                           Foreground="LightGray" />
+
 
                 <Ellipse x:Name="OnlineStatus" x:FieldModifier="private"
                          Width="10" Height="10" Cursor="Hand"
@@ -64,17 +67,17 @@
                         Width="200" Margin="0,0,0,40">
                     <TextBlock x:Name="Description" MaxWidth="200" Padding="10"
                                Text=" Расскажи всем свою историю.."
-                               Foreground="LightGray" FontWeight="DemiBold" 
+                               Foreground="LightGray" FontWeight="DemiBold"
                                HorizontalAlignment="Center" />
                 </Border>
-                <Image Width="17" 
+                <Image Width="17"
                        Cursor="Hand"
                        x:Name="Message"
                        MouseDown="Message_OnMouseDown"
                        Margin="0,84,60,0"
-                       Source="../../Resources/message.png" 
-                       VerticalAlignment="Top" 
-                       HorizontalAlignment="Right"/>
+                       Source="../../Resources/message.png"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Right" />
             </Grid>
         </Border>
 

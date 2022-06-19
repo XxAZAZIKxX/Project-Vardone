@@ -15,7 +15,7 @@
             <Image x:Name="Image" />
         </Border>
         <Image MouseDown="DownloadImageMouseDown" 
-            HorizontalAlignment="Center" 
+               HorizontalAlignment="Center" 
                VerticalAlignment="Center" 
                Height="40" 
                Grid.Row="0" Cursor="Hand"
