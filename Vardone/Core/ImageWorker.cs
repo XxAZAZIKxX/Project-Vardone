@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace Vardone.Core
@@ -56,5 +57,23 @@ namespace Vardone.Core
                 return false;
             }
         }
+
+        public static byte[] CompressImageQualityLevel(byte[] image, long quality)
+        {
+            using var stream = new MemoryStream(image);
+            using var bmp1 = new Bitmap(stream);
+            var encoder = GetEncoder(ImageFormat.Png.Equals(bmp1.RawFormat) ? ImageFormat.Png : ImageFormat.Jpeg);
+
+            var myEncoderParameters = new EncoderParameters(1);
+
+            var myEncoderParameter = new EncoderParameter(Encoder.Quality, quality);
+            myEncoderParameters.Param[0] = myEncoderParameter;
+
+            using var s = new MemoryStream();
+            bmp1.Save(s, encoder, myEncoderParameters);
+            return s.ToArray();
+        }
+
+        private static ImageCodecInfo GetEncoder(ImageFormat format) => ImageCodecInfo.GetImageEncoders().FirstOrDefault(codec => codec.FormatID == format.Guid);
     }
 }

@@ -35,9 +35,10 @@ namespace Vardone.Controls.Items
         {
             InitializeComponent();
             Guild = guild;
+            
             Avatar.ImageSource = AvatarsWorker.GetGuildAvatar(Guild.GuildId);
             GuildItems.Add(this);
-            var currentUserId = MainPage.Client?.GetMe().UserId;
+            var currentUserId = MainPage.UserId;
 
             if (currentUserId != guild.Owner.User.UserId) SettingsButton.Visibility = Visibility.Collapsed;
             else LeaveGuildButton.Visibility = Visibility.Collapsed;

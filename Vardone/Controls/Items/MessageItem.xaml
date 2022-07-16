@@ -82,7 +82,7 @@
             <RowDefinition MinHeight="15" Height="Auto" MaxHeight="80" />
         </Grid.RowDefinitions>
         <Ellipse MouseDown="ProfileOpen" Cursor="Hand"
-            VerticalAlignment="Top"
+            VerticalAlignment="Center"
             Width="25" Height="25"
             HorizontalAlignment="Center">
             <Ellipse.Fill>
@@ -93,18 +93,19 @@
         <Ellipse Grid.Row="0" Grid.Column="0"
                  Width="10" Height="10"
                  HorizontalAlignment="Left"
-                 VerticalAlignment="Top"
-                 Margin="30,17,0,0"
+                 VerticalAlignment="Center"
+                 Margin="28,17,0,0"
                  Fill="LimeGreen"
                  x:Name="OnlineStatus" x:FieldModifier="private" />
         <Label Grid.Row="0" Grid.Column="1" MouseDown="ProfileOpen"
                x:Name="Username" Content="User"
-               Foreground="white" Cursor="Hand"
-               VerticalContentAlignment="Center"
+               Foreground="#BDBDBD" Cursor="Hand"
+               VerticalContentAlignment="Top"
                Width="160"
-               FontSize="13"
+               FontWeight="Thin"
+               FontSize="12.3"
                HorizontalAlignment="Left"
-               VerticalAlignment="Stretch" />
+               VerticalAlignment="Center" />
         <Label Grid.Row="0" Grid.Column="1"
                x:Name="CreatedTime"
                Content="01.11.2020 14:54"
@@ -130,7 +131,7 @@
                  Height="Auto"
                  MaxHeight="80"
                  VerticalAlignment="Stretch"
-                 Margin="2,5,15,10"
+                 Margin="4,5,15,10"
                  HorizontalContentAlignment="Left"
                  VerticalContentAlignment="Top"
                  Foreground="White">

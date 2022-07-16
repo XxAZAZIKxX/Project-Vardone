@@ -83,22 +83,13 @@ namespace Vardone.Controls
         {
             if (Channel?.ChannelId != message.Channel.ChannelId) return;
 
-            var myId = MainPage.Client.GetMe().UserId;
-            var ownerId = MainPage.Client.GetGuilds().FirstOrDefault(p => p.Channels.Any(c => c.ChannelId == message.Channel.ChannelId))
-                ?.Owner.User.UserId;
+            var myId = MainPage.UserId;
+            var ownerId = MainPage.Client.GetGuild(message.Channel.Guild.GuildId).Owner.User.UserId;
             var deleteMode = message.Author.UserId == myId || ownerId == myId
                 ? MessageItem.DeleteMode.CanDelete
                 : MessageItem.DeleteMode.CannotDelete;
 
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-           {
-               var firstOrDefault = ChatMessagesList.Children.Cast<MessageItem>()
-                   .OrderByDescending(m => m.ChannelMessage.MessageId)
-                   .FirstOrDefault(m => m.ChannelMessage.MessageId < message.MessageId);
-               var index = ChatMessagesList.Children.IndexOf(firstOrDefault) + 1;
-               ChatMessagesList.Children.Insert(index, new MessageItem(message, deleteMode));
-
-           }), DispatcherPriority.Send);
+            Application.Current.Dispatcher.BeginInvoke((Action)(() => ChatMessagesList.Children.Insert(ChatMessagesList.Children.Count, new MessageItem(message, deleteMode))), DispatcherPriority.Background);
         }
 
         public void AddMessage(PrivateMessage message)

@@ -11,7 +11,6 @@ using VardoneEntities.Entities.Chat;
 using VardoneEntities.Entities.Guild;
 using VardoneEntities.Entities.User;
 using VardoneEntities.Models.GeneralModels;
-using Vardone.Pages.Popup;
 
 namespace Vardone.Controls.Items
 {

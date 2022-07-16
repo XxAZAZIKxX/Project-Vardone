@@ -66,11 +66,11 @@ namespace Vardone.Controls
             var ownerId = CurrentGuild.Owner.User.UserId;
             foreach (var channel in channels)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     var activeContextMenu = ownerId == MainPage.Client.GetMe().UserId ? GuildChannelItem.ActiveContextMenu.Active : GuildChannelItem.ActiveContextMenu.Disable;
                     ChannelsList.Children.Add(new GuildChannelItem(channel, activeContextMenu));
-                });
+                }, DispatcherPriority.Background);
             }
         }
         private void SetGuild()

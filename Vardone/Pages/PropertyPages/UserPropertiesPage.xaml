@@ -19,14 +19,13 @@
             <Border
                 BorderThickness="1" CornerRadius="5" Cursor="Hand"
                 Background="#7288D9">
-
                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
     </Page.Resources>
     <Grid>
         <Grid Grid.RowSpan="4" Background="#202020"
-              Grid.ColumnSpan="4"  />
+              Grid.ColumnSpan="4" />
         <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" />
         <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
             <Grid>
@@ -35,7 +34,7 @@
                     <StackPanel>
                         <Label Foreground="WhiteSmoke"
                                FontWeight="Light" Opacity="0.7"
-                               FontSize="20" Height="50" 
+                               FontSize="20" Height="50"
                                Content="Моя учётная запись" />
                         <Border Background="#262626" CornerRadius="20" VerticalAlignment="Top">
                             <Grid>
@@ -47,17 +46,19 @@
                                                  Width="70" Height="70"
                                                  HorizontalAlignment="Left">
                                             <Ellipse.Fill>
-                                                <ImageBrush  x:Name="AvatarImage" ImageSource="../../Resources/avatar.jpg"
-                                                            Stretch="UniformToFill"  />
+                                                <ImageBrush x:Name="AvatarImage"
+                                                            ImageSource="../../Resources/avatar.jpg"
+                                                            Stretch="UniformToFill" />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <Label x:Name="UsernameLabel" Content="BannedUser"
-                                               Foreground="white"
-                                               Width="160"
-                                               FontSize="20"
-                                               HorizontalAlignment="Left"
-                                               Margin="130,0,0,0"
-                                               VerticalAlignment="Center" />
+                                        <Viewbox HorizontalAlignment="Left" Width="190" Height="45"
+                                                 Margin="115,0,0,0"
+                                                 VerticalAlignment="Center">
+                                            <Label x:Name="UsernameLabel" Content="BannedUser"
+                                                   Foreground="white"
+                                                   FontSize="20" />
+
+                                        </Viewbox>
                                         <Button Click="ExitButtonClick" Width="140" HorizontalAlignment="Right"
                                                 Template="{StaticResource ButtonExit}"
                                                 Height="30" Foreground="#CD2020"
@@ -71,29 +72,29 @@
                                         Background="#303030">
                                     <Grid VerticalAlignment="Top">
                                         <TextBox x:Name="UsernameTb"
-                                            CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                                 CaretBrush="White" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Margin="20,20,0,0" Height="30"
                                                  VerticalAlignment="Top"
                                                  Text="Username" IsEnabled="False"
                                                  Foreground="LightGray" />
-                                        <TextBox x:Name="EmailTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="EmailTb" CaretBrush="White" HorizontalAlignment="Left"
+                                                 Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Email"
                                                  Foreground="LightGray"
                                                  Margin="20,60,0,0" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
 
-                                        <TextBox x:Name="DescTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="DescTb" CaretBrush="White" HorizontalAlignment="Left"
+                                                 Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Description"
                                                  Foreground="LightGray"
                                                  Margin="20,100,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                   
 
-                          
-                                        
+
                                         <Button Content="Изменить"
                                                 Foreground="White"
                                                 Name="UsernameChangeButton"
@@ -102,46 +103,49 @@
                                                 HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,25,20,0"
-                                                Click="Username_ChangeBtn"/>
+                                                Click="Username_ChangeBtn" />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="EmailChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,65,20,0"
-                                                Click="Email_ChangeBtn"/>
+                                                Click="Email_ChangeBtn" />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="DescChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,105,20,0"
-                                                Click="Description_ChangeBtn"/>
-                 
+                                                Click="Description_ChangeBtn" />
+
                                     </Grid>
                                 </Border>
                                 <Border Grid.Row="2" CornerRadius="20" Margin="20"
                                         Background="#303030">
                                     <Grid VerticalAlignment="Top">
-                                        <TextBox x:Name="NameTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="NameTb" CaretBrush="White" HorizontalAlignment="Left"
+                                                 Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Name"
                                                  Foreground="LightGray"
                                                  Margin="20,20,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        <TextBox x:Name="PhoneTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="PhoneTb" CaretBrush="White" HorizontalAlignment="Left"
+                                                 Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Phone"
                                                  Foreground="LightGray"
                                                  Margin="20,60,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        <TextBox x:Name="PositionTb" CaretBrush="White" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="PositionTb" CaretBrush="White" HorizontalAlignment="Left"
+                                                 Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Position"
                                                  Foreground="LightGray"
                                                  Margin="20,100,0,20" Height="30"
                                                  VerticalAlignment="Top" IsEnabled="False" />
-                                        <DatePicker x:Name="BirthdayTb" HorizontalAlignment="Left" Width="300"
+                                        <TextBox x:Name="BirthdayTb" HorizontalAlignment="Left" Width="300"
                                                  BorderBrush="Transparent"
                                                  Background="Transparent" FontSize="18" Text="Birthday"
                                                  Foreground="LightGray"
@@ -155,29 +159,29 @@
                                                 HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,25,20,0"
-                                                Click="Name_ChangeBtn"/>
+                                                Click="Name_ChangeBtn" />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="PhoneChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,65,20,0"
-                                                Click="Phone_ChangeBtn"/>
+                                                Click="Phone_ChangeBtn" />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="PositionChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,105,20,0"
-                                                Click="Post_ChangeBtn"/>
+                                                Click="Post_ChangeBtn" />
                                         <Button Content="Изменить" Foreground="White"
                                                 Name="BirthdayChangeButton"
                                                 Template="{StaticResource ButtonChange}"
                                                 VerticalAlignment="Top" HorizontalAlignment="Right"
                                                 Width="100" Height="25"
                                                 Margin="0,145,20,0"
-                                                Click="Birthday_ChangeBtn"/>
-                                       
+                                                Click="Birthday_ChangeBtn" />
+
                                     </Grid>
                                 </Border>
                                 <Grid.RowDefinitions>
@@ -191,7 +195,7 @@
                     <!--Password-->
                     <StackPanel>
                         <Label Foreground="WhiteSmoke"
-                               FontWeight="Light"  Height="50"
+                               FontWeight="Light" Height="50"
                                VerticalContentAlignment="Bottom"
                                Opacity="0.7"
                                FontSize="20" Content="Изменение пароля" />
@@ -199,22 +203,22 @@
                             <Button x:Name="ChangeButton" Content="Изменить" Foreground="White"
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
-                                    Width="100" Height="30" 
+                                    Width="100" Height="30"
                                     Click="PasswordButton_SaveClick"
-                                    Margin="0,20,0,20" >
+                                    Margin="0,20,0,20">
 
                             </Button>
                             <Button Visibility="Collapsed"
-                                x:Name="CancelBtn" Content="Отменить" Foreground="White"
+                                    x:Name="CancelBtn" Content="Отменить" Foreground="White"
                                     Template="{StaticResource ButtonChange}"
                                     VerticalAlignment="Top" HorizontalAlignment="Left"
                                     Width="100" Height="30" Click="PasswordButton_CancelClick"
-                                    Margin="0,70,0,20" >
+                                    Margin="0,70,0,20">
 
                             </Button>
                             <PasswordBox Visibility="Collapsed"
-                                         CaretBrush="White" 
-                                         HorizontalAlignment="Right" 
+                                         CaretBrush="White"
+                                         HorizontalAlignment="Right"
                                          Width="360"
                                          BorderBrush="Transparent"
                                          Background="#151515"
@@ -223,8 +227,7 @@
                                          FontSize="18"
                                          Foreground="LightGray"
                                          Margin="0,20,0,0" Height="30"
-                                         VerticalAlignment="Top"
-                                           />
+                                         VerticalAlignment="Top" />
 
                             <PasswordBox Visibility="Collapsed"
                                          x:Name="PasswordBox2"
@@ -235,7 +238,7 @@
                                          FontSize="18"
                                          Foreground="LightGray"
                                          Margin="20,70,0,20" Height="30"
-                                         VerticalAlignment="Top"  />
+                                         VerticalAlignment="Top" />
                         </Grid>
                     </StackPanel>
                     <!--Start Preferences-->
@@ -243,7 +246,7 @@
                         <Label Foreground="WhiteSmoke"
                                FontWeight="Light" Opacity="0.7"
                                FontSize="20" Content="Настройки запуска" />
-                        <StackPanel x:Name="StartPreferencesSp"/>
+                        <StackPanel x:Name="StartPreferencesSp" />
                     </StackPanel>
                     <!--Addition-->
                     <StackPanel>
@@ -271,12 +274,12 @@
             </Grid>
         </ScrollViewer>
         <Image MouseDown="CloseMouseDown"
-            VerticalAlignment="Top" 
+               VerticalAlignment="Top"
                Grid.Row="1" Grid.Column="2"
                Width="35" Opacity="0.5"
                Margin="25,0,0,0"
-               HorizontalAlignment="Left" 
-               Source="../../Resources/exit.png"/>
+               HorizontalAlignment="Left"
+               Source="../../Resources/exit.png" />
 
 
         <Grid.RowDefinitions>

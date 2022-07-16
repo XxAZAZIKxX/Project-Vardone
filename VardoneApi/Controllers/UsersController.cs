@@ -829,7 +829,7 @@ namespace VardoneApi.Controllers
                         if (res)
                         {
                             var bytes = Convert.FromBase64String(updateUserModel.Base64Image);
-                            if (ImageWorker.IsImage(bytes)) userInfo.Avatar = ImageWorker.CompressImageQualityLevel(bytes, 50);
+                            if (ImageWorker.IsImage(bytes)) userInfo.Avatar = ImageWorker.CompressImageQualityLevel(bytes, 45);
                         }
                     }
                 }

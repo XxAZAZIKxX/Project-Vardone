@@ -28,6 +28,7 @@ namespace Vardone.Pages
         private static MainPage _instance;
         public static MainPage GetInstance() => _instance ??= new MainPage();
         public static VardoneClient Client { get; private set; }
+        public static long UserId { get; private set; }
 
         public readonly FriendPanelControl friendListPanel;
         public readonly GuildPanelControl guildPanel;
@@ -338,6 +339,7 @@ namespace Vardone.Pages
         public MainPage Load(VardoneClient vardoneClient)
         {
             Client = vardoneClient;
+            UserId = vardoneClient.GetMe().UserId;
             LoadMe();
             LoadFriendList();
             LoadChatList();
@@ -352,7 +354,7 @@ namespace Vardone.Pages
             {
                 Application.Current.Dispatcher.Invoke(() => GuildList.Children.Clear());
 
-                var guilds = Client.GetGuilds();
+                var guilds = Client.GetGuilds().Select(p => new Guild { GuildId = p.GuildId, Name = p.Name, Owner = new Member { User = new User { UserId = p.Owner.User.UserId } } }).ToArray();
                 if (guildPanel.CurrentGuild is not null && !guilds.Select(p => p.GuildId).Contains(guildPanel.CurrentGuild.GuildId))
                 {
                     PrivateChatButtonClicked(null, null);
@@ -431,10 +433,8 @@ namespace Vardone.Pages
         {
             friendListPanel.Visibility = Visibility.Collapsed;
             guildPanel.Visibility = Visibility.Visible;
-            guild = Client.GetGuild(guild.GuildId);
             guildPanel.ChangeGuild(guild);
             chatControl.CloseChat();
-            chatControl.LoadChat(guild.Channels?.FirstOrDefault());
             foreach (var guildItem in GuildList.Children.Cast<GuildListItem>())
                 if (guildItem.Guild.GuildId == guild.GuildId)
                     guildItem.IsActive = true;

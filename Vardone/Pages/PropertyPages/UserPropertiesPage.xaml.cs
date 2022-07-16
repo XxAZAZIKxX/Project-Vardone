@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
@@ -35,9 +36,9 @@ namespace Vardone.Pages.PropertyPages
                 EmailTb.Text = user.AdditionalInformation.Email;
                 DescTb.Text = user.Description ?? "Описание";
                 PhoneTb.Text = user.AdditionalInformation.Phone ?? "Номер телефона";
-                BirthdayTb.SelectedDate = user.AdditionalInformation.BirthDate;
-                NameTb.Text = user.AdditionalInformation.FullName?? "ФИО";
-                PositionTb.Text = user.AdditionalInformation.Position?? "Должность";
+                BirthdayTb.Text = user.AdditionalInformation.BirthDate?.ToShortDateString() ?? "Дата рождения";
+                NameTb.Text = user.AdditionalInformation.FullName ?? "ФИО";
+                PositionTb.Text = user.AdditionalInformation.Position ?? "Должность";
                 StartPreferencesSp.Children.Clear();
                 StartPreferencesSp.Children.Add(new CheckBoxItem("Автозапуск", ConfigWorker.GetAutostart(), ConfigWorker.SetAutostart));
                 StartPreferencesSp.Children.Add(new CheckBoxItem("Запускать свернутым", ConfigWorker.GetStartMinimized(), ConfigWorker.SetStartMinimized));
@@ -264,9 +265,19 @@ namespace Vardone.Pages.PropertyPages
         {
             if (PhoneChangeButton.Content.ToString() == "Сохранить")
             {
+                if (PhoneTb.Text.Any(p => !char.IsDigit(p) && p != '+') || (PhoneTb.Text.Length > 0 && PhoneTb.Text.LastIndexOf("+", StringComparison.Ordinal) != 0) || PhoneTb.Text.Length > 15)
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Ошибка",
+                        Message = "Введите корректный номер телефона",
+                        Type = NotificationType.Error
+                    });
+                    return;
+                }
                 MainPage.Client.UpdateMe(new UpdateUserModel
                 {
-                    Phone = PhoneTb.Text.Trim()
+                    Phone = PhoneTb.Text.Replace(" ", "")
                 });
                 Load();
             }
@@ -292,9 +303,20 @@ namespace Vardone.Pages.PropertyPages
         {
             if (BirthdayChangeButton.Content.ToString() == "Сохранить")
             {
+                var tryParse = DateTime.TryParse(BirthdayTb.Text, out var date);
+                if (!tryParse || DateTime.Now.CompareTo(date) < 0)
+                {
+                    MainWindow.GetInstance().notificationManager.Show(new NotificationContent
+                    {
+                        Message = "Введите корректную дату рождения!",
+                        Title = "Ошибка",
+                        Type = NotificationType.Error
+                    });
+                    return;
+                }
                 MainPage.Client.UpdateMe(new UpdateUserModel
                 {
-                    BirthDate = BirthdayTb.SelectedDate
+                    BirthDate = date
                 });
                 Load();
             }

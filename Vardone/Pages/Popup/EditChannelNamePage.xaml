@@ -22,68 +22,69 @@
             </Border>
         </ControlTemplate>
     </Page.Resources>
-    <Grid Background="#141313" Opacity="0.8" MouseDown="BackToMainPage">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*" />
-            <ColumnDefinition Width="20*" />
-            <ColumnDefinition Width="25*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20*" />
-            <RowDefinition Height="16*" />
-            <RowDefinition Height="20*" />
-        </Grid.RowDefinitions>
-        <Viewbox Grid.Row="1" Grid.Column="1">
+    <Grid>
+        <Grid Background="#141313" Opacity="0.8" MouseDown="BackToMainPage" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25*" />
+                <ColumnDefinition Width="25*" />
+                <ColumnDefinition Width="25*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="16*" />
+                <RowDefinition Height="20*" />
+            </Grid.RowDefinitions>
+            <Viewbox Grid.Row="1" Grid.Column="1">
+                <Border Background="#303030"
+                        CornerRadius="30" Height="180" Width="385">
+                    <Grid>
+                        <Label Foreground="WhiteSmoke"
+                               HorizontalAlignment="Center"
+                               FontSize="20" VerticalAlignment="Top"
+                               FontWeight="Medium"
+                               Margin="0,25,0,0"
+                               Height="40">
+                            Название канала
+                        </Label>
 
-            <Border Background="#303030"
-                    CornerRadius="30" Height="180" Width="318">
-                <Grid>
-                    <Label Foreground="WhiteSmoke"
-                           HorizontalAlignment="Center"
-                           FontSize="20" VerticalAlignment="Top"
-                           FontWeight="Medium"
-                           Margin="0,25,0,0"
-                           Height="40">
-                        Название канала
-                    </Label>
-
-                    <Border
-                        Width="150"
-                        Background="#404040"
-                        Height="50"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        Margin="35,30,0,0"
-                        CornerRadius="20,0,0,20">
-                        <TextBox
-                            x:Name="ChannelNameTb"
-                            KeyUp="ChannelNameKeyUp"
-                            HorizontalContentAlignment="Left"
-                            CaretBrush="White"
-                            HorizontalAlignment="Stretch"
-                            Padding="20,0,0,0"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            FontSize="18" MaxLength="20"
-                            Foreground="LightGray"
+                        <Border
+                            Width="216"
+                            Background="#404040"
                             Height="50"
-                            VerticalContentAlignment="Center" />
-                    </Border>
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="35,80,0,0"
+                            CornerRadius="20,0,0,20">
+                            <TextBox
+                                x:Name="ChannelNameTb"
+                                KeyUp="ChannelNameKeyUp"
+                                HorizontalContentAlignment="Left"
+                                CaretBrush="White"
+                                HorizontalAlignment="Stretch"
+                                Padding="20,0,0,0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontSize="18" MaxLength="20"
+                                Foreground="LightGray"
+                                Height="50"
+                                VerticalContentAlignment="Center" />
+                        </Border>
 
 
-                    <Button Content="Применить"
-                            Height="51" FontSize="13"
-                            FontWeight="Thin"
-                            Foreground="White"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Right"
-                            Margin="0,30,45,0"
-                            Width="90"
-                            HorizontalContentAlignment="Center"
-                            Click="SaveButton"
-                            Template="{StaticResource ButtonFind}" />
-                </Grid>
-            </Border>
-        </Viewbox>
-    </Grid>
+                        <Button Content="Применить"
+                                Height="51" FontSize="13"
+                                FontWeight="Thin"
+                                Foreground="White"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right"
+                                Margin="0,30,45,0"
+                                Width="90"
+                                HorizontalContentAlignment="Center"
+                                Click="SaveButton"
+                                Template="{StaticResource ButtonFind}" />
+                    </Grid>
+                </Border>
+            </Viewbox>
+        </Grid></Grid>
 </Page>
