@@ -287,7 +287,7 @@ namespace VardoneApi.Controllers
                         var tcpNotify = new TcpResponseModel
                         {
                             type = TypeTcpResponse.NewPrivateMessage,
-                            data = MessageCreateHelper.GetPrivateMessage(newMessage.Id, userId)
+                            data = MessageCreateHelper.GetPrivateMessage(newMessage.Id, user1.Id == userId ? user2.Id : user1.Id)
                         };
                         Program.TcpServer.SendMessageTo(userId, tcpNotify);
                         if (newMessage.Chat.FromUser.Id != newMessage.Chat.ToUser.Id)

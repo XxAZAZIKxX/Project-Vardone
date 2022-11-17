@@ -45,6 +45,11 @@ namespace Vardone.Pages.PropertyPages
         {
             var guildInvite = MainPage.Client.CreateGuildInvite(_guild.GuildId);
             InviteCodeTb.Text = guildInvite.InviteCode;
+            CopyInviteCode(guildInvite);
+        }
+
+        private static void CopyInviteCode(GuildInvite guildInvite)
+        {
             Clipboard.SetText(guildInvite.InviteCode);
             MainWindow.GetInstance().notificationManager.Show(new NotificationContent
             {
@@ -197,5 +202,11 @@ namespace Vardone.Pages.PropertyPages
             }, DispatcherPriority.Background);
         }
         public void UserProfileOpen(User user, bool online, bool isMe = false) => Frame.Navigate(UserProfilePage.GetInstance().Load(user, online, isMe));
+
+        private void InviteTbMouseClick(object sender, MouseButtonEventArgs e)
+        {
+            if(InviteCodeTb.Text == "Нажмите на кнопку")return;
+            CopyInviteCode(new GuildInvite(){InviteCode = InviteCodeTb.Text});
+        }
     }
 }

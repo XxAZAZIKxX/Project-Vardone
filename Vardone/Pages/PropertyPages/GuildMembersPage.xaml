@@ -47,7 +47,7 @@
                                    Grid.Row="1"
                                    Margin="0,60,0,0" Grid.Column="1"
                                    Height="40">
-                                Сгенерируйте ссылку-приглашение
+                                Сгенерируйте код-приглашение
                             </Label>
                             <Border Grid.Column="1" Grid.Row="1"
                                     Width="300"
@@ -64,6 +64,7 @@
                                            Background="Transparent"
                                            FontSize="17" Margin="20,0,0,0"
                                            Foreground="LightGray"
+                                           MouseLeftButtonDown="InviteTbMouseClick"
                                            VerticalAlignment="Center" />
                             </Border>
                             <Button Content="Сгенерировать"

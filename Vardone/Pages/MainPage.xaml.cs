@@ -103,7 +103,7 @@ namespace Vardone.Pages
                     Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             friendListPanel.ChatListGrid.Children.Cast<UserItem>()
-                                .FirstOrDefault(p => p.User.UserId == message.Chat.FromUser.UserId)
+                                .FirstOrDefault(p => p.User.UserId == message.Author.UserId)
                                 ?.SetCountMessages(message.Chat.UnreadMessages);
                         }, DispatcherPriority.Send);
                 }
@@ -277,9 +277,11 @@ namespace Vardone.Pages
                 Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     var userItems = friendListPanel.ChatListGrid.Children.Cast<UserItem>().ToList();
-                    var item = userItems.FirstOrDefault(p => p.User.UserId == chat.ToUser.UserId);
+                    var item = userItems.FirstOrDefault(p => (p.User.UserId == chat.ToUser.UserId && chat.ToUser.UserId != UserId) ||
+                                                             (p.User.UserId == chat.FromUser.UserId && chat.FromUser.UserId != UserId));
                     if (item is null) return;
-                    friendListPanel.ChatListGrid.Children.RemoveAt(userItems.IndexOf(item));
+                    var indexOf = userItems.IndexOf(item);
+                    if (indexOf >= 0) friendListPanel.ChatListGrid.Children.RemoveAt(indexOf);
                 }, DispatcherPriority.Send);
             });
         }
@@ -287,7 +289,7 @@ namespace Vardone.Pages
         {
             return Task.Run(() =>
             {
-                return Application.Current.Dispatcher.BeginInvoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(() =>
                     {
                         var uiElement = new UserItem(chat.ToUser, UserItemType.Chat);
                         uiElement.SetCountMessages(chat.UnreadMessages);
@@ -302,8 +304,10 @@ namespace Vardone.Pages
             ConfigWorker.SetToken(null);
             AvatarsWorker.ClearAll();
             //
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.BeginInvoke(() =>
             {
+                AuthorizationPage.GetInstance().OpenAuth();
+                MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
                 ChatListGrid.Children.Clear();
                 ChatGrid.Children.Clear();
                 //
@@ -330,9 +334,7 @@ namespace Vardone.Pages
                 //
                 MainWindow.FlushMemory();
                 //
-                AuthorizationPage.GetInstance().OpenAuth();
-                MainWindow.GetInstance().MainFrame.Navigate(AuthorizationPage.GetInstance());
-            });
+            }, DispatcherPriority.Send);
         }
 
         //Loads
@@ -373,6 +375,7 @@ namespace Vardone.Pages
             Task.Run(() =>
             {
                 var me = Client.GetMe();
+                AvatarsWorker.UpdateAvatarUser(me.UserId);
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     MyUsername.Text = me.Username;

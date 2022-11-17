@@ -54,13 +54,11 @@ namespace VardoneApi.Tcp
 
         public void AddConnection(TcpClientObject clientObject)
         {
-            //Console.WriteLine($"Added tcp client: {clientObject.Id}");
             _clients.Add(clientObject);
             SetUserOnline(clientObject.Token.UserId, true);
         }
         public void RemoveConnection(string id)
         {
-            //Console.WriteLine($"Removed tcp client: {id}");
             var clientObject = _clients.FirstOrDefault(p => p.Id == id);
             if (clientObject is null) return;
             clientObject.Close();
