@@ -1,17 +1,27 @@
-<!--<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/XxAZAZIKxX/Project-Vardone/assets/50146922/aaf059ba-39b4-4502-b830-48f394697419">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://i.imgur.com/XFnSrVk.png">
   <source media="(prefers-color-scheme: light)" srcset="">
   <img>
-</picture>-->
+</picture>
 
 # Vardone
 ## Описание
+
 Vardone - это приложение для мгновенного обмена сообщениями между пользователями.
 
-В приложении реализованы системы:
-- акаунтов
-- серверов
-- друзей
+Данный репозиторий состоит из:
+- [VardoneAPI](https://github.com/XxAZAZIKxX/Project-Vardone/tree/master/VardoneApi) - серверное API приложение которое обрабатывает все запросы приложения
+- [Vardone](https://github.com/XxAZAZIKxX/Project-Vardone/tree/master/Vardone) - WPF приложение которое используется конечным пользователем
+- [VardoneLibrary](https://github.com/XxAZAZIKxX/Project-Vardone/tree/master/VardoneLibrary) - библиотека которая имеет готовые методы для взаимодействия с Web API
+
+## Возможности приложения
+- Добавлять/удалять друзей
+- Создавать/редактировать/удалять сервера
+- Добавлять/Переименовывать/удалять каналы на сервере
+- Отправлять изображения в сообщении
+- Жаловаться на другие сообщения
+- Редактировать свой профиль и личные данные
+- Удалить свой аккаунт или выйти с аккаунта со всех устройств
 
 ## Использованные технологии
 В разработке Vardone были использованы технологии:
@@ -19,11 +29,17 @@ Vardone - это приложение для мгновенного обмена
 - Rest API
 - WPF
 - EntityFramework
+- JWT токены
 
-## Внешний вид программы
+## О хранении данных
+Пароли сохранены в формате MD5. Личные данные пользователей, такие как ФИО, номер телефона и прочие, зашифрованы с использованием AES-256. Эти данные хранятся в базе данных MySQL.
+
+## Немного внешнего вида программы
 - ### Чат канала на сервере
-![v1](https://github.com/XxAZAZIKxX/Project-Vardone/assets/50146922/5e5cdf7f-d1b8-455d-ba3a-517c9c50bc4d)
+![v1](https://i.imgur.com/vA9Tvpw.jpg)
 - ### Список друзей
-![v2](https://github.com/XxAZAZIKxX/Project-Vardone/assets/50146922/7af49cde-d817-4ae5-9b91-4e3121d66d41)
+![v2](https://i.imgur.com/aAaCRWG.jpg)
 - ### Настройки профиля
-![v3](https://github.com/XxAZAZIKxX/Project-Vardone/assets/50146922/41d57bbe-9e87-4d73-b2f2-17ea72c9514b)
+![v3](https://i.imgur.com/yHXNulZ.jpg)
+- ### Отправка сообщений в приватных чатах
+![v4](https://i.imgur.com/zDQmSXi.png)
